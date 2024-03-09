@@ -6,6 +6,7 @@ import (
 	"back-end/router/login"
 	"back-end/router/repair"
 	"back-end/router/student"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,3 +35,5 @@ func (routers *AppRouterGroup) InitializeRouter(s *gin.Engine) {
 	}
 
 }
+
+var AppRouter = new(AppRouterGroup)

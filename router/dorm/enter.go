@@ -1,6 +1,10 @@
 package dorm
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
 
 type DormGroup struct {
 	Dorm
@@ -12,6 +16,7 @@ type DormGroup struct {
 
 func (i *DormGroup) UseDormRouter(d *gin.RouterGroup) {
 	dorm := d.Group("/dorm")
+	fmt.Println("wo执行到111111")
 	{
 		i.Api_Bed(dorm)
 		i.Api_Dorm(dorm)
