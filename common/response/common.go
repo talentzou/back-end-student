@@ -12,11 +12,6 @@ type Response struct {
 	Msg  string      `json:"msg"`
 }
 
-const (
-	SUCCESS = 200
-	ERROR   = 404
-)
-
 // 响应数据
 func ResponseHTTP(code int, data interface{}, msg string, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
@@ -26,12 +21,22 @@ func ResponseHTTP(code int, data interface{}, msg string, c *gin.Context) {
 	})
 }
 
-//操作状态成功
-func Ok(msg string,c *gin.Context) {
-	ResponseHTTP(SUCCESS, map[string]interface{}{},msg, c)
-} 
+// 操作状态成功
+func Ok(msg string, c *gin.Context) {
+	ResponseHTTP(http.StatusNoContent, map[string]interface{}{}, msg, c)
+}
 
 // 操作状态失败
-func Fail(msg string,c *gin.Context) {
-	ResponseHTTP(ERROR, map[string]interface{}{}, msg, c)
+func Fail(msg string, c *gin.Context) {
+	ResponseHTTP(http.StatusNotFound, map[string]interface{}{}, msg, c)
+}
+
+// 系统响应失败返回信息
+func FailWithMessage(message string, c *gin.Context) {
+	ResponseHTTP(http.StatusInternalServerError, map[string]interface{}{}, message, c)
+}
+
+// 系统响应成功返回信息
+func OkWithMessage(msg string, c *gin.Context) {
+	ResponseHTTP(http.StatusInternalServerError, map[string]any{}, msg, c)
 }

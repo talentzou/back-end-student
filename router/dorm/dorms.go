@@ -5,7 +5,7 @@ import "github.com/gin-gonic/gin"
 type Dorm struct{}
 
 func (d *Dorm) Api_Dorm(router *gin.RouterGroup){
-	  dorm:=router.Group("/Dormitory")
+	  dorm:=router.Group("/dorm")
 	  {
 		dorm.GET("getDorm",func(c *gin.Context){})
 		dorm.DELETE("deleteDorm_ById",func(c *gin.Context){})

@@ -4,11 +4,11 @@ import "time"
 
 //
 type Floors_api struct {
-	Id         string `json:"Id" gorm:"size:256"`
-	FloorsName string `json:"FloorsName" gorm:"size:256"`
-	Floors     string `json:"Floors" gorm:"size:256"`
-	FloorsType string `json:"FloorsType" gorm:"size:256"`
-	DormAmount uint   `json:"DormAmount" gorm:"size:256"`
+	Id         string `json:"-" gorm:"size:256;"`
+	FloorsName string `json:"floorsName" gorm:"size:256"`
+	Floors     uint `json:"floors" gorm:"size:256"`
+	FloorsType string `json:"floorsType" gorm:"size:256"`
+	DormAmount uint   `json:"dormAmount" gorm:"size:256"`
 }
 
 // 床位表格
