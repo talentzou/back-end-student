@@ -1,15 +1,17 @@
 package dorm
 
-import "github.com/gin-gonic/gin"
+import ("github.com/gin-gonic/gin"
+"back-end/controller")
 
 type Bed struct{}
 
 func (b *Bed) Api_Bed(router *gin.RouterGroup){
 	  Bed:=router.Group("/Bed")
+	  bedRouter:=controller.Bed_api
 	  {
-		Bed.GET("/getBed",func(c *gin.Context){})
-		Bed.DELETE("/deleteBedById",func(c *gin.Context){})
-		Bed.POST("/createBed",func(c *gin.Context){})
-		Bed.PUT("/putBed",func(c *gin.Context){})
+		Bed.GET("/getBed",bedRouter.QueryBedApi)
+		Bed.DELETE("/deleteBedById",bedRouter.DeleteBedApi)
+		Bed.POST("/createBed",bedRouter.CreateBedApi)
+		Bed.PUT("/putBed",bedRouter.UpdateBedApi)
 	  }
 }

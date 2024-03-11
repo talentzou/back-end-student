@@ -26,17 +26,21 @@ func Ok(msg string, c *gin.Context) {
 	ResponseHTTP(http.StatusNoContent, map[string]interface{}{}, msg, c)
 }
 
-// 操作状态失败
-func Fail(msg string, c *gin.Context) {
-	ResponseHTTP(http.StatusNotFound, map[string]interface{}{}, msg, c)
-}
+// // 操作状态失败
+// func Fail(msg string, c *gin.Context) {
+// 	ResponseHTTP(http.StatusNotFound, map[string]interface{}{}, msg, c)
+// }
 
 // 系统响应失败返回信息
 func FailWithMessage(message string, c *gin.Context) {
-	ResponseHTTP(http.StatusInternalServerError, map[string]interface{}{}, message, c)
+	ResponseHTTP(http.StatusNotFound, map[string]interface{}{}, message, c)
 }
 
 // 系统响应成功返回信息
 func OkWithMessage(msg string, c *gin.Context) {
-	ResponseHTTP(http.StatusInternalServerError, map[string]any{}, msg, c)
+	ResponseHTTP(http.StatusOK, map[string]any{}, msg, c)
+}
+
+func OkWithDetailed(data interface{}, message string, c *gin.Context) {
+	ResponseHTTP(200, data, message, c)
 }
