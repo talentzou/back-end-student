@@ -1,15 +1,19 @@
 package dorm
 
-import "github.com/gin-gonic/gin"
+import (
+	"back-end/controller"
+	"github.com/gin-gonic/gin"
+)
 
 type Rate struct{}
 
-func (r *Rate) Api_Rate(router *gin.RouterGroup){
-	  Rate:=router.Group("/Rate")
-	  {
-		Rate.GET("getRate",func(c *gin.Context){})
-		Rate.DELETE("deleteRateById",func(c *gin.Context){})
-		Rate.POST("/createRate",func(c *gin.Context){})
-		Rate.PUT("/putRate",func(c *gin.Context){})
-	  }
+func (r *Rate) Api_Rate(router *gin.RouterGroup) {
+	Rate := router.Group("/Rate")
+	rateRouterApi := controller.Rate_api
+	{
+		Rate.GET("getRate", rateRouterApi.QueryRateApi)
+		Rate.DELETE("deleteRateById", rateRouterApi.DeleteRateApi)
+		Rate.POST("/createRate", rateRouterApi.CreateRateApi)
+		Rate.PUT("/putRate", rateRouterApi.UpdateRateApi)
+	}
 }

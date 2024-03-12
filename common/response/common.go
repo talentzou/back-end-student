@@ -21,10 +21,10 @@ func ResponseHTTP(code int, data interface{}, msg string, c *gin.Context) {
 	})
 }
 
-// 操作状态成功
-func Ok(msg string, c *gin.Context) {
-	ResponseHTTP(http.StatusNoContent, map[string]interface{}{}, msg, c)
-}
+// // 操作状态成功
+// func Ok(msg string,data interface{}, c *gin.Context) {
+// 	ResponseHTTP(http.StatusNoContent, data, msg, c)
+// }
 
 // // 操作状态失败
 // func Fail(msg string, c *gin.Context) {

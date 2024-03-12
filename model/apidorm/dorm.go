@@ -1,8 +1,9 @@
 package apidorm
 
-import "time"
+import (
+	"time"
+)
 
-//
 type Floors_api struct {
 	Id         string `json:"id" gorm:"size:256;"`
 	FloorsName string `json:"floorsName" gorm:"size:256"`
@@ -16,7 +17,7 @@ type Bed_api struct {
 	Id          string `json:"id" gorm:"size:256"`
 	BedStatus   string `json:"bedStatus" gorm:"size:256"`
 	DormNumber  string `json:"dormNumber" gorm:"size:256"`
-	BedNumber   uint   `json:"bedNumber" gorm:"size:256"`
+	BedNumber   int    `json:"bedNumber" gorm:"size:256"`
 	Remark      string `json:"remark" gorm:"size:256"`
 	StudentName string `json:"studentName" gorm:"size:256"`
 }
@@ -24,20 +25,20 @@ type Bed_api struct {
 // 评分
 type Rate_api struct {
 	Id         string    `json:"id" gorm:"size:256"`
-	RateDate   time.Time `json:"rateDate" gorm:"size:256"`
+	RateDate   string `json:"rateDate" gorm:"type:date"`
 	FloorsName string    `json:"floorsName" gorm:"size:256"`
-	DormNumber uint      `json:"dormNumber" gorm:"size:256"`
-	BedRate    uint      `json:"bedRate" gorm:"size:256"`
-	GroundRate uint      `json:"groundRate" gorm:"size:256"`
-	Lavatory   uint      `json:"lavatory" gorm:"size:256"`
-	Goods      uint      `json:"goods" gorm:"size:256"`
-	TotalScore uint      `json:"totalScore" gorm:"size:256"`
-	Rater      string    `json:"rater" gorm:"size:256"`
+	DormNumber string    `json:"dormNumber" gorm:"size:256"`
+	BedRate    uint      `json:"bedRate"`
+	GroundRate uint      `json:"groundRate"`
+	Lavatory   uint      `json:"lavatory"`
+	Goods      uint      `json:"goods"`
+	TotalScore uint      `json:"totalScore"`
+	Rater      string    `json:"rater"`
 	Evaluation string    `json:"evaluation" gorm:"size:256"`
 	Remark     string    `json:"remark" gorm:"size:256"`
 }
 type Stay_api struct {
-	StayDate    time.Time `json:"stayDate" gorm:"size:256"`
+	StayDate    time.Time `json:"stayDate"  gorm:"type:date"`
 	StudentName string    `json:"studentName" gorm:"size:256"`
 	FloorsName  string    `json:"floorsName" gorm:"size:256"`
 	DormNumber  string    `json:"dormNumber" gorm:"size:256"`
@@ -45,10 +46,10 @@ type Stay_api struct {
 	Instructor  string    `json:"instructor" gorm:"size:256"`
 }
 type Dorm_api struct {
-	Id         string `json:"id" gorm:"size:256"`
-	FloorsName string `json:"floorsName" gorm:"size:256"`
-	DormNumber string `json:"dormNumber" gorm:"size:256"`
-	Img        string `json:"img" gorm:"size:256"`
-	DormType   string `json:"dormType" gorm:"size:256"`
-	DormStatus string `json:"dormStatus" gorm:"size:256"`
+	Id           string `json:"id" gorm:"size:256"`
+	FloorsName   string `json:"floorsName" gorm:"size:256"`
+	DormNumber   string `json:"dormNumber" gorm:"size:256"`
+	Img          string `json:"img" gorm:"size:256"`
+	DormCapacity int    `json:"dormCapacity" gorm:"size:256"`
+	DormStatus   string `json:"dormStatus" gorm:"size:256"`
 }

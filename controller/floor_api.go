@@ -54,7 +54,7 @@ func (d *Dorm_floor_api) CreateFloorApi(c *gin.Context) {
 		response.FailWithMessage("添加失败", c)
 		return
 	}
-	response.Ok("添加成功", c)
+	response.OkWithMessage("添加成功", c)
 }
 
 // 删除
@@ -80,7 +80,7 @@ func (d *Dorm_floor_api) DeleteFloorApi(c *gin.Context) {
 			return
 		}
 	}
-	response.Ok("删除成功", c)
+	response.OkWithMessage("删除成功", c)
 }
 
 // 更新
@@ -98,7 +98,7 @@ func (d *Dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 		return
 
 	}
-	response.Ok("更新成功", c)
+	response.OkWithMessage("更新成功", c)
 }
 
 // 查寻
@@ -106,6 +106,7 @@ func (d *Dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 func (d *Dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
+	var floor apidorm.Floors_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -132,22 +133,22 @@ func (d *Dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	limit = pages.PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
-	count := global.Global_Db.Where(condition).Count(&total).Error
+	count := global.Global_Db.Model(&floor).Where(condition).Count(&total).Error
 	if count != nil {
-		response.FailWithMessage(count.Error(), c)
+		fmt.Println("计算楼层数量错误")
+		response.FailWithMessage("系统查询错误", c)
 		return
 	}
 	// 查寻数据
 	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&floors)
 	if result.Error != nil {
 		// 处理错误
-		response.FailWithMessage("查寻失败", c)
+		response.FailWithMessage("系统查寻失败", c)
 		return
 	}
-	fmt.Println("数据为", floors)
 	response.OkWithDetailed(request.PageInfo{
 		List:     floors,
-		Total:    5,
+		Total:    total,
 		PageSize: pages.PageSize,
 		Page:     pages.Page,
 	}, "成功", c)

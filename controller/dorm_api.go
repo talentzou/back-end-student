@@ -35,10 +35,10 @@ func (d *Dorm_dorm_api) CreateDormApi(c *gin.Context) {
 	for key := range dorms {
 		words := strings.Split(dorms[key].DormNumber, "-")
 		if words[0] != dorms[key].FloorsName {
+			fmt.Println(words[0] != dorms[key].FloorsName ,"分割的单词",dorms[key].FloorsName ,words)
 			response.FailWithMessage("宿舍开头前缀与宿舍楼不一致", c)
 			return
 		}
-		fmt.Println("分割的单词", words)
 	}
 
 	var tempArr []apidorm.Dorm_api
@@ -62,11 +62,12 @@ func (d *Dorm_dorm_api) CreateDormApi(c *gin.Context) {
 	// 添加数据
 	result := global.Global_Db.Create(&dorms)
 	if result.Error != nil {
+		fmt.Println("计算宿舍数量错误")
 		// 处理错误
 		response.FailWithMessage("添加失败", c)
 		return
 	}
-	response.Ok("添加成功", c)
+	response.OkWithMessage("添加成功", c)
 }
 
 // 删除
@@ -94,7 +95,7 @@ func (d *Dorm_dorm_api) DeleteDormApi(c *gin.Context) {
 			return
 		}
 	}
-	response.Ok("删除成功", c)
+	response.OkWithMessage("删除成功", c)
 }
 
 // 更新
@@ -117,7 +118,7 @@ func (d *Dorm_dorm_api) UpdateDormApi(c *gin.Context) {
 		return
 
 	}
-	response.Ok("更新成功", c)
+	response.OkWithMessage("更新成功", c)
 }
 
 // 查寻
@@ -125,6 +126,7 @@ func (d *Dorm_dorm_api) UpdateDormApi(c *gin.Context) {
 func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
+	var dorm apidorm.Dorm_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -156,10 +158,10 @@ func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
 		response.FailWithMessage(count.Error(), c)
 		return
 	}
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&dorms)
+	result := global.Global_Db.Model(&dorm).Where(condition).Limit(limit).Offset(offset).Find(&dorms)
 	if result.Error != nil {
 		// 处理错误
-		response.FailWithMessage("查寻失败", c)
+		response.FailWithMessage("查寻错误", c)
 		return
 	}
 	fmt.Println("数据为", len(dorms))
