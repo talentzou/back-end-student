@@ -26,38 +26,40 @@ type Dorm_dorm_api struct{}
 // 插入
 func (d *Dorm_dorm_api) CreateDormApi(c *gin.Context) {
 	fmt.Println("我进来了..........")
-
 	err := c.ShouldBindJSON(&dorms)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	for key := range dorms {
+// 遍历添加的数据
+	for key,v := range dorms {
 		words := strings.Split(dorms[key].DormNumber, "-")
 		if words[0] != dorms[key].FloorsName {
-			fmt.Println(words[0] != dorms[key].FloorsName ,"分割的单词",dorms[key].FloorsName ,words)
-			response.FailWithMessage("宿舍开头前缀与宿舍楼不一致", c)
+			fmt.Println(words[0] != dorms[key].FloorsName, "分割的单词", dorms[key].FloorsName, words)
+			response.FailWithMessage("宿舍"+dorms[key].DormNumber+"开头前缀与宿舍楼不一致", c)
 			return
 		}
+		// 查询存在数据
+		var tempArr []apidorm.Dorm_api
+		query := global.Global_Db.Where("floors_name=?", v.FloorsName).Find(&tempArr)
+		if query.Error != nil {
+			response.FailWithMessage("系统查寻错误", c)
+			return
+		}
+		for i := range tempArr {
+			if dorms[i].DormNumber == tempArr[i].DormNumber {
+				response.FailWithMessage("该宿舍"+dorms[i].DormNumber+"已存在", c)
+				return
+			}
+	
+		}
+
 	}
 
-	var tempArr []apidorm.Dorm_api
-	query := global.Global_Db.Find(&tempArr)
-	if query.Error != nil {
-		response.FailWithMessage("系统查寻错误", c)
-		return
-	}
 	// 给数据添加id
 	for i, _ := range dorms {
 		uid := uuid.NewString()
 		dorms[i].Id = uid
-	}
-	for i := range tempArr {
-		if dorms[0].DormNumber == tempArr[i].DormNumber {
-			response.FailWithMessage("该宿舍已存在", c)
-			return
-		}
-
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&dorms)
@@ -168,8 +170,8 @@ func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
 	response.OkWithDetailed(request.PageInfo{
 		List:     dorms,
 		Total:    total,
-		PageSize: dormPages.PageSize,
-		Page:     dormPages.Page,
+		PageSize: pages.PageSize,
+		Page:     pages.Page,
 	}, "成功", c)
 
 }

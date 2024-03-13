@@ -24,13 +24,13 @@ type Dorm_floor_api struct{}
 // 插入
 func (d *Dorm_floor_api) CreateFloorApi(c *gin.Context) {
 	fmt.Println("我是楼.......")
-	var tempArr []apidorm.Floors_api
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
 		response.FailWithMessage("系统错误", c)
 		return
 	}
-	//
+	//查询存在数据
+	var tempArr []apidorm.Floors_api
 	query := global.Global_Db.Find(&tempArr)
 	if query.Error != nil {
 		response.FailWithMessage("系统错误", c)

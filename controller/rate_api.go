@@ -20,28 +20,29 @@ import (
 // }
 
 var rateList []apidorm.Rate_api
-var ratePage request.PageInfo
+
 
 type Dorm_rate_api struct{}
 
 // 插入
 func (d *Dorm_rate_api) CreateRateApi(c *gin.Context) {
 	fmt.Println("我是评分.......")
-	var tempArr []apidorm.Rate_api
+
 	err := c.ShouldBindJSON(&rateList)
 	if err != nil {
 		fmt.Println("结构体错误", err.Error())
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	// //查寻存在数据
-	query := global.Global_Db.Find(&tempArr)
-	if query.Error != nil {
-		response.FailWithMessage("系统查寻错误", c)
-		return
-	}
 	// 给数据添加id
 	for i, v := range rateList {
+		// //查寻存在数据
+		var tempArr []apidorm.Rate_api
+		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).Find(&tempArr)
+		if query.Error != nil {
+			response.FailWithMessage("系统查寻错误", c)
+			return
+		}
 		words := strings.Split(v.DormNumber, "-")
 		if v.FloorsName != words[0] {
 			response.FailWithMessage("宿舍:"+v.DormNumber+"与宿舍楼:"+v.FloorsName+"前缀不一致", c)
@@ -51,7 +52,7 @@ func (d *Dorm_rate_api) CreateRateApi(c *gin.Context) {
 		for t := range tempArr {
 			// fmt.Println("日期：", rateList[i].RateDate, tempArr[t].RateDate, "布尔")
 			// fmt.Println("宿舍：", rateList[i].DormNumber, tempArr[t].DormNumber)
-			tt, err := time.Parse(time.RFC3339,tempArr[t].RateDate)
+			tt, err := time.Parse(time.RFC3339, tempArr[t].RateDate)
 			if err != nil {
 				response.FailWithMessage("系统解析事件错误", c)
 				return
@@ -110,7 +111,7 @@ func (d *Dorm_rate_api) UpdateRateApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	var tempRate apidorm.Rate_api 
+	var tempRate apidorm.Rate_api
 	err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
 	if err2.Error != nil {
 		response.FailWithMessage(rate.RateDate+":"+rate.DormNumber+":数据不存在:无法更新", c)
@@ -160,7 +161,7 @@ func (d *Dorm_rate_api) QueryRateApi(c *gin.Context) {
 	// 查寻数量
 	count := global.Global_Db.Model(&rate).Where(condition).Count(&total).Error
 	if count != nil {
-		fmt.Println("计算楼层数量错误")
+		fmt.Println("系统查询数量错误")
 		response.FailWithMessage("系统查询错误", c)
 		return
 	}

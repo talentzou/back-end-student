@@ -1,9 +1,5 @@
 package apidorm
 
-import (
-	"time"
-)
-
 type Floors_api struct {
 	Id         string `json:"id" gorm:"size:256;"`
 	FloorsName string `json:"floorsName" gorm:"size:256"`
@@ -24,26 +20,33 @@ type Bed_api struct {
 
 // 评分
 type Rate_api struct {
-	Id         string    `json:"id" gorm:"size:256"`
+	Id         string `json:"id" gorm:"size:256"`
 	RateDate   string `json:"rateDate" gorm:"type:date"`
-	FloorsName string    `json:"floorsName" gorm:"size:256"`
-	DormNumber string    `json:"dormNumber" gorm:"size:256"`
-	BedRate    uint      `json:"bedRate"`
-	GroundRate uint      `json:"groundRate"`
-	Lavatory   uint      `json:"lavatory"`
-	Goods      uint      `json:"goods"`
-	TotalScore uint      `json:"totalScore"`
-	Rater      string    `json:"rater"`
-	Evaluation string    `json:"evaluation" gorm:"size:256"`
-	Remark     string    `json:"remark" gorm:"size:256"`
+	FloorsName string `json:"floorsName" gorm:"size:256"`
+	DormNumber string `json:"dormNumber" gorm:"size:256"`
+	BedRate    uint   `json:"bedRate"`
+	GroundRate uint   `json:"groundRate"`
+	Lavatory   uint   `json:"lavatory"`
+	Goods      uint   `json:"goods"`
+	TotalScore uint   `json:"totalScore"`
+	Rater      string `json:"rater"`
+	Evaluation string `json:"evaluation" gorm:"size:256"`
+	Remark     string `json:"remark" gorm:"size:256"`
 }
 type Stay_api struct {
-	StayDate    time.Time `json:"stayDate"  gorm:"type:date"`
-	StudentName string    `json:"studentName" gorm:"size:256"`
-	FloorsName  string    `json:"floorsName" gorm:"size:256"`
-	DormNumber  string    `json:"dormNumber" gorm:"size:256"`
-	StayCause   string    `json:"stayCause " gorm:"size:256"`
-	Instructor  string    `json:"instructor" gorm:"size:256"`
+	Id          string   `json:"id" gorm:"size:256"`
+	StayTime    StayTime `json:"stayTime"  gorm:"embedded"`
+	StudentName string   `json:"studentName" gorm:"size:256"`
+	FloorsName  string   `json:"floorsName" gorm:"size:256"`
+	DormNumber  string   `json:"dormNumber" gorm:"size:256"`
+	StayCause   string   `json:"stayCause" gorm:"size:256"`
+	Instructor  string   `json:"instructor" gorm:"size:256"`
+	Opinions    string   `json:"opinions" gorm:"size:256"`
+}
+
+type StayTime struct {
+	StartTime string `json:"startTime" gorm:"type:date"`
+	EndTime   string `json:"endTime" gorm:"type:date"`
 }
 type Dorm_api struct {
 	Id           string `json:"id" gorm:"size:256"`

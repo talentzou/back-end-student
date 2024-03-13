@@ -1,15 +1,19 @@
 package dorm
 
-import "github.com/gin-gonic/gin"
+import (
+	"back-end/controller"
+	"github.com/gin-gonic/gin"
+)
 
 type Stay struct{}
 
 func (s *Stay) Api_Stay(router *gin.RouterGroup) {
 	Stay := router.Group("/Stay")
+	stayRouterApi := controller.Stay_api
 	{
-		Stay.GET("getStay", func(c *gin.Context) {})
-		Stay.DELETE("deleteStayById", func(c *gin.Context) {})
-		Stay.POST("/createStay", func(c *gin.Context) {})
-		Stay.PUT("/putStay", func(c *gin.Context) {})
+		Stay.GET("getStay", stayRouterApi.QueryFloorApi)
+		Stay.DELETE("deleteStayById", stayRouterApi.DeleteFloorApi)
+		Stay.POST("/createStay", stayRouterApi.CreateFloorApi)
+		Stay.PUT("/putStay", stayRouterApi.UpdateFloorApi)
 	}
 }

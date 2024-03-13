@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
 	"back-end/model/apidorm"
@@ -19,7 +18,7 @@ import (
 // }
 
 var beds []apidorm.Bed_api
-var bedPages request.PageInfo
+
 
 type Dorm_bed_api struct{}
 
