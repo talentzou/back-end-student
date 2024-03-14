@@ -18,53 +18,50 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-var dorms []apidorm.Dorm_api
+
 var dormPages request.PageInfo
 
-type Dorm_dorm_api struct{}
+type dorm_api struct{}
 
 // 插入
-func (d *Dorm_dorm_api) CreateDormApi(c *gin.Context) {
+func (d *dorm_api) CreateDormApi(c *gin.Context) {
+	var dormList []apidorm.Dorm_api
 	fmt.Println("我进来了..........")
-	err := c.ShouldBindJSON(&dorms)
+	err := c.ShouldBindJSON(&dormList)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-// 遍历添加的数据
-	for key,v := range dorms {
-		words := strings.Split(dorms[key].DormNumber, "-")
-		if words[0] != dorms[key].FloorsName {
-			fmt.Println(words[0] != dorms[key].FloorsName, "分割的单词", dorms[key].FloorsName, words)
-			response.FailWithMessage("宿舍"+dorms[key].DormNumber+"开头前缀与宿舍楼不一致", c)
+	// 遍历添加的数据
+	for key, v := range dormList {
+		words := strings.Split(dormList[key].DormNumber, "-")
+		if words[0] != dormList[key].FloorsName {
+			fmt.Println(words[0] != dormList[key].FloorsName, "分割的单词", dormList[key].FloorsName, words)
+			response.FailWithMessage("宿舍"+dormList[key].DormNumber+"开头前缀与宿舍楼不一致", c)
 			return
 		}
 		// 查询存在数据
-		var tempArr []apidorm.Dorm_api
-		query := global.Global_Db.Where("floors_name=?", v.FloorsName).Find(&tempArr)
+		var tempArr apidorm.Dorm_api
+		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&tempArr)
 		if query.Error != nil {
 			response.FailWithMessage("系统查寻错误", c)
 			return
 		}
-		for i := range tempArr {
-			if dorms[i].DormNumber == tempArr[i].DormNumber {
-				response.FailWithMessage("该宿舍"+dorms[i].DormNumber+"已存在", c)
-				return
-			}
-	
+		if tempArr.DormNumber==v.DormNumber{
+			response.FailWithMessage("该宿舍:"+v.DormNumber+"已存在", c)
+			return
 		}
 
 	}
-
 	// 给数据添加id
-	for i, _ := range dorms {
+	for i, _ := range dormList {
 		uid := uuid.NewString()
-		dorms[i].Id = uid
+		dormList[i].Id = uid
 	}
 	// 添加数据
-	result := global.Global_Db.Create(&dorms)
+	result := global.Global_Db.Create(&dormList)
 	if result.Error != nil {
-		fmt.Println("计算宿舍数量错误")
+		fmt.Println("宿舍错误")
 		// 处理错误
 		response.FailWithMessage("添加失败", c)
 		return
@@ -73,14 +70,15 @@ func (d *Dorm_dorm_api) CreateDormApi(c *gin.Context) {
 }
 
 // 删除
-func (d *Dorm_dorm_api) DeleteDormApi(c *gin.Context) {
-	err := c.ShouldBindJSON(&dorms)
+func (d *dorm_api) DeleteDormApi(c *gin.Context) {
+	var dormList []apidorm.Dorm_api
+	err := c.ShouldBindJSON(&dormList)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	// 遍历查寻数据是否存在
-	for _, value := range dorms {
+	for _, value := range dormList {
 		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			fmt.Println(err2.Error.Error())
@@ -88,7 +86,7 @@ func (d *Dorm_dorm_api) DeleteDormApi(c *gin.Context) {
 			return
 		}
 	}
-	for _, del := range dorms {
+	for _, del := range dormList {
 		result := global.Global_Db.Delete(&del)
 		if result.Error != nil {
 			// 处理错误
@@ -101,7 +99,7 @@ func (d *Dorm_dorm_api) DeleteDormApi(c *gin.Context) {
 }
 
 // 更新
-func (d *Dorm_dorm_api) UpdateDormApi(c *gin.Context) {
+func (d *dorm_api) UpdateDormApi(c *gin.Context) {
 	var dorm apidorm.Dorm_api
 	err := c.ShouldBindJSON(&dorm)
 	if err != nil {
@@ -125,10 +123,11 @@ func (d *Dorm_dorm_api) UpdateDormApi(c *gin.Context) {
 
 // 查寻
 
-func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
+func (d *dorm_api) QueryDormApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
 	var dorm apidorm.Dorm_api
+	var dormList []apidorm.Dorm_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -160,15 +159,15 @@ func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
 		response.FailWithMessage(count.Error(), c)
 		return
 	}
-	result := global.Global_Db.Model(&dorm).Where(condition).Limit(limit).Offset(offset).Find(&dorms)
+	result := global.Global_Db.Model(&dorm).Where(condition).Limit(limit).Offset(offset).Find(&dormList)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("查寻错误", c)
 		return
 	}
-	fmt.Println("数据为", len(dorms))
+	fmt.Println("数据为", len(dormList))
 	response.OkWithDetailed(request.PageInfo{
-		List:     dorms,
+		List:     dormList,
 		Total:    total,
 		PageSize: pages.PageSize,
 		Page:     pages.Page,
@@ -176,4 +175,4 @@ func (d *Dorm_dorm_api) QueryDormApi(c *gin.Context) {
 
 }
 
-var Dorm_api = new(Dorm_dorm_api)
+var Dorm_api = new(dorm_api)

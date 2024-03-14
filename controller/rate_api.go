@@ -19,13 +19,14 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-var rateList []apidorm.Rate_api
 
 
-type Dorm_rate_api struct{}
+
+type dorm_rate_api struct{}
 
 // 插入
-func (d *Dorm_rate_api) CreateRateApi(c *gin.Context) {
+func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
+	var rateList []apidorm.Rate_api
 	fmt.Println("我是评分.......")
 
 	err := c.ShouldBindJSON(&rateList)
@@ -78,7 +79,8 @@ func (d *Dorm_rate_api) CreateRateApi(c *gin.Context) {
 }
 
 // 删除
-func (d *Dorm_rate_api) DeleteRateApi(c *gin.Context) {
+func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
+	var rateList []apidorm.Rate_api
 	err := c.ShouldBindJSON(&rateList)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
@@ -104,7 +106,8 @@ func (d *Dorm_rate_api) DeleteRateApi(c *gin.Context) {
 }
 
 // 更新
-func (d *Dorm_rate_api) UpdateRateApi(c *gin.Context) {
+func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
+
 	var rate apidorm.Rate_api
 	err := c.ShouldBindJSON(&rate)
 	if err != nil {
@@ -129,10 +132,11 @@ func (d *Dorm_rate_api) UpdateRateApi(c *gin.Context) {
 
 // 查寻
 
-func (d *Dorm_rate_api) QueryRateApi(c *gin.Context) {
+func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
 	var rate apidorm.Rate_api
+	var rateList []apidorm.Rate_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -181,4 +185,4 @@ func (d *Dorm_rate_api) QueryRateApi(c *gin.Context) {
 
 }
 
-var Rate_api = new(Dorm_rate_api)
+var Rate_api = new(dorm_rate_api)

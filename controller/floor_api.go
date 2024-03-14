@@ -16,13 +16,14 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-var floors []apidorm.Floors_api
+
 var pages request.PageInfo
 
-type Dorm_floor_api struct{}
+type dorm_floor_api struct{}
 
 // 插入
-func (d *Dorm_floor_api) CreateFloorApi(c *gin.Context) {
+func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
+	var floors []apidorm.Floors_api
 	fmt.Println("我是楼.......")
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
@@ -58,7 +59,8 @@ func (d *Dorm_floor_api) CreateFloorApi(c *gin.Context) {
 }
 
 // 删除
-func (d *Dorm_floor_api) DeleteFloorApi(c *gin.Context) {
+func (d *dorm_floor_api) DeleteFloorApi(c *gin.Context) {
+	var floors []apidorm.Floors_api
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -84,7 +86,7 @@ func (d *Dorm_floor_api) DeleteFloorApi(c *gin.Context) {
 }
 
 // 更新
-func (d *Dorm_floor_api) UpdateFloorApi(c *gin.Context) {
+func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 	var floor apidorm.Floors_api
 	err := c.ShouldBindJSON(&floor)
 	if err != nil {
@@ -103,10 +105,11 @@ func (d *Dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 
 // 查寻
 
-func (d *Dorm_floor_api) QueryFloorApi(c *gin.Context) {
+func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
 	var floor apidorm.Floors_api
+	var floors []apidorm.Floors_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -155,4 +158,4 @@ func (d *Dorm_floor_api) QueryFloorApi(c *gin.Context) {
 
 }
 
-var Floor_api = new(Dorm_floor_api)
+var Floor_api = new(dorm_floor_api)

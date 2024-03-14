@@ -19,12 +19,13 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-var stayList []apidorm.Stay_api
 
-type Dorm_stay_api struct{}
+
+type dorm_stay_api struct{}
 
 // 插入
-func (d *Dorm_stay_api) CreateFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
+	var stayList []apidorm.Stay_api
 	fmt.Println("我是留宿.......")
 	err := c.ShouldBindJSON(&stayList)
 	if err != nil {
@@ -109,7 +110,8 @@ func (d *Dorm_stay_api) CreateFloorApi(c *gin.Context) {
 }
 
 // 删除
-func (d *Dorm_stay_api) DeleteFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
+	var stayList []apidorm.Stay_api
 	err := c.ShouldBindJSON(&stayList)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -135,7 +137,7 @@ func (d *Dorm_stay_api) DeleteFloorApi(c *gin.Context) {
 }
 
 // 更新
-func (d *Dorm_stay_api) UpdateFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 	var stay apidorm.Stay_api
 	err := c.ShouldBindJSON(&stay)
 	if err != nil {
@@ -166,10 +168,11 @@ func (d *Dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 
 // 查寻
 
-func (d *Dorm_stay_api) QueryFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
 	var stay apidorm.Stay_api
+	var stayList []apidorm.Stay_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -237,4 +240,4 @@ func (d *Dorm_stay_api) QueryFloorApi(c *gin.Context) {
 
 }
 
-var Stay_api = new(Dorm_stay_api)
+var Stay_api = new(dorm_stay_api)

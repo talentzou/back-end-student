@@ -15,13 +15,14 @@ import (
 	"github.com/google/uuid"
 )
 
-var repairList []apirepair.Repair_dorm
+
 var repair apirepair.Repair_dorm
 
 type repair_api_ struct{}
 
 // 插入
 func (d *repair_api_) CreateRepairApi(c *gin.Context) {
+	var repairList []apirepair.Repair_dorm
 	err := c.ShouldBindJSON(&repairList)
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
@@ -61,6 +62,7 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 
 // 删除
 func (d *repair_api_) DeleteRepairApi(c *gin.Context) {
+	var repairList []apirepair.Repair_dorm
 	err := c.ShouldBindJSON(&repairList)
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
@@ -118,6 +120,7 @@ func (d *repair_api_) UpdateRepairApi(c *gin.Context) {
 func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
+	var repairList []apirepair.Repair_dorm
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)

@@ -17,13 +17,14 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-var beds []apidorm.Bed_api
 
 
-type Dorm_bed_api struct{}
+
+type dorm_bed_api struct{}
 
 // 插入
-func (d *Dorm_bed_api) CreateBedApi(c *gin.Context) {
+func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
+	var beds []apidorm.Bed_api
 	fmt.Println("我是床位.......")
 	err := c.ShouldBindJSON(&beds)
 	if err != nil {
@@ -98,7 +99,8 @@ func (d *Dorm_bed_api) CreateBedApi(c *gin.Context) {
 }
 
 // 删除
-func (d *Dorm_bed_api) DeleteBedApi(c *gin.Context) {
+func (d *dorm_bed_api) DeleteBedApi(c *gin.Context) {
+	var beds []apidorm.Bed_api
 	err := c.ShouldBindJSON(&beds)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
@@ -124,7 +126,7 @@ func (d *Dorm_bed_api) DeleteBedApi(c *gin.Context) {
 }
 
 // 更新
-func (d *Dorm_bed_api) UpdateBedApi(c *gin.Context) {
+func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 	var bed apidorm.Bed_api
 	err := c.ShouldBindJSON(&bed)
 	if err != nil {
@@ -183,7 +185,8 @@ func (d *Dorm_bed_api) UpdateBedApi(c *gin.Context) {
 
 // 查寻
 
-func (d *Dorm_bed_api) QueryBedApi(c *gin.Context) {
+func (d *dorm_bed_api) QueryBedApi(c *gin.Context) {
+	var beds []apidorm.Bed_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -208,4 +211,4 @@ func (d *Dorm_bed_api) QueryBedApi(c *gin.Context) {
 	response.OkWithDetailed(beds, "成功", c)
 }
 
-var Bed_api = new(Dorm_bed_api)
+var Bed_api = new(dorm_bed_api)
