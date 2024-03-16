@@ -8,6 +8,7 @@ import (
 	"back-end/utils"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,6 @@ import (
 // type  dorm_api interface {
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
-
 
 var dormPages request.PageInfo
 
@@ -44,10 +44,9 @@ func (d *dorm_api) CreateDormApi(c *gin.Context) {
 		var tempArr apidorm.Dorm_api
 		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&tempArr)
 		if query.Error != nil {
-			response.FailWithMessage("系统查寻错误", c)
-			return
+			continue
 		}
-		if tempArr.DormNumber==v.DormNumber{
+		if tempArr.DormNumber == v.DormNumber {
 			response.FailWithMessage("该宿舍:"+v.DormNumber+"已存在", c)
 			return
 		}
@@ -128,6 +127,13 @@ func (d *dorm_api) QueryDormApi(c *gin.Context) {
 	var total int64
 	var dorm apidorm.Dorm_api
 	var dormList []apidorm.Dorm_api
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误", er1.Error(), er2.Error())
+	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -143,34 +149,28 @@ func (d *dorm_api) QueryDormApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统错误", c)
-		return
-	}
-	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	// 分页
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
-	count := global.Global_Db.Where(condition).Count(&total).Error
+	count := global.Global_Db.Model(&dorm).Where(condition).Count(&total).Error
 	if count != nil {
-		response.FailWithMessage(count.Error(), c)
+		response.FailWithMessage("系统查寻数量错误", c)
 		return
 	}
 	result := global.Global_Db.Model(&dorm).Where(condition).Limit(limit).Offset(offset).Find(&dormList)
 	if result.Error != nil {
 		// 处理错误
-		response.FailWithMessage("查寻错误", c)
+		response.FailWithMessage("查寻数据错误", c)
 		return
 	}
 	fmt.Println("数据为", len(dormList))
 	response.OkWithDetailed(request.PageInfo{
 		List:     dormList,
 		Total:    total,
-		PageSize: pages.PageSize,
-		Page:     pages.Page,
+		PageSize: PageSize,
+		Page:     Page,
 	}, "成功", c)
 
 }

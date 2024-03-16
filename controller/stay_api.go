@@ -8,6 +8,7 @@ import (
 	"back-end/utils"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,7 +30,8 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 	fmt.Println("我是留宿.......")
 	err := c.ShouldBindJSON(&stayList)
 	if err != nil {
-		response.FailWithMessage("系统合并错误", c)
+		fmt.Println("错误为",err.Error())
+		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
 	fmt.Println("插入的数据", stayList)
@@ -173,6 +175,13 @@ func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 	var total int64
 	var stay apidorm.Stay_api
 	var stayList []apidorm.Stay_api
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误", er1.Error(), er2.Error())
+	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -190,15 +199,9 @@ func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统错误", c)
-		return
-	}
 	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
 	count := global.Global_Db.Model(&stay).Where(condition).Count(&total).Error
@@ -229,13 +232,13 @@ func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 			return
 		}
 		end := time2.Format("2006-01-02")
-		stayList[i].StayTime.StartTime = end
+		stayList[i].StayTime.EndTime = end
 	}
 	response.OkWithDetailed(request.PageInfo{
 		List:     stayList,
 		Total:    total,
-		PageSize: pages.PageSize,
-		Page:     pages.Page,
+		PageSize: PageSize,
+		Page:     Page,
 	}, "成功", c)
 
 }

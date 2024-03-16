@@ -7,15 +7,16 @@ import (
 	"back-end/model/apidorm"
 	"back-end/utils"
 	"fmt"
+	"net/url"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/url"
 )
 
 // type  dorm_api interface {
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
-
 
 var pages request.PageInfo
 
@@ -27,14 +28,14 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 	fmt.Println("我是楼.......")
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
-		response.FailWithMessage("系统错误", c)
+		response.FailWithMessage("添加的参数错误", c)
 		return
 	}
 	//查询存在数据
 	var tempArr []apidorm.Floors_api
 	query := global.Global_Db.Find(&tempArr)
 	if query.Error != nil {
-		response.FailWithMessage("系统错误", c)
+		response.FailWithMessage("系统查寻错误", c)
 		return
 	}
 	// 给数据添加id
@@ -60,15 +61,19 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 
 // 删除
 func (d *dorm_floor_api) DeleteFloorApi(c *gin.Context) {
+	fmt.Println()
 	var floors []apidorm.Floors_api
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	// 遍历查寻数据是否存在
+	fmt.Println("进入的数据为",floors)
+	//遍历查寻数据是否存在
+	var floor apidorm.Floors_api
 	for _, value := range floors {
-		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
+		fmt.Println("刪除的数据为",value.Id)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&floor)
 		if err2.Error != nil {
 			response.FailWithMessage("删除的数据不存在:"+err2.Error.Error(), c)
 			return
@@ -107,6 +112,8 @@ func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 
 func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	var limit, offset int
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
 	var total int64
 	var floor apidorm.Floors_api
 	var floors []apidorm.Floors_api
@@ -119,21 +126,27 @@ func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	queryParams := u.Query()
 	// fmt.Println("查寻字符串参数", queryParams)
 	// 获取请求体数据
+
 	condition := make(map[string]interface{})
 	for index, value := range queryParams {
 		key := utils.ToCamelCase(index)
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统错误", c)
-		return
-	}
+	// err := c.ShouldBindJSON(&pages)
+	// if err != nil {
+	// 	fmt.Println("错误为", err.Error())
+	// 	response.FailWithMessage("系统错误", c)
+	// 	return
+	// }
 	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误",er1.Error(),er2.Error())
+	}
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
 	count := global.Global_Db.Model(&floor).Where(condition).Count(&total).Error
@@ -152,8 +165,8 @@ func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	response.OkWithDetailed(request.PageInfo{
 		List:     floors,
 		Total:    total,
-		PageSize: pages.PageSize,
-		Page:     pages.Page,
+		PageSize: PageSize,
+		Page:     Page,
 	}, "成功", c)
 
 }

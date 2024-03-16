@@ -8,6 +8,7 @@ import (
 	"back-end/utils"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,9 +19,6 @@ import (
 // type  dorm_api interface {
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
-
-
-
 
 type dorm_rate_api struct{}
 
@@ -137,6 +135,13 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	var total int64
 	var rate apidorm.Rate_api
 	var rateList []apidorm.Rate_api
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误", er1.Error(), er2.Error())
+	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -152,15 +157,15 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统错误", c)
-		return
-	}
+	// err := c.ShouldBindJSON(&pages)
+	// if err != nil {
+	// 	fmt.Println("错误为", err)
+	// 	response.FailWithMessage("系统错误", c)
+	// 	return
+	// }
 	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
 	count := global.Global_Db.Model(&rate).Where(condition).Count(&total).Error
@@ -175,6 +180,15 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 		// 处理错误
 		response.FailWithMessage("系统查寻失败", c)
 		return
+	}
+	for i, v := range rateList {
+		time, err := time.Parse(time.RFC3339, v.RateDate)
+		if err != nil {
+			response.FailWithMessage("系统解析时间错误错误", c)
+			return
+		}
+		tt := time.Format("2006-01-02")
+		rateList[i].RateDate = tt
 	}
 	response.OkWithDetailed(request.PageInfo{
 		List:     rateList,

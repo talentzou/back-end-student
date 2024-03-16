@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
 	"back-end/model/apidorm"
@@ -24,15 +25,15 @@ type dorm_bed_api struct{}
 
 // 插入
 func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
-	var beds []apidorm.Bed_api
+	var bedList []apidorm.Bed_api
 	fmt.Println("我是床位.......")
-	err := c.ShouldBindJSON(&beds)
+	err := c.ShouldBindJSON(&bedList)
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
 	// 遍历body数据
-	for i, v := range beds {
+	for i, v := range bedList {
 		fmt.Println("第一次循环")
 		var tempArr []apidorm.Bed_api
 		er := global.Global_Db.Where(&apidorm.Bed_api{DormNumber: v.DormNumber}).Find(&tempArr).Error
@@ -48,7 +49,7 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 
 		//  找到宿舍拥有容量
 		var dorm apidorm.Dorm_api
-		dormErr := global.Global_Db.Where(&apidorm.Dorm_api{DormNumber: beds[i].DormNumber}).First(&dorm).Error
+		dormErr := global.Global_Db.Where(&apidorm.Dorm_api{DormNumber: bedList[i].DormNumber}).First(&dorm).Error
 		if dormErr != nil {
 			response.FailWithMessage("宿舍"+v.DormNumber+"不存在,先添加该宿舍", c)
 			return
@@ -57,7 +58,7 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 		// fmt.Println("存在数据长度为:",length,"宿舍容量：",dorm.DormCapacity,length > dorm.DormCapacity)
 		// 判断宿舍容量是否超出
 		if length >= dorm.DormCapacity {
-			response.FailWithMessage("超出"+beds[i].DormNumber+"宿舍最大容量MAX", c)
+			response.FailWithMessage("超出"+bedList[i].DormNumber+"宿舍最大容量MAX", c)
 			return
 		}
 		// 判断床位
@@ -65,31 +66,31 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 		for _, v := range tempArr {
 			// 判断床位存在
 			// fmt.Println("我进入床位数据：", b)
-			if beds[i].BedNumber == v.BedNumber {
-				response.FailWithMessage("宿舍"+beds[i].DormNumber+":"+strconv.Itoa(v.BedNumber)+"号床位，已有人", c)
+			if bedList[i].BedNumber == v.BedNumber {
+				response.FailWithMessage("宿舍"+bedList[i].DormNumber+":"+strconv.Itoa(v.BedNumber)+"号床位，已有人", c)
 				return
 			}
 		}
 
 	}
-	for i2, val := range beds {
+	for i2, val := range bedList {
 		// 给数据添加id
 		var dorm apidorm.Dorm_api
 		// 前面宿舍数据没有，再次判断宿舍是否存在
-		dormErr := global.Global_Db.Where(&apidorm.Dorm_api{DormNumber: beds[i2].DormNumber}).First(&dorm).Error
+		dormErr := global.Global_Db.Where(&apidorm.Dorm_api{DormNumber: bedList[i2].DormNumber}).First(&dorm).Error
 		if dormErr != nil {
 			response.FailWithMessage("宿舍"+val.DormNumber+"不存在,先添加该宿舍", c)
 			return
 		}
-		if beds[i2].BedNumber > dorm.DormCapacity {
-			response.FailWithMessage("床位编号："+strconv.Itoa(beds[i2].BedNumber)+"不能大于宿舍容量", c)
+		if bedList[i2].BedNumber > dorm.DormCapacity {
+			response.FailWithMessage("床位编号："+strconv.Itoa(bedList[i2].BedNumber)+"不能大于宿舍容量", c)
 			return
 		}
 		uid := uuid.NewString()
-		beds[i2].Id = uid
+		bedList[i2].Id = uid
 	}
 	// 添加数据
-	result := global.Global_Db.Create(&beds)
+	result := global.Global_Db.Create(&bedList)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("添加床位失败", c)
@@ -100,21 +101,21 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 
 // 删除
 func (d *dorm_bed_api) DeleteBedApi(c *gin.Context) {
-	var beds []apidorm.Bed_api
-	err := c.ShouldBindJSON(&beds)
+	var bedList []apidorm.Bed_api
+	err := c.ShouldBindJSON(&bedList)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
 	// 遍历查寻数据是否存在
-	for _, value := range beds {
+	for _, value := range bedList {
 		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			response.FailWithMessage("删除的数据:"+value.DormNumber+":"+strconv.Itoa(value.BedNumber)+"号床不存在:", c)
 			return
 		}
 	}
-	for _, del := range beds {
+	for _, del := range bedList {
 		result := global.Global_Db.Delete(&del)
 		if result.Error != nil {
 			// 处理错误
@@ -186,7 +187,7 @@ func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 // 查寻
 
 func (d *dorm_bed_api) QueryBedApi(c *gin.Context) {
-	var beds []apidorm.Bed_api
+	var bedList []apidorm.Bed_api
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -202,13 +203,19 @@ func (d *dorm_bed_api) QueryBedApi(c *gin.Context) {
 	}
 	fmt.Println("condition", condition)
 	// 查寻
-	result := global.Global_Db.Where(condition).Find(&beds)
+	result := global.Global_Db.Where(condition).Find(&bedList)
 	if result.Error != nil {
 		// 处理错误
-		response.FailWithMessage("查寻失败", c)
+		response.FailWithMessage("查寻数据失败", c)
 		return
 	}
-	response.OkWithDetailed(beds, "成功", c)
+	total:=len(bedList)
+	response.OkWithDetailed(request.PageInfo{
+		List:     bedList,
+		Total:    int64(total),
+		// PageSize: PageSize,
+		// Page:     Page,
+	}, "成功", c)
 }
 
 var Bed_api = new(dorm_bed_api)

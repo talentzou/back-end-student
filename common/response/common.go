@@ -38,7 +38,7 @@ func FailWithMessage(message string, c *gin.Context) {
 
 // 系统响应成功返回信息
 func OkWithMessage(msg string, c *gin.Context) {
-	ResponseHTTP(http.StatusOK, map[string]any{}, msg, c)
+	ResponseHTTP(http.StatusNoContent, map[string]any{}, msg, c)
 }
 
 func OkWithDetailed(data interface{}, message string, c *gin.Context) {

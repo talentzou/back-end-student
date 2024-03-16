@@ -11,7 +11,7 @@ func (r *Rate) Api_Rate(router *gin.RouterGroup) {
 	Rate := router.Group("/Rate")
 	rateRouterApi := controller.Rate_api
 	{
-		Rate.GET("getRate", rateRouterApi.QueryRateApi)
+		Rate.GET("getRate/:Page/:PageSize", rateRouterApi.QueryRateApi)
 		Rate.DELETE("deleteRateById", rateRouterApi.DeleteRateApi)
 		Rate.POST("/createRate", rateRouterApi.CreateRateApi)
 		Rate.PUT("/putRate", rateRouterApi.UpdateRateApi)
