@@ -157,12 +157,6 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	// err := c.ShouldBindJSON(&pages)
-	// if err != nil {
-	// 	fmt.Println("错误为", err)
-	// 	response.FailWithMessage("系统错误", c)
-	// 	return
-	// }
 	// 分页数据
 	offset = PageSize * (Page - 1)
 	limit = PageSize

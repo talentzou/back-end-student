@@ -9,6 +9,7 @@ import (
 	"back-end/utils"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -69,7 +70,8 @@ func (d *student_info_api) DeleteStudInfoApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range studInfoList {
-		err2 := global.Global_Db.Where("id=? AND student_number=?", value.Id, value.StudentNumber).First(&value)
+		var student apistudent.StudInfo_model
+		err2 := global.Global_Db.Model(&student).Where("id=?", value.Id).First(&student)
 		if err2.Error != nil {
 			response.FailWithMessage("删除学号为:"+value.StudentNumber+"数据不存在", c)
 			return
@@ -124,6 +126,13 @@ func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 	var total int64
 	var stud apistudent.StudInfo_model
 	var studInfoList []apistudent.StudInfo_model
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误", er1.Error(), er2.Error())
+	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -139,15 +148,10 @@ func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统合并参数错误", c)
-		return
-	}
+	
 	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
 	count := global.Global_Db.Model(&stud).Where(condition).Count(&total).Error
@@ -166,8 +170,8 @@ func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 	response.OkWithDetailed(request.PageInfo{
 		List:     studInfoList,
 		Total:    total,
-		PageSize: pages.PageSize,
-		Page:     pages.Page,
+		PageSize: PageSize,
+		Page:     Page,
 	}, "成功", c)
 
 }

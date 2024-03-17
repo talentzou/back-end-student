@@ -175,6 +175,7 @@ func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 	var total int64
 	var stay apidorm.Stay_api
 	var stayList []apidorm.Stay_api
+	
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)

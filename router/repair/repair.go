@@ -13,7 +13,7 @@ func (e *Repair) UseRepair(router *gin.RouterGroup) {
 	repairRouterApi:=controller.Repair_api
 
 	{
-		Repair.GET("getRepair", repairRouterApi.QueryRepairApi)
+		Repair.GET("getRepair/:Page/:PageSize", repairRouterApi.QueryRepairApi)
 		Repair.DELETE("deleteById", repairRouterApi.DeleteRepairApi)
 		Repair.POST("/createRepair", repairRouterApi.CreateRepairApi)
 		Repair.PUT("/putRepair", repairRouterApi.UpdateRepairApi)

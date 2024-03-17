@@ -4,12 +4,13 @@ import (
 	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
-	// "back-end/model/apidorm"
 	"back-end/model/apirepair"
 	"back-end/utils"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 	var repairList []apirepair.Repair_dorm
 	err := c.ShouldBindJSON(&repairList)
 	if err != nil {
+		fmt.Println("参数",err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
@@ -121,6 +123,13 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 	var limit, offset int
 	var total int64
 	var repairList []apirepair.Repair_dorm
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+	if er1 != nil && er2 != nil {
+		fmt.Println("分页数错误", er1.Error(), er2.Error())
+	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -138,15 +147,10 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	err := c.ShouldBindJSON(&pages)
-	if err != nil {
-		fmt.Println("错误为", err)
-		response.FailWithMessage("系统获取参数错误", c)
-		return
-	}
+	
 	// 分页数据
-	offset = pages.PageSize * (pages.Page - 1)
-	limit = pages.PageSize
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	fmt.Println(offset, limit)
 	// 查寻数量
 	count := global.Global_Db.Model(&repair).Where(condition).Count(&total).Error
@@ -162,11 +166,20 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻数据失败", c)
 		return
 	}
+	for i, v := range repairList {
+		time, err := time.Parse(time.RFC3339, v.SubmitDate)
+		if err != nil {
+			response.FailWithMessage("系统解析时间错误错误", c)
+			return
+		}
+		tt := time.Format("2006-01-02")
+		repairList[i].SubmitDate = tt
+	}
 	response.OkWithDetailed(request.PageInfo{
 		List:     repairList,
 		Total:    total,
-		PageSize: pages.PageSize,
-		Page:     pages.Page,
+		PageSize: PageSize,
+		Page:     Page,
 	}, "成功", c)
 
 }

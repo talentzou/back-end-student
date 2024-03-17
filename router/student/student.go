@@ -12,7 +12,7 @@ func (e *Student) Api_Student(router *gin.RouterGroup) {
 	studInfoRouterApi := controller.StudInfo_api
 
 	{
-		Student.GET("/getStudent", studInfoRouterApi.QueryStudInfoApi)
+		Student.GET("/getStudent/:Page/:PageSize", studInfoRouterApi.QueryStudInfoApi)
 		Student.DELETE("/deleteById", studInfoRouterApi.DeleteStudInfoApi)
 		Student.POST("/createStudent", studInfoRouterApi.CreateStudInfoApi)
 		Student.PUT("/putStudent", studInfoRouterApi.UpdateStudInfoApi)
