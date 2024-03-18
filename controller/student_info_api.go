@@ -29,14 +29,14 @@ func (d *student_info_api) CreateStudInfoApi(c *gin.Context) {
 	for _, v := range studInfoList {
 		// 查询宿舍存在
 		var dorm apidorm.Dorm_api
-		dormErr := global.Global_Db.Where("dorm_number", v.DormNumber).First(&dorm)
+		dormErr := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&dorm)
 		if dormErr.Error != nil {
 			response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
 			return
 		}
 		//查询存在数据
 		var tempArr apistudent.StudInfo_model
-		query := global.Global_Db.Where("student_number", v.StudentNumber).First(&tempArr)
+		query := global.Global_Db.Where("student_number=?", v.StudentNumber).First(&tempArr)
 		if query.Error != nil {
 			continue
 		}
@@ -97,9 +97,9 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 		return
 	} 
 	var tempStudent apistudent.StudInfo_model
-	err2 := global.Global_Db.Where("id=? AND student_number=?", stud.Id, stud.StudentNumber).First(&tempStudent)
+	err2 := global.Global_Db.Where("id=?", stud.Id).First(&tempStudent)
 	if err2.Error != nil {
-		response.FailWithMessage("删除的学生:"+stud.StudentName+"数据不存在", c)
+		response.FailWithMessage("更新的学生:"+stud.StudentName+"数据不存在", c)
 		return
 	}
 	// 判断宿舍是否存在
@@ -166,7 +166,7 @@ func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻数据失败", c)
 		return
 	}
-	fmt.Println("total",total,"数量为",len(studInfoList),studInfoList)
+	// fmt.Println("total",total,"数量为",len(studInfoList),studInfoList)
 	response.OkWithDetailed(request.PageInfo{
 		List:     studInfoList,
 		Total:    total,

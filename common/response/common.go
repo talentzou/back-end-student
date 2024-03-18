@@ -44,3 +44,7 @@ func OkWithMessage(msg string, c *gin.Context) {
 func OkWithDetailed(data interface{}, message string, c *gin.Context) {
 	ResponseHTTP(200, data, message, c)
 }
+func FailWithDetailed(data interface{}, message string, c *gin.Context) {
+	ResponseHTTP(500, data, message, c)
+}
+

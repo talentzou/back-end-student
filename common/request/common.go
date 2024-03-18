@@ -1,5 +1,9 @@
 package request
 
+import (
+	"github.com/golang-jwt/jwt/v5"
+)
+
 type PageInfo struct {
 	List     interface{} `json:"list"`
 	Total    int64       `json:"total"`
@@ -7,31 +11,12 @@ type PageInfo struct {
 	PageSize int         `json:"pageSize" form:"pageSize"` // 每页大小
 }
 
-// type CustomContext struct {
-// 	*gin.Context
-// }
-
-// func (c *CustomContext) HandlerModel(s interface{}) gin.HandlerFunc {
-
-// 	var tempArr []apidorm.Floors_api
-// 	err := c.ShouldBindJSON(&floors)
-// 	if err != nil {
-// 		return func(c *gin.Context) {
-// 			// This will handle the response when the handler is invoked
-// 			response.FailWithMessage("系统错误", c)
-// 		}
-// 	}
-// 	switch c.Request.Method {
-// 	case "GET":
-
-// 		return Dorm_api.QueryApi
-// 	case "POST":
-// 		return Dorm_api.CreateApi
-// 	case "DELETE":
-// 		return Dorm_api.DeleteApi
-// 	case "PUT":
-// 		return Dorm_api.UpdateApi
-// 	}
-
-// 	return Dorm_api.UpdateApi
-// }
+// 声明信息
+type CustomClaims struct {
+	BaseClaims
+	jwt.RegisteredClaims //预定义的声明
+}
+type BaseClaims struct {	
+	ID          uint
+	Username    string
+}
