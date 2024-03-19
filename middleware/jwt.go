@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func JwtAuth() gin.HandlerFunc {
@@ -21,17 +20,19 @@ func JwtAuth() gin.HandlerFunc {
 		// 返回声明信息
 		claims, err := utils.ParseToken(token)
 		if err != nil {
-			if errors.Is(err, utils.TokenExpired) {
+			if errors.Is(err, utils.ErrTokenExpired) {
 				response.FailWithDetailed(gin.H{"reload": true}, "授权已过期", c)
-				// utils.ClearToken(c)
+				utils.ClearToken(c)
 				c.Abort()
 				return
 			}
 			response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
-			// utils.ClearToken(c)
+			utils.ClearToken(c)
 			c.Abort()
 			return
 		}
-
+		// 用于将控制权传递给下一个中间件或处理函数
+		c.Next()
+		c.Set("claims", claims)
 	}
 }

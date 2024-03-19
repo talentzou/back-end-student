@@ -18,9 +18,6 @@ import (
 // 	UpdateApi(c *gin.Context,class interface{})
 // }
 
-
-
-
 type dorm_bed_api struct{}
 
 // 插入
@@ -209,10 +206,10 @@ func (d *dorm_bed_api) QueryBedApi(c *gin.Context) {
 		response.FailWithMessage("查寻数据失败", c)
 		return
 	}
-	total:=len(bedList)
+	total := len(bedList)
 	response.OkWithDetailed(request.PageInfo{
-		List:     bedList,
-		Total:    int64(total),
+		List:  bedList,
+		Total: int64(total),
 		// PageSize: PageSize,
 		// Page:     Page,
 	}, "成功", c)

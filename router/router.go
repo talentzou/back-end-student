@@ -3,16 +3,16 @@ package router
 import (
 	"back-end/router/dorm"
 	"back-end/router/expense"
-	"back-end/router/login"
 	"back-end/router/repair"
 	"back-end/router/student"
+	"back-end/router/system"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AppRouterGroup struct {
 	Dorm    dorm.DormGroup
-	Login   login.Login
+	Login   system.Login
 	Repair  repair.Repair
 	Expense expense.ExpenseGroup
 	Student student.StudentGroup
