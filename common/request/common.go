@@ -16,7 +16,8 @@ type CustomClaims struct {
 	BaseClaims
 	jwt.RegisteredClaims //预定义的声明
 }
-//基本声明信息
+
+// 基本声明信息
 type BaseClaims struct {
 	Id          uint
 	UUId        string
@@ -27,6 +28,7 @@ type BaseClaims struct {
 
 // User login structure
 type Login struct {
-	Username string `json:"username"` // 用户名
-	Password string `json:"password"` // 密码
+	Username  string `json:"username"`  // 用户名
+	Password  string `json:"password"`  // 密码
+	Authority uint   `json:"authority"` //角色
 }

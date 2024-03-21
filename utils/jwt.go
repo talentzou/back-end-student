@@ -3,6 +3,7 @@ package utils
 import (
 	"back-end/common/request"
 	"errors"
+	"fmt"
 	"net"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,7 @@ func GetToken(c *gin.Context) string {
 
 // 设置响应头cookie
 func SetToken(c *gin.Context, token string, maxAge int) {
+	fmt.Println("maxAge",maxAge)
 	// 增加cookie x-token 向来源的web添加
 	host, _, err := net.SplitHostPort(c.Request.Host)
 	if err != nil {
@@ -66,7 +68,7 @@ func CreateToken(claims jwt.Claims) (string, error) {
 	token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t,err:=token.SignedString(SigningKey)
 	return t,err
-}
+} 
 
 // 解析jwt,token
 func ParseToken(tokenString string) (*request.CustomClaims, error) {

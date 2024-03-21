@@ -16,7 +16,7 @@ func CreateClaims(BaseClaims request.BaseClaims) request.CustomClaims {
 		BaseClaims: BaseClaims,
 		RegisteredClaims: jwt.RegisteredClaims{
 			NotBefore: jwt.NewNumericDate(time.Now().Add(-1000)),              // 签名生效时间),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(day))), //生效时长
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour*2)), //生效时长
 			Issuer:    issuer,                                                 // 签名的发行者                                           //
 		},
 	}

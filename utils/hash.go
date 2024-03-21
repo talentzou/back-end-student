@@ -1,13 +1,14 @@
 package utils
 
 import (
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 // 对密码加密
-func BcryptHash(password string) []byte {
+func BcryptHash(password string) string {
 	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return bytes
+	return string(bytes)
 }
 
 // 比较密码哈希值确认

@@ -1,0 +1,141 @@
+admin:
+  - path: "/DM"
+    name: "dormitory-management"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "宿舍管理"
+      icon: "dorm_m"
+    children:
+      - path: "floorsInfo"
+        name: "floors"
+        hidden: false
+        component: "@/views/Dorm/floors.vue"
+        meta:
+          title: "楼层信息"
+          icon: "floors"
+      - path: "dorm-Info"
+        name: "dorm"
+        hidden: false
+        component: "@/views/Dorm/dorm.vue"
+        meta:
+          title: "宿舍信息"
+          icon: "dorm"
+      - path: "dorm-Rating"
+        name: "rate"
+        hidden: false
+        component: "@/views/Dorm/rate.vue"
+        meta:
+          title: "宿舍评分"
+          icon: "rate"
+      - path: "application-stay"
+        name: "stay"
+        hidden: false
+        component: "@/views/Dorm/stay.vue"
+        meta:
+          title: "留宿申请"
+          icon: "application"
+      - path: "dorm-bed/:name/:type"
+        name: "bed"
+        hidden: true
+        component: "@/views/Dorm/bed.vue"
+        meta:
+          title: "床位"
+          icon: ""
+  - path: "/Maintenance"
+    name: "Maintenance"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "维修管理"
+      icon: "repair"
+    children:
+      - path: "equipment-repair"
+        name: "equipment"
+        component: "@/views/Maintenance/equipment.vue"
+        hidden: false
+        meta:
+          title: "维修列表"
+          icon: "equipment"
+  - path: "/EM"
+    name: "ExpenseManagement"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "费用管理"
+      icon: "ExpenseManagement"
+    children:
+      - path: "expense"
+        name: "expense"
+        hidden: false
+        component: "@/views/Expense/expense.vue"
+        meta:
+          title: "水电费信息"
+          icon: "expense"
+  - path: "/SI"
+    name: "studentInfo"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "学生管理"
+      icon: "student_m"
+    children:
+      - path: "student-crud"
+        name: "student"
+        hidden: false
+        component: "@/views/Student/student.vue"
+        meta:
+          title: "学生信息"
+          icon: "studentInfo"
+      - path: "student-violate"
+        name: "violate"
+        component: "@/views/Violate/violate.vue"
+        meta:
+          title: "学生违纪"
+          icon: "violate"
+student:
+   - path: "/DM"
+    name: "dormitory-management"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "宿舍管理"
+      icon: "dorm_m"
+    children:
+    
+      - path: "dorm-Info"
+        name: "dorm"
+        hidden: false
+        component: "@/views/Dorm/dorm.vue"
+        meta:
+          title: "宿舍信息"
+          icon: "dorm"
+      - path: "dorm-Rating"
+        name: "rate"
+        hidden: false
+        component: "@/views/Dorm/rate.vue"
+        meta:
+          title: "宿舍评分"
+          icon: "rate"
+      - path: "application-stay"
+        name: "stay"
+        hidden: false
+        component: "@/views/Dorm/stay.vue"
+        meta:
+          title: "留宿申请"
+          icon: "application"
+  - path: - path: "/Maintenance"
+    name: "Maintenance"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "维修管理"
+      icon: "repair"
+    children:
+      - path: "equipment-repair"
+        name: "equipment"
+        component: "@/views/Maintenance/equipment.vue"
+        hidden: false
+        meta:
+          title: "维修列表"
+          icon: "equipment"
