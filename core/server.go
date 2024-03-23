@@ -1,16 +1,15 @@
 package core
 
 import (
+	"back-end/initialize"
 	"back-end/middleware"
-	"back-end/router"
 	"github.com/gin-gonic/gin"
 )
 
 func RunWindowServer() *gin.Engine {
-	Server := gin.New()
-	Server.Use(gin.Recovery())
-	Server.Use(middleware.Cors())
-	AppRouter := router.AppRouter
-	AppRouter.InitializeRouter(Server)
+	Server := gin.New()                 //创建工程实例
+	Server.Use(gin.Recovery())          //系统自动修复
+	Server.Use(middleware.Cors())       //允许跨域
+	initialize.InitializeRouter(Server) //初始路由
 	return Server
 }

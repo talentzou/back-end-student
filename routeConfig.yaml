@@ -93,8 +93,9 @@ admin:
         meta:
           title: "学生违纪"
           icon: "violate"
+
 student:
-   - path: "/DM"
+  - path: "/DM"
     name: "dormitory-management"
     hidden: false
     component: "@/layout/layout.vue"
@@ -102,14 +103,6 @@ student:
       title: "宿舍管理"
       icon: "dorm_m"
     children:
-    
-      - path: "dorm-Info"
-        name: "dorm"
-        hidden: false
-        component: "@/views/Dorm/dorm.vue"
-        meta:
-          title: "宿舍信息"
-          icon: "dorm"
       - path: "dorm-Rating"
         name: "rate"
         hidden: false
@@ -124,7 +117,7 @@ student:
         meta:
           title: "留宿申请"
           icon: "application"
-  - path: - path: "/Maintenance"
+  - path: "/Maintenance"  # 这里删除了额外的 `-`
     name: "Maintenance"
     hidden: false
     component: "@/layout/layout.vue"

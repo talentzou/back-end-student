@@ -1,6 +1,7 @@
 package request
 
 import (
+	"back-end/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -31,4 +32,8 @@ type Login struct {
 	Username  string `json:"username"`  // 用户名
 	Password  string `json:"password"`  // 密码
 	Authority uint   `json:"authority"` //角色
+}
+type SysMenusResponse struct {
+	Authority int             `json:"authority"`
+	Menu      []config.Common `json:"menu"`
 }

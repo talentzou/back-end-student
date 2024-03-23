@@ -5,11 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Login struct{}
+type SysLogin struct{}
 
-func (e *Login) UseLogin(router *gin.RouterGroup) {
-	Login := router.Group("/base")
+func (e *SysLogin) UseLogin(router *gin.RouterGroup) {
+
 	{
-		Login.POST("/login",system.SystemApi.Login)
+		router.POST("/login", system.SystemApi.Login)
 	}
 }

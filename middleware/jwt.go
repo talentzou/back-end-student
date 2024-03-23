@@ -15,6 +15,7 @@ func JwtAuth() gin.HandlerFunc {
 		if token == "" {
 			response.FailWithDetailed(gin.H{"reload": true}, "未登录或非法访问", c)
 			c.Abort()
+			utils.ClearToken(c)
 			return
 		}
 		// 返回声明信息
