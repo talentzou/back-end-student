@@ -89,7 +89,7 @@ admin:
           icon: "studentInfo"
       - path: "student-violate"
         name: "violate"
-        component: "@/views/Violate/violate.vue"
+        component: "@/views/Student/violate.vue"
         meta:
           title: "学生违纪"
           icon: "violate"
