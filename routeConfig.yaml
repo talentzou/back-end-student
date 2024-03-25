@@ -1,3 +1,4 @@
+# 管理员路由 configuration
 admin:
   - path: "/DM"
     name: "dormitory-management"
@@ -93,7 +94,22 @@ admin:
         meta:
           title: "学生违纪"
           icon: "violate"
-
+  - path: "/Notice"
+    name: "notice"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "通告"
+      icon: ""
+    children:
+      - path: "Message"
+        name: "message"
+        hidden: false
+        component: "@/views/Notice/notice.vue"
+        meta:
+          title: "通知信息"
+          icon: "notice"
+# 学生路由 configuration
 student:
   - path: "/DM"
     name: "dormitory-management"
@@ -117,6 +133,21 @@ student:
         meta:
           title: "留宿申请"
           icon: "application"
+  - path: "/EM"
+    name: "ExpenseManagement"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: "费用管理"
+      icon: "ExpenseManagement"
+    children:
+      - path: "expense"
+        name: "expense"
+        hidden: false
+        component: "@/views/Expense/expense.vue"
+        meta:
+          title: "水电费信息"
+          icon: "expense"
   - path: "/Maintenance"  # 这里删除了额外的 `-`
     name: "Maintenance"
     hidden: false
@@ -132,3 +163,18 @@ student:
         meta:
           title: "维修列表"
           icon: "equipment"
+  - path: "/PersonInfo"
+    name: "person"
+    hidden: false
+    component: "@/layout/layout.vue"
+    meta:
+      title: ""
+      icon: ""
+    children:
+      - path: "setting"
+        name: "userInfo"
+        hidden: false
+        component: "@/views/Person/setting.vue"
+        meta:
+          title: "个人信息"
+          icon: "setting"
