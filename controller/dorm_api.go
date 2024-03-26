@@ -101,6 +101,7 @@ func (d *dorm_api) DeleteDormApi(c *gin.Context) {
 func (d *dorm_api) UpdateDormApi(c *gin.Context) {
 	var dorm apidorm.Dorm_api
 	err := c.ShouldBindJSON(&dorm)
+	fmt.Println("宿舍更新信息为",dorm)
 	if err != nil {
 		response.FailWithMessage("系统错误"+err.Error(), c)
 		return

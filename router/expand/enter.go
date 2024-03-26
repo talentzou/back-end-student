@@ -3,9 +3,11 @@ package expand
 import (
 	"back-end/router/expand/dorm"
 	"back-end/router/expand/expense"
+	"back-end/router/expand/home"
 	"back-end/router/expand/notice"
 	"back-end/router/expand/repair"
 	"back-end/router/expand/student"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +17,7 @@ type AppExpandRouterGroup struct {
 	Expense expense.ExpenseGroup
 	Student student.StudentGroup
 	Notice  notice.Notice
+	Home    home.Home
 }
 
 func (routers *AppExpandRouterGroup) InitializeExpandRouter(R *gin.RouterGroup) {
@@ -23,12 +26,14 @@ func (routers *AppExpandRouterGroup) InitializeExpandRouter(R *gin.RouterGroup) 
 	expenseRouter := routers.Expense
 	studentRouter := routers.Student
 	noticeRouter := routers.Notice
+	homeRouter := routers.Home
 	// jwt路由
 	{
 		dormRouter.UseDormRouter(R) //宿舍管理
 		repairRouter.UseRepair(R)   //维修管理
 		studentRouter.UseStudent(R) //学生管理
 		expenseRouter.UseExpense(R) //费用管理
-		noticeRouter.UseNotice(R)   //首页
+		noticeRouter.UseNotice(R)   //通告
+		homeRouter.UseHome(R)       //首页信息
 	}
 }

@@ -48,6 +48,7 @@ type StayTime struct {
 	StartTime string `json:"startTime" gorm:"type:date"`
 	EndTime   string `json:"endTime" gorm:"type:date"`
 }
+// 宿舍
 type Dorm_api struct {
 	Id           string `json:"id" gorm:"size:256"`
 	FloorsName   string `json:"floorsName" gorm:"size:256"`

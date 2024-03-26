@@ -10,5 +10,6 @@ type SysUser struct{}
 func (u *SysUser) UserRouter(r *gin.RouterGroup) {
 	user := r.Group("user")
 	user.GET("getUserInfo", system.GetUserInfo)
+	user.POST("setUserInfo",system.SetUserInfo)
 }
 
