@@ -16,7 +16,7 @@ func GetUserInfo(c *gin.Context) {
 	uuid := utils.GetUserUUID(c)
 	var ResUser system.SysUser
 	fmt.Println("uuid", uuid)
-	err := global.Global_Db.Model(&system.SysUser{}).Where("uuid=?", uuid).First(&ResUser).Error
+	err := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("uuid=?", uuid).First(&ResUser).Error
 	if err != nil {
 		fmt.Println("获取用户信息失败")
 		response.FailWithMessage("获取用户信息失败", c)

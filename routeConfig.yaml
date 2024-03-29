@@ -178,3 +178,7 @@ student:
         meta:
           title: "个人信息"
           icon: "setting"
+# 按钮权限
+auth_btn:
+ - ""
+  

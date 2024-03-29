@@ -18,6 +18,7 @@ var SystemApi BaseApi
 
 type BaseApi struct{}
 
+// 登录
 func (b *BaseApi) Login(c *gin.Context) {
 	var user sysReq.Login
 	err := c.ShouldBindJSON(&user)
@@ -27,9 +28,18 @@ func (b *BaseApi) Login(c *gin.Context) {
 		return
 	}
 	var sysUser system.SysUser
-	err2 := global.Global_Db.Where("user_name=?", user.Username).First(&sysUser).Error
+	result := global.Global_Db.Migrator().HasTable(&system.SysUser{})
+	if !result {
+		fmt.Println("表格不存在")
+	}
+
+	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("user_name=?",user.Username).First(&sysUser).Error
 	fmt.Println("用户信息", sysUser)
 	fmt.Println("err2", err2)
+	if err2 != nil {
+		response.FailWithMessage("该用户不存在", c)
+		return
+	}
 	if err2 == nil {
 		// fmt.Println("密码加密",str)
 		// 判断密码是否正确
@@ -47,6 +57,11 @@ func (b *BaseApi) Login(c *gin.Context) {
 
 }
 
+// 退出
+func (j *BaseApi) Logout(c *gin.Context) {
+	utils.ClearToken(c)
+	response.OkWithMessage("jwt设置失效成功", c)
+}
 func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 	// 初始jwt声明信息
 	claims := utils.CreateClaims(request.BaseClaims{
@@ -68,8 +83,8 @@ func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 	// fmt.Println("运行时间为",time.Now().Format("2006-01-02 15:04:05"))
 	utils.SetToken(c, token, int(claims.RegisteredClaims.ExpiresAt.Unix()-time.Now().Unix()))
 	response.OkWithDetailed(system.LoginResponse{
-		User:  user,
-		Token: token,
+		User:      user,
+		Token:     token,
 		ExpiresAt: claims.RegisteredClaims.ExpiresAt.UnixMilli(),
 	}, "登录成功", c)
 
