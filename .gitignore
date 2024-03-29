@@ -1,2 +1,3 @@
 gorm.go
 *.log
+public/static
