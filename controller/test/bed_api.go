@@ -1,5 +1,4 @@
 package test
-
 import (
 	"back-end/common/request"
 	"back-end/common/response"
@@ -11,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 
@@ -81,8 +79,7 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 			response.FailWithMessage("床位编号："+strconv.Itoa(bedList[i2].BedNumber)+"不能大于宿舍容量", c)
 			return
 		}
-		uid := uuid.NewString()
-		bedList[i2].UUID = uid
+
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&bedList)
@@ -104,7 +101,7 @@ func (d *dorm_bed_api) DeleteBedApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range bedList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&value)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			response.FailWithMessage("删除的数据:"+value.DormNumber+":"+strconv.Itoa(value.BedNumber)+"号床不存在:", c)
 			return
@@ -131,7 +128,7 @@ func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 	}
 	// 判断数据是否存在
 	var tempBed dorm.Bed
-	err2 := global.Global_Db.Where("uuid=?", bed.UUID).First(&tempBed)
+	err2 := global.Global_Db.Where("id=?", bed.Id).First(&tempBed)
 	if err2.Error != nil {
 		response.FailWithMessage(bed.DormNumber+":"+strconv.Itoa(bed.BedNumber)+"号床数据不存在:无法更新", c)
 		return
@@ -160,7 +157,7 @@ func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 			bed.StudentName = "无"
 		}
 		// 判断是否是原来的数据
-		if v.UUID == bed.UUID {
+		if v.Id == bed.Id {
 			continue
 		}
 		if bed.BedNumber == v.BedNumber {
@@ -169,7 +166,7 @@ func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 		}
 	}
 	// 更新
-	result := global.Global_Db.Model(&bed).Where("uuid = ?", bed.UUID).Updates(bed)
+	result := global.Global_Db.Model(&bed).Where("id = ?", bed.Id).Updates(bed)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

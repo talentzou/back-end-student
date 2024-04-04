@@ -9,10 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	// "gorm.io/gorm"
 )
 
 var pages request.PageInfo
@@ -25,6 +22,7 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 	fmt.Println("我是楼.......")
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
+		fmt.Println("参数错误为",err)
 		response.FailWithMessage("添加的参数错误", c)
 		return
 	}
@@ -35,11 +33,7 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻错误", c)
 		return
 	}
-	// 给数据添加id
-	for i, _ := range floors {
-		uid := uuid.NewString()
-		floors[i].UUID = uid
-	}
+	
 	for i := range tempArr {
 		if floors[0].FloorsName == tempArr[i].FloorsName {
 			response.FailWithMessage("该楼已存在", c)
@@ -69,8 +63,8 @@ func (d *dorm_floor_api) DeleteFloorApi(c *gin.Context) {
 	//遍历查寻数据是否存在
 	var floor dorm.Floor
 	for _, value := range floors {
-		fmt.Println("刪除的数据为", value.UUID)
-		err2 := global.Global_Db.Where("uuid = ?", value.UUID).First(&floor).Error
+		fmt.Println("刪除的数据为", value.Id)
+		err2 := global.Global_Db.Where("id= ?", value.Id).First(&floor).Error
 		if err2 != nil {
 			fmt.Println("错误为", err)
 			response.FailWithMessage("删除的数据不存在:"+value.FloorsName, c)
@@ -78,7 +72,7 @@ func (d *dorm_floor_api) DeleteFloorApi(c *gin.Context) {
 		}
 	}
 	for _, del := range floors {
-		result := global.Global_Db.Where("uuid = ?", del.UUID).Delete(&del)
+		result := global.Global_Db.Where("id= ?", del.Id).Delete(&del)
 		if result.Error != nil {
 			// 处理错误
 			response.FailWithMessage("该数据不存在,无法删除:"+del.FloorsName, c)
@@ -121,7 +115,7 @@ func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 	// 	fmt.Println(v)
 	// 	global.Global_Db.Model(&floor).Association("Dorms").Clear()
 	// }
-	result := global.Global_Db.Model(&dorm.Floor{}).Where("uuid = ?", floor.UUID).Updates(floor)
+	result := global.Global_Db.Model(&dorm.Floor{}).Where("id= ?", floor.Id).Updates(floor)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

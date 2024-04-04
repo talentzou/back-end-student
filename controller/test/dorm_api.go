@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 
@@ -57,11 +56,6 @@ func (d *dorm_api) CreateDormApi(c *gin.Context) {
 		
 
 	}
-	// 给数据添加id
-	for i, _ := range dormList {
-		uid := uuid.NewString()
-		dormList[i].UUID = uid
-	}
 	// 添加数据
 	result := global.Global_Db.Model(&dorm.Dorm{}).Create(&dormList).Error
 	if result != nil {
@@ -83,7 +77,7 @@ func (d *dorm_api) DeleteDormApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range dormList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&value)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			fmt.Println(err2.Error.Error())
 			response.FailWithMessage("删除的数据不存在:", c)
@@ -91,7 +85,7 @@ func (d *dorm_api) DeleteDormApi(c *gin.Context) {
 		}
 	}
 	for _, del := range dormList {
-		result := global.Global_Db.Where("uuid=?", del.UUID).Delete(&del)
+		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
 		if result.Error != nil {
 			// 处理错误
 			fmt.Println(result.Error.Error())
@@ -116,7 +110,7 @@ func (d *dorm_api) UpdateDormApi(c *gin.Context) {
 		response.FailWithMessage("宿舍与宿舍楼前缀不一致", c)
 		return
 	}
-	result := global.Global_Db.Model(&Dorm).Where("uuid = ?", Dorm.UUID).Updates(Dorm)
+	result := global.Global_Db.Model(&Dorm).Where("id = ?", Dorm.Id).Updates(Dorm)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

@@ -10,9 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type notice_api struct{}
@@ -25,11 +23,6 @@ func (d *notice_api) CreateNoticeApi(c *gin.Context) {
 		fmt.Println("参数错误", err.Error())
 		response.FailWithMessage("添加的参数错误", c)
 		return
-	}
-	// 给数据添加id
-	for i, _ := range noticeList {
-		uuid := uuid.NewString()
-		noticeList[i].UUID = uuid
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&noticeList)
@@ -52,14 +45,14 @@ func (d *notice_api) DeleteNoticeApi(c *gin.Context) {
 	//遍历查寻数据是否存在
 	var notice notice.SysNotice
 	for _, value := range noticeList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&notice)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&notice)
 		if err2.Error != nil {
 			response.FailWithMessage("删除的数据不存在:", c)
 			return
 		}
 	}
 	for _, del := range noticeList {
-		result := global.Global_Db.Where("uuid=?", del.UUID).Delete(&del)
+		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
 		if result.Error != nil {
 			// 处理错误
 			response.FailWithMessage("该数据不存在,无法删除:", c)
@@ -77,7 +70,7 @@ func (d *notice_api) UpdateNoticeApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	result := global.Global_Db.Model(&notice).Omit("id").Where("uuid=?", notice.UUID).Updates(notice)
+	result := global.Global_Db.Model(&notice).Omit("id").Where("id=?", notice.Id).Updates(notice)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type dorm_rate_api struct{}
@@ -58,8 +57,7 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 				return
 			}
 		}
-		uid := uuid.NewString()
-		rateList[i].UUID = uid
+		
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&rateList)
@@ -81,7 +79,7 @@ func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range rateList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&value)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+value.FloorsName+":"+value.DormNumber+"宿舍数据不存在", c)
 			return
@@ -108,12 +106,12 @@ func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
 		return
 	}
 	var tempRate dorm.Rate
-	err2 := global.Global_Db.Where("uuid=?", rate.UUID).First(&tempRate)
+	err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
 	if err2.Error != nil {
 		response.FailWithMessage(rate.RateDate.Format("2006-01-02")+":"+rate.DormNumber+":数据不存在:无法更新", c)
 		return
 	}
-	result := global.Global_Db.Model(&rate).Where("uuid = ?", rate.UUID).Updates(rate)
+	result := global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新rate失败", c)

@@ -10,10 +10,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	// "time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type dorm_stay_api struct{}
@@ -58,9 +55,6 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 			response.FailWithMessage("宿舍:"+stayList[i].DormNumber+"开头前缀与宿舍楼:"+stayList[i].FloorsName+"不一致", c)
 			return
 		}
-		uid := uuid.NewString()
-		stayList[i].UUID = uid
-
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&stayList)
@@ -82,7 +76,7 @@ func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range stayList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&value)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			response.FailWithMessage("删除为:"+value.DormNumber+",日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
 			return
@@ -108,7 +102,7 @@ func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 		return
 	}
 	var tempRate dorm.Stay
-	err2 := global.Global_Db.Where("uuid=?", stay.UUID).First(&tempRate)
+	err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
 	if err2.Error != nil {
 		response.FailWithMessage(stay.DormNumber+":数据不存在:无法更新", c)
 		return
@@ -119,7 +113,7 @@ func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 		response.FailWithMessage("宿舍与宿舍楼前缀不一致", c)
 		return
 	}
-	result := global.Global_Db.Model(&stay).Where("uuid = ?", stay.UUID).Updates(stay)
+	result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

@@ -4,11 +4,10 @@ import "time"
 
 type Repair struct {
 	Id           uint      `json:"-" gorm:"primarykey"`
-	UUID         string    `json:"uuid" gorm:"size:256"`
 	FloorsName   string    `json:"floorsName" gorm:"size:256"`
 	DormNumber   string    `json:"dormNumber" gorm:"size:256"`
 	Problems     string    `json:"problems" gorm:"size:256"`
-	SubmitDate   time.Time `json:"submitDate" gorm:"type:date"`
+	SubmitDate   time.Time `json:"submitDate"`
 	RepairStatus string    `json:"repairStatus" gorm:"size:256"`
 	ReportMan    string    `json:"reportMan" gorm:"size:256"`
 	Phone        string    `json:"phone" gorm:"size:256"`

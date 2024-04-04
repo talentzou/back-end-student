@@ -4,16 +4,12 @@ import (
 	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
-	// "back-end/model/apidorm"
 	"back-end/model/test/student"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
-	// "time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type violate_info_api struct{}
@@ -25,11 +21,6 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
-	}
-	
-	for i, _ := range violateList {
-		uid := uuid.NewString()
-		violateList[i].UUID = uid
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&violateList)
@@ -52,7 +43,7 @@ func (d *violate_info_api) DeleteVioApi(c *gin.Context) {
 	// 遍历查寻数据是否存在
 	for _, value := range violateList {
 		var student student.StudentViolate
-		err2 := global.Global_Db.Model(&student).Where("uuid=?", value.UUID).First(&student)
+		err2 := global.Global_Db.Model(&student).Where("id=?", value.Id).First(&student)
 		if err2.Error != nil {
 			response.FailWithMessage("删除学号为:"+value.StudentNumber+"违纪数据不存在", c)
 			return
@@ -79,13 +70,13 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 	} 
 	// 判断数据是否存在
 	var tempStudent student.StudentViolate
-	err2 := global.Global_Db.Where("uuid=? ", vio.UUID).First(&tempStudent)
+	err2 := global.Global_Db.Where("id=? ", vio.Id).First(&tempStudent)
 	if err2.Error != nil {
 		response.FailWithMessage("更新的学号为:"+vio.StudentNumber+"数据不存在", c)
 		return
 	}
 	// 
-	result := global.Global_Db.Model(&vio).Where("uuid = ?", vio.UUID).Updates(vio)
+	result := global.Global_Db.Model(&vio).Where("id = ?", vio.Id).Updates(vio)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新学生:"+vio.StudentName+"失败", c)

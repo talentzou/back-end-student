@@ -13,10 +13,10 @@ import (
 // 获取用户信息
 func GetUserInfo(c *gin.Context) {
 	fmt.Println("我是用户数据")
-	uuid := utils.GetUserUUID(c)
+	id := utils.GetUserID(c)
 	var ResUser system.SysUser
-	fmt.Println("uuid", uuid)
-	err := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("uuid=?", uuid).First(&ResUser).Error
+	fmt.Println("uuid", id)
+	err := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("id=?", id).First(&ResUser).Error
 	if err != nil {
 		fmt.Println("获取用户信息失败")
 		response.FailWithMessage("获取用户信息失败", c)
@@ -27,7 +27,7 @@ func GetUserInfo(c *gin.Context) {
 
 // 设置用户信息
 func SetUserInfo(c *gin.Context) {
-	uuid := utils.GetUserUUID(c)
+	uuid := utils.GetUserID(c)
 	var userInfo system.ChangeUserInfo
 	err := c.ShouldBindJSON(&userInfo)
 	fmt.Println("参数为",userInfo)
@@ -39,7 +39,6 @@ func SetUserInfo(c *gin.Context) {
 		Sex: userInfo.Sex,
 		Avatar: userInfo.Avatar,
 		Nickname: userInfo.NickName,
-		Email: userInfo.Email,
 		Telephone: userInfo.Telephone,
 		Dorm: userInfo.Dorm,
 	}).Error

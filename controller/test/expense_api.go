@@ -11,9 +11,7 @@ import (
 	"strconv"
 	"strings"
 	// "time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type expense_dorm_api struct{}
@@ -35,8 +33,6 @@ func (d *expense_dorm_api) CreateExpenseApi(c *gin.Context) {
 			response.FailWithMessage("宿舍"+expenseList[i].DormNumber+"开头前缀与宿舍楼不一致", c)
 			return
 		}
-		uid := uuid.NewString()
-		expenseList[i].UUID = uid
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&expenseList)
@@ -58,7 +54,7 @@ func (d *expense_dorm_api) DeleteExpenseApi(c *gin.Context) {
 	}
 	// 遍历查寻数据是否存在
 	for _, value := range expenseList {
-		err2 := global.Global_Db.Where("uuid=?", value.UUID).First(&value)
+		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
 			response.FailWithMessage("宿舍:"+value.DormNumber+","+value.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
 			return
@@ -84,12 +80,12 @@ func (d *expense_dorm_api) UpdateExpenseApi(c *gin.Context) {
 		return
 	}
 	var temp expense.Expense
-	err2 := global.Global_Db.Model(&temp).Where("uuid=?", dormExpense.UUID).First(&temp)
+	err2 := global.Global_Db.Model(&temp).Where("id=?", dormExpense.Id).First(&temp)
 	if err2.Error != nil {
 		response.FailWithMessage("宿舍:"+dormExpense.DormNumber+","+dormExpense.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
 		return
 	}
-	result := global.Global_Db.Model(&dormExpense).Where("uuid = ?", dormExpense.UUID).Updates(dormExpense)
+	result := global.Global_Db.Model(&dormExpense).Where("id = ?", dormExpense.Id).Updates(dormExpense)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新失败", c)

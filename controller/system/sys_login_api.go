@@ -28,33 +28,28 @@ func (b *BaseApi) Login(c *gin.Context) {
 		return
 	}
 	var sysUser system.SysUser
-	result := global.Global_Db.Migrator().HasTable(&system.SysUser{})
-	if !result {
-		fmt.Println("表格不存在")
-	}
-
-	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("user_name=?",user.Username).First(&sysUser).Error
-	fmt.Println("用户信息", sysUser)
-	fmt.Println("err2", err2)
+	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("user_name=?", user.Username).First(&sysUser).Error
 	if err2 != nil {
 		response.FailWithMessage("该用户不存在", c)
 		return
-	}
-	if err2 == nil {
-		// fmt.Println("密码加密",str)
-		// 判断密码是否正确
+	} else {
+		fmt.Println("err2", sysUser.Authority == user.Authority)
+		if sysUser.Authority != user.Authority {
+			response.FailWithMessage("该用户不存在", c)
+			return
+		}
 		ok := utils.BcryptCheck(user.Password, sysUser.Password)
 		fmt.Println("密码比对情况", ok)
 		if !ok {
 			response.FailWithMessage("用户或密码错误", c)
 			return
 		}
+
 		// 派发token
 		fmt.Println("生成token")
 		b.TokenNext(c, sysUser)
 		return
 	}
-
 }
 
 // 退出
@@ -66,7 +61,6 @@ func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 	// 初始jwt声明信息
 	claims := utils.CreateClaims(request.BaseClaims{
 		Id:          user.ID,
-		UUId:        user.UUID,
 		Username:    user.UserName,
 		NickName:    user.Nickname,
 		AuthorityId: user.Authority,

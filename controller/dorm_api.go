@@ -15,9 +15,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// type  dorm_api interface {
-// 	UpdateApi(c *gin.Context,class interface{})
-// }
 
 var dormPages request.PageInfo
 

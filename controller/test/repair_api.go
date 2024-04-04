@@ -10,14 +10,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	// "time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
-
-
-// var repair apirepair.Repair_dorm
 
 type repair_api_ struct{}
 
@@ -31,7 +25,7 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 		return
 	}
 	// 给数据添加id
-	for i, v := range repairList {
+	for _, v := range repairList {
 		words := strings.Split(v.DormNumber, "-")
 		if words[0] != v.FloorsName {
 			response.FailWithMessage("宿舍:"+v.DormNumber+"与宿舍楼:"+v.FloorsName+"前缀不一致", c)
@@ -41,15 +35,7 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 			response.FailWithMessage("宿舍:"+v.DormNumber+"维修问题不能为空", c)
 			return
 		}
-		// 判断宿舍是否是否存在
-		// var dorm apidorm.Dorm_api
-		// query := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&dorm)
-		// if query.Error != nil {
-		// 	response.FailWithMessage("该宿舍"+v.DormNumber+"不存在", c)
-		// 	return
-		// }
-		uid := uuid.NewString()
-		repairList[i].UUID = uid
+		
 	}
 
 	// 添加数据
@@ -109,7 +95,7 @@ func (d *repair_api_) UpdateRepairApi(c *gin.Context) {
 		response.FailWithMessage("宿舍:"+Repair.DormNumber+"与宿舍楼:"+Repair.FloorsName+"前缀不一致", c)
 		return
 	}
-	result := global.Global_Db.Model(&Repair).Where("UUID = ?", Repair.UUID).Updates(Repair)
+	result := global.Global_Db.Model(&Repair).Where("Id = ?", Repair.Id).Updates(Repair)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("宿舍:"+Repair.DormNumber+"更新失败", c)

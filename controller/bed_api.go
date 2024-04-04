@@ -14,9 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// type  dorm_api interface {
-// 	UpdateApi(c *gin.Context,class interface{})
-// }
 
 type dorm_bed_api struct{}
 

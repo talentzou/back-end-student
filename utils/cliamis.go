@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
 var day int = 1000 * 60 * 60 * 24
@@ -27,19 +26,19 @@ func CreateClaims(BaseClaims request.BaseClaims) request.CustomClaims {
 }
 
 // 获取claim用户uuid
-func GetUserUUID(c *gin.Context) string {
+func GetUserID(c *gin.Context) uint {
 	claims, exist := c.Get("claims")
 	if exist {
 		fmt.Println("找到claims")
 		user, _ := claims.(*request.CustomClaims)
-		return user.UUId
+		return user.Id
 	} else {
 		cl, err := GetClaims(c)
 		fmt.Println("找到claims")
 		if err != nil {
-			return uuid.New().String()
+			return 4040
 		} else {
-			return cl.UUId
+			return cl.Id
 		}
 		
 	}

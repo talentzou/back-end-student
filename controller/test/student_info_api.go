@@ -5,14 +5,12 @@ import (
 	"back-end/common/response"
 	"back-end/global"
 	"back-end/model/test/dorm"
-	// "back-end/model/apistudent"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type student_info_api struct{}
@@ -46,10 +44,7 @@ func (d *student_info_api) CreateStudInfoApi(c *gin.Context) {
 		}
 
 	}
-	for i, _ := range studInfoList {
-		uid := uuid.NewString()
-		studInfoList[i].UUID = uid
-	}
+
 	// 添加数据
 	result := global.Global_Db.Create(&studInfoList)
 	if result.Error != nil {
@@ -71,7 +66,7 @@ func (d *student_info_api) DeleteStudInfoApi(c *gin.Context) {
 	// 遍历查寻数据是否存在
 	for _, value := range studInfoList {
 		var student dorm.StudInfo
-		err2 := global.Global_Db.Model(&student).Where("UUID=?", value.UUID).First(&student)
+		err2 := global.Global_Db.Model(&student).Where("Id=?", value.Id).First(&student)
 		if err2.Error != nil {
 			response.FailWithMessage("删除学号为:"+value.StudentNumber+"数据不存在", c)
 			return
@@ -109,7 +104,7 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 		response.FailWithMessage("该宿舍:"+stud.DormNumber+",不存在无法添加", c)
 		return
 	}
-	result := global.Global_Db.Model(&stud).Where("uuid= ?", stud.UUID).Updates(stud)
+	result := global.Global_Db.Model(&stud).Where("id= ?", stud.Id).Updates(stud)
 	if result.Error != nil {
 		// 处理错误
 		response.FailWithMessage("更新学生:"+stud.StudentName+"失败", c)

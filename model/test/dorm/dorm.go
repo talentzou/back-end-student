@@ -12,7 +12,6 @@ import (
 // 宿舍楼
 type Floor struct {
 	Id         uint   `json:"id" gorm:"primarykey"`
-	UUID       string `json:"uuid" gorm:"size:256"`
 	FloorsName string `json:"floorsName" gorm:"size:256"`
 	Floors     uint   `json:"floors" gorm:"size:256"`
 	FloorsType string `json:"floorsType" gorm:"size:256"`
@@ -23,7 +22,6 @@ type Floor struct {
 // 宿舍
 type Dorm struct {
 	Id           uint              `json:"id" gorm:"primarykey"`
-	UUID         string            `json:"uuid" gorm:"size:256"`
 	DormNumber   string            `json:"dormNumber"  gorm:"size:256"`
 	Img          string            `json:"img" gorm:"size:256"`
 	DormCapacity int               `json:"dormCapacity" gorm:"size:256"`
@@ -38,7 +36,6 @@ type Dorm struct {
 // 床位
 type Bed struct {
 	Id          uint     `json:"id" gorm:"primarykey"`
-	UUID        string   `json:"uuid" gorm:"size:256"`
 	BedStatus   string   `json:"bedStatus" gorm:"size:256"`
 	DormNumber  string   `json:"dormNumber"`
 	BedNumber   int      `json:"bedNumber" gorm:"size:256"`
@@ -50,7 +47,6 @@ type Bed struct {
 // 留宿
 type Stay struct {
 	Id          uint     `json:"id" gorm:"primarykey"`
-	UUID        string   `json:"uuid" gorm:"size:256"`
 	StayTime    StayTime `json:"stayTime"  gorm:"embedded"`
 	StudentName string   `json:"studentName" gorm:"size:256"`
 	FloorsName  string   `json:"floorsName" gorm:"size:256"`
@@ -63,7 +59,6 @@ type Stay struct {
 // 学生信息
 type StudInfo struct {
 	Id              uint                     `json:"-" gorm:"primarykey"`
-	UUID            string                   `json:"uuid" gorm:"size:256"`
 	StudentName     string                   `json:"studentName" gorm:"size:256"`
 	StudentNumber   string                   `json:"studentNumber" gorm:"size:256"`
 	Sex             string                   `json:"sex" gorm:"size:256"`
@@ -82,7 +77,7 @@ type StayTime struct {
 type Rate struct {
 	Id         uint      `json:"id" gorm:"primarykey"`
 	UUID       string    `json:"uuid" gorm:"size:256"`
-	RateDate   time.Time `json:"rateDate" gorm:"type:date"`
+	RateDate   time.Time `json:"rateDate"`
 	FloorsName string    `json:"floorsName" gorm:"size:256"`
 	DormNumber string    `json:"dormNumber" gorm:"size:256"`
 	BedRate    uint      `json:"bedRate"`

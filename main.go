@@ -4,6 +4,7 @@ import (
 	"back-end/core"
 	"back-end/global"
 	"back-end/initialize"
+	"fmt"
 )
 
 func main() {
@@ -15,4 +16,5 @@ func main() {
 	}
 	r := core.RunWindowServer()//创建应用实例
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	fmt.Println("测试成功")
 }
