@@ -4,12 +4,14 @@ import (
 	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/test/dorm"
 	"back-end/model/test/repair"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,16 +28,12 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 	}
 	// 给数据添加id
 	for _, v := range repairList {
-		words := strings.Split(v.DormNumber, "-")
-		if words[0] != v.FloorsName {
-			response.FailWithMessage("宿舍:"+v.DormNumber+"与宿舍楼:"+v.FloorsName+"前缀不一致", c)
+		var tempDorm dorm.Dorm
+		query := global.Global_Db.Where("floors_name=? AND dorm_number=? ", v.FloorsName, v.DormNumber).First(&tempDorm)
+		if query.Error != nil {
+			response.FailWithMessage("该宿舍："+v.FloorsName+"-"+v.DormNumber+"不存在，无法添加", c)
 			return
 		}
-		if len(v.Problems) == 0 {
-			response.FailWithMessage("宿舍:"+v.DormNumber+"维修问题不能为空", c)
-			return
-		}
-		
 	}
 
 	// 添加数据

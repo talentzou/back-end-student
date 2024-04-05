@@ -4,11 +4,14 @@ import (
 	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/test/dorm"
 	"back-end/model/test/student"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +25,16 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
+	for _, v := range violateList {
+		var Dorm dorm.Dorm
+		word := strings.Split(v.DormNumber, "-")
+		dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
+		if dormErr.Error != nil {
+			response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
+			return
+		}
+	}
+
 	// 添加数据
 	result := global.Global_Db.Create(&violateList)
 	if result.Error != nil {
@@ -67,7 +80,7 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
-	} 
+	}
 	// 判断数据是否存在
 	var tempStudent student.StudentViolate
 	err2 := global.Global_Db.Where("id=? ", vio.Id).First(&tempStudent)
@@ -75,7 +88,14 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 		response.FailWithMessage("更新的学号为:"+vio.StudentNumber+"数据不存在", c)
 		return
 	}
-	// 
+	var Dorm dorm.Dorm
+	word := strings.Split(vio.DormNumber, "-")
+	dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
+	if dormErr.Error != nil {
+		response.FailWithMessage("该宿舍:"+vio.DormNumber+"不存在无法更新", c)
+		return
+	}
+	//
 	result := global.Global_Db.Model(&vio).Where("id = ?", vio.Id).Updates(vio)
 	if result.Error != nil {
 		// 处理错误
@@ -115,7 +135,7 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	
+
 	// 分页数据
 	offset = PageSize * (Page - 1)
 	limit = PageSize
@@ -133,23 +153,14 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻数据失败", c)
 		return
 	}
-	// for i, v := range violateList {
-	// 	time, err := time.Parse(time.RFC3339, v.RecordDate)
-	// 	if err != nil {
-	// 		response.FailWithMessage("系统解析时间错误错误", c)
-	// 		return
-	// 	}
-	// 	tt := time.Format("2006-01-02")
-	// 	violateList[i].RecordDate = tt
-	// }
-	// fmt.Println("total",total,"数量为",len(violateList),violateList)
+
 	response.OkWithDetailed(request.PageInfo{
 		List:     violateList,
 		Total:    total,
 		PageSize: PageSize,
 		Page:     Page,
 	}, "成功", c)
-	
+
 }
 
 var Vio_api = new(violate_info_api)

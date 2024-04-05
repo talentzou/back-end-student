@@ -7,10 +7,10 @@ import (
 	"back-end/model/test/dorm"
 	"back-end/utils"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/url"
 	"strconv"
-	"strings"
-	"github.com/gin-gonic/gin"
+
 )
 
 type dorm_stay_api struct{}
@@ -26,17 +26,24 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 		return
 	}
 	fmt.Println("插入的数据", stayList)
-	//
+	//查寻数据存在
 	for _, v := range stayList {
-		var tempArr []dorm.Stay
-		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).Find(&tempArr)
-		if query.Error != nil {
-			response.FailWithMessage("系统查询错误", c)
+		// 查询宿舍存在数据
+		var tempDorm dorm.Dorm
+		queryDorm := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).First(&tempDorm)
+		if queryDorm.Error != nil {
+			response.FailWithMessage("该宿舍"+v.FloorsName+"-"+v.DormNumber+"不存在,无法添加", c)
 			return
 		}
-		for _, t := range tempArr {
+		var tempStay []dorm.Stay
+		query := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).Find(&tempStay)
+		if query.Error != nil {
+			response.FailWithMessage("该宿舍"+v.FloorsName+"-"+v.DormNumber+"不存在", c)
+			return
+		}
+		for _, t := range tempStay {
 			// 判断是宿舍与学生
-			if v.DormNumber == t.DormNumber && v.StudentName == t.StudentName {
+			if v.StudentName == t.StudentName {
 				//   判断日期
 				if t.StayTime.StartTime == v.StayTime.StartTime && t.StayTime.EndTime == v.StayTime.EndTime {
 					response.FailWithMessage("学生:"+v.StudentName+"留宿申请已存在", c)
@@ -47,15 +54,6 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 		}
 	}
 
-	// 给数据添加id
-	for i, _ := range stayList {
-		words := strings.Split(stayList[i].DormNumber, "-")
-		if words[0] != stayList[i].FloorsName {
-			fmt.Println(words[0] != stayList[i].FloorsName, "分割的单词", stayList[i].FloorsName, words)
-			response.FailWithMessage("宿舍:"+stayList[i].DormNumber+"开头前缀与宿舍楼:"+stayList[i].FloorsName+"不一致", c)
-			return
-		}
-	}
 	// 添加数据
 	result := global.Global_Db.Create(&stayList)
 	if result.Error != nil {
@@ -101,18 +99,21 @@ func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
+	// 查寻数据是否存在
 	var tempRate dorm.Stay
 	err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
 	if err2.Error != nil {
 		response.FailWithMessage(stay.DormNumber+":数据不存在:无法更新", c)
 		return
 	}
-
-	words := strings.Split(stay.DormNumber, "-")
-	if words[0] != stay.FloorsName {
-		response.FailWithMessage("宿舍与宿舍楼前缀不一致", c)
+	// 查寻宿舍
+	var tempDorm dorm.Dorm
+	queryDorm := global.Global_Db.Where("dorm_number=? AND floors_name=?", stay.DormNumber, stay.FloorsName).First(&tempDorm)
+	if queryDorm.Error != nil {
+		response.FailWithMessage("该宿舍"+stay.FloorsName+"-"+stay.DormNumber+"不存在,无法更新", c)
 		return
 	}
+
 	result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
 	if result.Error != nil {
 		// 处理错误

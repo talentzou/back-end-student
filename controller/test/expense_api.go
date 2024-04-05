@@ -4,14 +4,13 @@ import (
 	"back-end/common/request"
 	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/test/dorm"
 	"back-end/model/test/expense"
 	"back-end/utils"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/url"
 	"strconv"
-	"strings"
-	// "time"
-	"github.com/gin-gonic/gin"
 )
 
 type expense_dorm_api struct{}
@@ -21,16 +20,16 @@ func (d *expense_dorm_api) CreateExpenseApi(c *gin.Context) {
 	var expenseList []expense.Expense
 	err := c.ShouldBindJSON(&expenseList)
 	if err != nil {
-		fmt.Println("错误",err.Error())
+		fmt.Println("错误", err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
 	// 给数据添加id
-	for i, _ := range expenseList {
-		words := strings.Split(expenseList[i].DormNumber, "-")
-		if words[0] != expenseList[i].FloorsName {
-			fmt.Println(words[0] != expenseList[i].FloorsName, "分割的单词", expenseList[i].FloorsName, words)
-			response.FailWithMessage("宿舍"+expenseList[i].DormNumber+"开头前缀与宿舍楼不一致", c)
+	for _, v := range expenseList {
+		var tempDorm dorm.Dorm
+		query := global.Global_Db.Where("floors_name=? AND dorm_number=? ", v.FloorsName, v.DormNumber).First(&tempDorm)
+		if query.Error != nil {
+			response.FailWithMessage("该宿舍："+v.FloorsName+"-"+v.DormNumber+"不存在，无法添加", c)
 			return
 		}
 	}
@@ -116,7 +115,6 @@ func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 		fmt.Println("解析url错误")
 	}
 	queryParams := u.Query()
-	// fmt.Println("查寻字符串参数", queryParams)
 	// 获取请求体数据
 	condition := make(map[string]interface{})
 	for index, value := range queryParams {
@@ -142,16 +140,7 @@ func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻失败", c)
 		return
 	}
-	// for key, v := range expenseList {
-	// 	time, err1 := time.Parse(time.RFC3339, v.PaymentTime)
-	// 	if err1 != nil {
-	// 		response.FailWithMessage("系统解析时间错误错误", c)
-	// 		return
-	// 	}
-	// 	date :=  v.PaymentTime.Format("2006-01-02")
-	// 	expenseList[key].PaymentTime = date
 
-	// }
 	response.OkWithDetailed(request.PageInfo{
 		List:     expenseList,
 		Total:    total,

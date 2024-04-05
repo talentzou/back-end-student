@@ -14,8 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 type dorm_api struct{}
 
 // 插入
@@ -24,42 +22,34 @@ func (d *dorm_api) CreateDormApi(c *gin.Context) {
 	fmt.Println("我进来了..........")
 	err := c.ShouldBindJSON(&dormList)
 	if err != nil {
-		fmt.Println("参数错误为",err.Error())
+		fmt.Println("参数错误为", err.Error())
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
 	// 遍历添加的数据
-	for key, v := range dormList {
-		words := strings.Split(dormList[key].DormNumber, "-")
-		if words[0] != dormList[key].FloorsName {
-			fmt.Println(words[0] != dormList[key].FloorsName , "分割的单词", dormList[key].FloorsName , words)
-			response.FailWithMessage("宿舍"+dormList[key].DormNumber+"开头前缀与宿舍楼不一致", c)
-			return
-		}
+	for _, v := range dormList {
+
 		// 查询宿舍楼存在数据
 		var tempFloor dorm.Floor
-		query1 := global.Global_Db.Where("floors_name=?", v.FloorsName ).First(&tempFloor).Error 
-		if query1!= nil {
-			response.FailWithMessage("该宿舍楼"+v.FloorsName +"不存在,无法添加", c)
+		query1 := global.Global_Db.Where("floors_name=?", v.FloorsName).First(&tempFloor).Error
+		if query1 != nil {
+			response.FailWithMessage("该宿舍楼"+v.FloorsName+"不存在,无法添加", c)
 			return
 		}
 		// 查询宿舍存在数据
 		var tempArr dorm.Dorm
-		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&tempArr)
+		query := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).First(&tempArr)
 		if query.Error != nil {
 			continue
-		}
-		if tempArr.DormNumber == v.DormNumber {
+		} else {
 			response.FailWithMessage("该宿舍:"+v.DormNumber+"已存在", c)
 			return
 		}
-		
-
 	}
 	// 添加数据
 	result := global.Global_Db.Model(&dorm.Dorm{}).Create(&dormList).Error
 	if result != nil {
-		fmt.Println("宿舍错误",result)
+		fmt.Println("宿舍错误", result)
 		// 处理错误
 		response.FailWithMessage("添加失败", c)
 		return
@@ -100,7 +90,7 @@ func (d *dorm_api) DeleteDormApi(c *gin.Context) {
 func (d *dorm_api) UpdateDormApi(c *gin.Context) {
 	var Dorm dorm.Dorm
 	err := c.ShouldBindJSON(&Dorm)
-	fmt.Println("宿舍更新信息为",Dorm)
+	fmt.Println("宿舍更新信息为", Dorm)
 	if err != nil {
 		response.FailWithMessage("系统错误"+err.Error(), c)
 		return

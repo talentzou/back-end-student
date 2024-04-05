@@ -1,4 +1,5 @@
 package test
+
 import (
 	"back-end/common/request"
 	"back-end/common/response"
@@ -8,11 +9,10 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
-
-
 
 type dorm_bed_api struct{}
 
@@ -27,12 +27,13 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 	}
 	// 遍历body数据
 	for i, v := range bedList {
-		fmt.Println("第一次循环")
+
 		var tempArr []dorm.Bed
 		er := global.Global_Db.Where(&dorm.Bed{DormNumber: v.DormNumber}).Find(&tempArr).Error
 		if er != nil {
-			response.FailWithMessage(er.Error(), c)
-			return
+			fmt.Println("该宿舍没有数据")
+			// response.FailWithMessage("该宿舍"+v.DormNumber+"不存在", c)
+			// return
 		}
 		if len(tempArr) == 0 {
 			continue
@@ -42,13 +43,13 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 
 		//  找到宿舍拥有容量
 		var Dorm dorm.Dorm
-		dormErr := global.Global_Db.Where(&dorm.Dorm{DormNumber: bedList[i].DormNumber}).First(&Dorm).Error
+		words := strings.Split(v.DormNumber, "-")
+		dormErr := global.Global_Db.Model(&dorm.Dorm{}).Where(&dorm.Dorm{FloorsName: words[0], DormNumber: words[1]}).First(&Dorm).Error
 		if dormErr != nil {
 			response.FailWithMessage("宿舍"+v.DormNumber+"不存在,先添加该宿舍", c)
 			return
 		}
 
-		// fmt.Println("存在数据长度为:",length,"宿舍容量：",dorm.DormCapacity,length > dorm.DormCapacity)
 		// 判断宿舍容量是否超出
 		if length >= Dorm.DormCapacity {
 			response.FailWithMessage("超出"+bedList[i].DormNumber+"宿舍最大容量MAX", c)
@@ -66,21 +67,21 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 		}
 
 	}
-	for i2, val := range bedList {
-		// 给数据添加id
-		var Dorm dorm.Dorm
-		// 前面宿舍数据没有，再次判断宿舍是否存在
-		dormErr := global.Global_Db.Where(&dorm.Dorm{DormNumber: bedList[i2].DormNumber}).First(&Dorm).Error
-		if dormErr != nil {
-			response.FailWithMessage("宿舍"+val.DormNumber+"不存在,先添加该宿舍", c)
-			return
-		}
-		if bedList[i2].BedNumber > Dorm.DormCapacity {
-			response.FailWithMessage("床位编号："+strconv.Itoa(bedList[i2].BedNumber)+"不能大于宿舍容量", c)
-			return
-		}
+	// for i2, val := range bedList {
+	// 	// 给数据添加id
+	// 	var Dorm dorm.Dorm
+	// 	// 前面宿舍数据没有，再次判断宿舍是否存在
+	// 	dormErr := global.Global_Db.Where(&dorm.Dorm{DormNumber: bedList[i2].DormNumber}).First(&Dorm).Error
+	// 	if dormErr != nil {
+	// 		response.FailWithMessage("宿舍"+val.DormNumber+"不存在,先添加该宿舍", c)
+	// 		return
+	// 	}
+	// 	if bedList[i2].BedNumber > Dorm.DormCapacity {
+	// 		response.FailWithMessage("床位编号："+strconv.Itoa(bedList[i2].BedNumber)+"不能大于宿舍容量", c)
+	// 		return
+	// 	}
 
-	}
+	// }
 	// 添加数据
 	result := global.Global_Db.Create(&bedList)
 	if result.Error != nil {
@@ -135,14 +136,10 @@ func (d *dorm_bed_api) UpdateBedApi(c *gin.Context) {
 	}
 	// 判断更新的宿舍是否存在
 	var Dorm dorm.Dorm
-	dormErr := global.Global_Db.Where(&dorm.Dorm{DormNumber: bed.DormNumber}).First(&Dorm).Error
+	words := strings.Split(bed.DormNumber, "-")
+	dormErr := global.Global_Db.Model(&dorm.Dorm{}).Where(&dorm.Dorm{FloorsName: words[0], DormNumber: words[1]}).First(&Dorm).Error
 	if dormErr != nil {
 		response.FailWithMessage("宿舍"+bed.DormNumber+"不存在,先添加该宿舍", c)
-		return
-	}
-	// 判断床位编号
-	if bed.BedNumber > Dorm.DormCapacity {
-		response.FailWithMessage("床位编号："+strconv.Itoa(bed.BedNumber)+"不能大于宿舍容量", c)
 		return
 	}
 	// 查找属于该宿舍数据
@@ -202,11 +199,10 @@ func (d *dorm_bed_api) QueryBedApi(c *gin.Context) {
 		return
 	}
 	total := len(bedList)
+	fmt.Println("HFDHDHDHHD")
 	response.OkWithDetailed(request.PageInfo{
 		List:  bedList,
 		Total: int64(total),
-		// PageSize: PageSize,
-		// Page:     Page,
 	}, "成功", c)
 }
 

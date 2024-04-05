@@ -3,8 +3,7 @@ package expense
 import "time"
 
 type Expense struct {
-	Id                     uint      `json:"-" gorm:"primarykey"`
-	UUID                   string    `json:"uuid" gorm:"size:256"`
+	Id                     uint      `json:"id" gorm:"primarykey"`
 	FloorsName             string    `json:"floorsName" gorm:"size:256"`
 	DormNumber             string    `json:"dormNumber" gorm:"size:256"`
 	PaymentTime            time.Time `json:"paymentTime" gorm:"type:date"`

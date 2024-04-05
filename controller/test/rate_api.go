@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,37 +26,26 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
+	fmt.Println("参数为999",rateList)
 	// 给数据添加id
 	for i, v := range rateList {
 		// //查寻存在数据
 		var tempArr []dorm.Rate
-		query := global.Global_Db.Where("dorm_number=?", v.DormNumber).Find(&tempArr)
+		query := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).Find(&tempArr)
 		if query.Error != nil {
 			response.FailWithMessage("系统查寻错误", c)
 			return
 		}
-		words := strings.Split(v.DormNumber, "-")
-		if v.FloorsName != words[0] {
-			response.FailWithMessage("宿舍:"+v.DormNumber+"与宿舍楼:"+v.FloorsName+"前缀不一致", c)
-			return
-		}
 
 		for t := range tempArr {
-			// fmt.Println("日期：", rateList[i].RateDate, tempArr[t].RateDate, "布尔")
-			// fmt.Println("宿舍：", rateList[i].DormNumber, tempArr[t].DormNumber)
-			// tt, err := time.Parse(time.RFC3339, tempArr[t].RateDate)
-			// if err != nil {
-			// 	response.FailWithMessage("系统解析事件错误", c)
-			// 	return
-			// }
 			// dd :=  tempArr[t].RateDate.Format("2006-01-02")
-
+			
 			if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormNumber == tempArr[t].DormNumber {
 				response.FailWithMessage(rateList[i].DormNumber+"宿舍的"+tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
 				return
 			}
 		}
-		
+
 	}
 	// 添加数据
 	result := global.Global_Db.Create(&rateList)

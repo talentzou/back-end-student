@@ -52,13 +52,12 @@ type Stay struct {
 	FloorsName  string   `json:"floorsName" gorm:"size:256"`
 	DormNumber  string   `json:"dormNumber" gorm:"size:256"`
 	StayCause   string   `json:"stayCause" gorm:"size:256"`
-	Instructor  string   `json:"instructor" gorm:"size:256"`
-	Opinions    string   `json:"opinions" gorm:"size:256"`
+	Opinions    string   `json:"opinions" gorm:"default:审核中;size:256"`
 }
 
 // 学生信息
 type StudInfo struct {
-	Id              uint                     `json:"-" gorm:"primarykey"`
+	Id              uint                     `json:"id" gorm:"primarykey"`
 	StudentName     string                   `json:"studentName" gorm:"size:256"`
 	StudentNumber   string                   `json:"studentNumber" gorm:"size:256"`
 	Sex             string                   `json:"sex" gorm:"size:256"`
@@ -76,7 +75,6 @@ type StayTime struct {
 // 评分
 type Rate struct {
 	Id         uint      `json:"id" gorm:"primarykey"`
-	UUID       string    `json:"uuid" gorm:"size:256"`
 	RateDate   time.Time `json:"rateDate"`
 	FloorsName string    `json:"floorsName" gorm:"size:256"`
 	DormNumber string    `json:"dormNumber" gorm:"size:256"`

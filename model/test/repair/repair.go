@@ -3,7 +3,7 @@ package repair
 import "time"
 
 type Repair struct {
-	Id           uint      `json:"-" gorm:"primarykey"`
+	Id           uint      `json:"id" gorm:"primarykey"`
 	FloorsName   string    `json:"floorsName" gorm:"size:256"`
 	DormNumber   string    `json:"dormNumber" gorm:"size:256"`
 	Problems     string    `json:"problems" gorm:"size:256"`

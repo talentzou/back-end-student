@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,15 +24,18 @@ func (d *student_info_api) CreateStudInfoApi(c *gin.Context) {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	// 给数据添加id
+
 	for _, v := range studInfoList {
 		// 查询宿舍存在
 		var Dorm dorm.Dorm
-		dormErr := global.Global_Db.Where("dorm_number=?", v.DormNumber).First(&Dorm)
+		word := strings.Split(v.DormNumber, "-")
+		// fmt.Println("11", word[0], "22", word[1])
+		dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
 		if dormErr.Error != nil {
 			response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
 			return
 		}
+
 		//查询存在数据
 		var tempArr dorm.StudInfo
 		query := global.Global_Db.Where("student_number=?", v.StudentNumber).First(&tempArr)
@@ -99,7 +103,9 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 	}
 	// 判断宿舍是否存在
 	var Dorm dorm.Dorm
-	dormErr := global.Global_Db.Where("dorm_number", stud.DormNumber).First(&Dorm)
+	word := strings.Split(stud.DormNumber, "-")
+	// fmt.Println("11", word[0], "22", word[1])
+	dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
 	if dormErr.Error != nil {
 		response.FailWithMessage("该宿舍:"+stud.DormNumber+",不存在无法添加", c)
 		return

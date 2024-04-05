@@ -3,7 +3,7 @@ package student
 import "time"
 
 type StudentViolate struct {
-	Id            uint    `json:"-"  gorm:"primarykey"`
+	Id            uint      `json:"id"  gorm:"primarykey"`
 	StudentNumber string    `json:"studentNumber" gorm:"size:256"`
 	StudentName   string    `json:"studentName" gorm:"size:256"`
 	DormNumber    string    `json:"dormNumber" gorm:"size:256"`
