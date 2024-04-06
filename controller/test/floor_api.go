@@ -1,14 +1,15 @@
 package test
 
 import (
-	"back-end/common/request"
-	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/common/request"
+	"back-end/model/common/response"
 	"back-end/model/test/dorm"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +23,7 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 	fmt.Println("我是楼.......")
 	err := c.ShouldBindJSON(&floors)
 	if err != nil {
-		fmt.Println("参数错误为",err)
+		fmt.Println("参数错误为", err)
 		response.FailWithMessage("添加的参数错误", c)
 		return
 	}
@@ -33,7 +34,7 @@ func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
 		response.FailWithMessage("系统查寻错误", c)
 		return
 	}
-	
+
 	for i := range tempArr {
 		if floors[0].FloorsName == tempArr[i].FloorsName {
 			response.FailWithMessage("该楼已存在", c)
@@ -108,7 +109,7 @@ func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 	// 	// return
 	// 	fmt.Println("出错了,没有数据")
 	// }
-	
+
 	// fmt.Println("宿舍数据为", dormList)
 	// // 建立关联
 	// for _, v := range dormList {

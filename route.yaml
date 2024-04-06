@@ -1,0 +1,103 @@
+# # 管理员路由 configuration
+admin:
+  - path: "/DM"
+    name: "dormitory-management"
+    children:
+      - path: "floorsInfo"
+        name: "floors"
+      - path: "dorm-Info"
+        name: "dorm"
+      - path: "dorm-Rating"
+        name: "rate"
+      - path: "application-stay"
+        name: "stay"
+      - path: "dorm-bed/:name/:type"
+        name: "bed"
+      - path: "expense"
+        name: "expense"
+  - path: "/Maintenance"
+    name: "Maintenance"
+    children:
+      - path: "equipment-repair"
+        name: "equipment"
+  - path: "/SI"
+    name: "studentInfo"
+    children:
+      - path: "student-crud"
+        name: "student"
+      - path: "student-violate"
+        name: "violate"
+  - path: "/Notice"
+    name: "notice"
+    children:
+      - path: "Message"
+        name: "message"
+  - path: "/Sys"
+    name: "sys"
+    children:
+      - path: "User"
+        name: "user"
+      - path: "Menu"
+        name: "menu"
+      - path: "Role"
+        name: "role"
+        
+# 学生
+student:
+  - path: "/DM"
+    name: "dormitory-management"
+    children:
+      - path: "dorm-Rating"
+        name: "rate"
+      - path: "application-stay"
+        name: "stay"
+  - path: "/EM"
+    name: "ExpenseManagement"
+    children:
+      - path: "expense"
+        name: "expense"
+  - path: "/Maintenance"
+    name: "Maintenance"
+    children:
+      - path: "equipment-repair"
+        name: "equipment"
+  - path: "/PersonInfo"
+    name: "person"
+    children:
+      - path: "setting"
+        name: "userInfo"
+
+# 宿管
+dorm:
+  - path: "/DM"
+    name: "dormitory-management"
+    children:
+      - path: "floorsInfo"
+        name: "floors"
+      - path: "dorm-Info"
+        name: "dorm"
+      - path: "dorm-Rating"
+        name: "rate"
+      - path: "application-stay"
+        name: "stay"
+      - path: "dorm-bed/:name/:type"
+        name: "bed"
+      - path: "expense"
+        name: "expense"
+  - path: "/Maintenance"
+    name: "Maintenance"
+    children:
+      - path: "equipment-repair"
+        name: "equipment"
+  - path: "/SI"
+    name: "studentInfo"
+    children:
+      - path: "student-crud"
+        name: "student"
+      - path: "student-violate"
+        name: "violate"
+  - path: "/PersonInfo"
+    name: "person"
+    children:
+      - path: "setting"
+        name: "userInfo"

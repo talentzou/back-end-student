@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"back-end/common/response"
+	"back-end/model/common/response"
 	"back-end/utils"
 	"errors"
 

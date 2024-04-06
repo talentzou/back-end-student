@@ -1,16 +1,16 @@
 package test
 
 import (
-	"back-end/common/request"
-	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/common/request"
+	"back-end/model/common/response"
 	"back-end/model/test/dorm"
 	"back-end/utils"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/url"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 )
 
 type dorm_stay_api struct{}

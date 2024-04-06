@@ -1,7 +1,7 @@
 package system
 
 import (
-	"back-end/common/response"
+	"back-end/model/common/response"
 	"fmt"
 	"path"
 

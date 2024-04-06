@@ -1,9 +1,9 @@
 package test
 
 import (
-	"back-end/common/request"
-	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/common/request"
+	"back-end/model/common/response"
 	"back-end/model/test/dorm"
 	"back-end/model/test/repair"
 	"back-end/utils"
@@ -22,7 +22,7 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 	var repairList []repair.Repair
 	err := c.ShouldBindJSON(&repairList)
 	if err != nil {
-		fmt.Println("参数",err.Error())
+		fmt.Println("参数", err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
@@ -133,7 +133,7 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	
+
 	// 分页数据
 	offset = PageSize * (Page - 1)
 	limit = PageSize

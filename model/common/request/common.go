@@ -4,6 +4,9 @@ import (
 	"back-end/config"
 	"github.com/golang-jwt/jwt/v5"
 )
+type GetById struct {
+	ID int `json:"id" form:"id"` // 主键ID
+}
 
 type PageInfo struct {
 	List     interface{} `json:"list"`
@@ -35,5 +38,5 @@ type Login struct {
 }
 type SysMenusResponse struct {
 	Authority int             `json:"authority"`
-	Menu      []config.Common `json:"menu"`
+	Menu      []config.Route `json:"menu"`
 }

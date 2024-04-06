@@ -1,9 +1,9 @@
 package test
 
 import (
-	"back-end/common/request"
-	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/common/request"
+	"back-end/model/common/response"
 	"back-end/model/test/dorm"
 	"back-end/utils"
 	"fmt"
@@ -26,7 +26,7 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	fmt.Println("参数为999",rateList)
+	fmt.Println("参数为999", rateList)
 	// 给数据添加id
 	for i, v := range rateList {
 		// //查寻存在数据
@@ -39,7 +39,7 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 
 		for t := range tempArr {
 			// dd :=  tempArr[t].RateDate.Format("2006-01-02")
-			
+
 			if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormNumber == tempArr[t].DormNumber {
 				response.FailWithMessage(rateList[i].DormNumber+"宿舍的"+tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
 				return

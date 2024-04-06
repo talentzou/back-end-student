@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"back-end/common/request"
+	"back-end/model/common/request"
 	"fmt"
 	"time"
 
@@ -25,7 +25,7 @@ func CreateClaims(BaseClaims request.BaseClaims) request.CustomClaims {
 	return claims
 }
 
-// 获取claim用户uuid
+// 获取claim用户id
 func GetUserID(c *gin.Context) uint {
 	claims, exist := c.Get("claims")
 	if exist {
@@ -40,7 +40,7 @@ func GetUserID(c *gin.Context) uint {
 		} else {
 			return cl.Id
 		}
-		
+
 	}
 
 }

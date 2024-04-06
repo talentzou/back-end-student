@@ -9,7 +9,9 @@ type SysUser struct{}
 
 func (u *SysUser) UserRouter(r *gin.RouterGroup) {
 	user := r.Group("user")
-	user.GET("getUserInfo", system.GetUserInfo)
-	user.POST("setUserInfo",system.SetUserInfo)
+	user.POST("admin_register",system.Register)  //用户注册  
+	user.GET("getUserInfo", system.GetUserInfo)  //获取用户个人信息
+	user.POST("setUserInfo", system.SetUserInfo) //设置用户信息
+	user.GET("getUserList", system.GetUserList)  // 分页获取用户列表
+	user.DELETE("deleteUser", system.DeleteUser) //删除用户
 }
-

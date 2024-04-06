@@ -1,8 +1,8 @@
 package test
 
 import (
-	"back-end/common/response"
 	"back-end/global"
+	"back-end/model/common/response"
 	"back-end/model/system"
 	"back-end/model/test/dorm"
 
