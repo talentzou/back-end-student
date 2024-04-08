@@ -27,12 +27,16 @@ func RegisterTableTest() {
 		&notice.SysNotice{},
 		&system.SysUser{},
 		&system.SysAuthorityBtn{},
+		&system.MenuTree{},
+		&system.RoleMenu{},
+	
+	
 	}
-	err := db.AutoMigrate(&system.SysUser{},)
-			if err != nil {
-				fmt.Println("迁移失败")
-				os.Exit(0)
-			}
+	// err := db.AutoMigrate(&system.SysUser{},)
+	// 		if err != nil {
+	// 			fmt.Println("迁移失败")
+	// 			os.Exit(0)
+	// 		}
 	for _, v := range tables {
 		
 		result := db.Migrator().HasTable(v)

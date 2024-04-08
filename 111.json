@@ -1,0 +1,25 @@
+[
+   { "id": 1, "name": "sys", "parent_id": 0, "title": "系统管理" },
+   { "id": 2, "name": "dormitory-management", "parent_id": 0, "title": "宿舍管理" },
+   { "id": 3, "name": "Maintenance", "parent_id": 0, "title": "维修管理" },
+   { "id": 4, "name": "studentInfo", "parent_id": 0, "title": "学生管理" },
+   { "id": 5, "name": "notice", "parent_id": 0, "title": "通告管理" },
+
+   { "id": 6, "name": "user", "parent_id": 1, "title": "用户管理" },
+   { "id": 7, "name": "menu", "parent_id": 1, "title": "菜单管理" },
+   { "id": 8, "name": "role", "parent_id": 1, "title": "角色管理" },
+
+   { "id": 10, "name": "floors", "parent_id": 2, "title": "宿舍楼信息" },
+   { "id": 11, "name": "dorm", "parent_id": 2, "title": "宿舍信息" },
+   { "id": 12, "name": "rate", "parent_id": 2, "title": "宿舍评分" },
+   { "id": 13, "name": "stay", "parent_id": 2, "title": "留宿申请" },
+   { "id": 14, "name": "bed", "parent_id": 2, "title": "床位信息" },
+   { "id": 15, "name": "expense", "parent_id": 2, "title": "水电费信息" },
+
+   { "id": 16, "name": "equipment", "parent_id": 3, "title": "维修列表" },
+
+   { "id": 17, "name": "student", "parent_id": 4, "title": "学生信息" },
+   { "id": 18, "name": "violate", "parent_id": 4, "title": "学生违纪" },
+
+   { "id": 19, "name": "message", "parent_id": 5, "title": "宿舍通告" }
+]

@@ -44,6 +44,19 @@ func GetUserID(c *gin.Context) uint {
 	}
 
 }
+// 获取角色AuthorityId
+func GetUserAuthorityId(c *gin.Context) uint {
+	if claims, exists := c.Get("claims"); !exists {
+		if cl, err := GetClaims(c); err != nil {
+			return 0
+		} else {
+			return cl.AuthorityId
+		}
+	} else {
+		waitUse := claims.(*request.CustomClaims)
+		return waitUse.AuthorityId
+	}
+}
 
 // 获取token声明信息
 func GetClaims(c *gin.Context) (*request.CustomClaims, error) {

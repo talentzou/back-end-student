@@ -5,6 +5,8 @@ import (
 	"back-end/global"
 	sysReq "back-end/model/common/request"
 	sysRes "back-end/model/common/response"
+	"back-end/model/system"
+	// "back-end/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -32,7 +34,7 @@ func GetAsyncMenu(c *gin.Context) {
 		return
 	} else if authority == 2 {
 		routes = global.Global_Web_Route.Dorm
-			sysRes.OkWithDetailed(sysReq.SysMenusResponse{
+		sysRes.OkWithDetailed(sysReq.SysMenusResponse{
 			Authority: authority,
 			Menu:      routes,
 		}, "获取宿舍管路由成功", c)
@@ -45,5 +47,18 @@ func GetAsyncMenu(c *gin.Context) {
 		}, "获取学生路由成功", c)
 		return
 	}
+}
 
+func GetMenu(c *gin.Context) {
+	//utils.GetUserAuthorityId(c)
+	menus, err := menuService.GetMenuTree(1,c)
+	if err != nil {
+		fmt.Println("出错了")
+		sysRes.FailWithMessage("获取失败", c)
+		return
+	}
+	if menus == nil {
+		menus = []system.MenuTree{}
+	}
+	sysRes.OkWithDetailed(sysRes.SysMenusResponse{Menus: menus}, "获取成功", c)
 }

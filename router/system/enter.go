@@ -17,6 +17,7 @@ func (S SystemRouteGroup) InitializeSys(R *gin.RouterGroup) {
 	S.SysLogin.UseLogin(R)
 	S.SysUpload.SystemUploadImg(R)
 	// 鉴权
+	
 	PrivateGroup := R.Group("sys_jwt")
 	PrivateGroup.Use(middleware.JwtAuth())
 	S.SysMenu.GetMenu(PrivateGroup)

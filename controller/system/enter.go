@@ -6,4 +6,5 @@ import (
 
 var (
 	userService = service.SysService.UserService
+	menuService = service.SysService.MenuService
 )

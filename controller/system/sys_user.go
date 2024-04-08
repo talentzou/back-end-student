@@ -26,9 +26,9 @@ func GetUserInfo(c *gin.Context) {
 	response.OkWithDetailed(gin.H{"userInfo": ResUser}, "获取用户信息成功", c)
 }
 
-// 设置用户信息
-func SetUserInfo(c *gin.Context) {
-	uuid := utils.GetUserID(c)
+// 用户设置个人信息
+func SetSelfInfo(c *gin.Context) {
+	id := utils.GetUserID(c)
 	var userInfo system.ChangeUserInfo
 	err := c.ShouldBindJSON(&userInfo)
 	fmt.Println("参数为", userInfo)
@@ -36,7 +36,7 @@ func SetUserInfo(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	err3 := global.Global_Db.Model(&system.SysUser{}).Where("uuid=?", uuid).Updates(&system.SysUser{
+	err3 := global.Global_Db.Model(&system.SysUser{}).Where("id=?", id).Updates(&system.SysUser{
 		Sex:       userInfo.Sex,
 		Avatar:    userInfo.Avatar,
 		Nickname:  userInfo.NickName,
@@ -84,6 +84,12 @@ func DeleteUser(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+    fmt.Println("我是删除99999",reqId.ID)
+	jwtId := utils.GetUserID(c)
+	if jwtId == uint(reqId.ID) {
+		response.FailWithMessage("删除失败, 自杀失败", c)
+		return
+	}
 	err = userService.DeleteUser(reqId.ID)
 	if err != nil {
 		// global.GVA_LOG.Error("删除失败!", zap.Error(err))
@@ -108,4 +114,28 @@ func Register(c *gin.Context) {
 		return
 	}
 	response.OkWithDetailed(gin.H{"user": userReturn}, "注册成功", c)
+}
+
+// 系统设置用户信息
+func  SetUserInfo(c *gin.Context) {
+	var user system.SysUser
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		fmt.Println("错误为", err.Error())
+		response.FailWithMessage("合并参数错误", c)
+		return
+	}
+	fmt.Println("参数为99999",user)
+	err3 := global.Global_Db.Model(&system.SysUser{}).Where("id=?", user.ID).Updates(&system.SysUser{
+		Sex:       user.Sex,
+		Avatar:    user.Avatar,
+		Nickname:  user.Nickname,
+		Telephone: user.Telephone,
+		Remark: user.Remark,
+	}).Error
+	if err3 != nil {
+		response.FailWithMessage("用户信息更新失败", c)
+		return
+	}
+	response.OkWithMessage("设置成功", c)
 }
