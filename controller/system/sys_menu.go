@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
-
+// 根据路由配置文件获取菜单
 func GetAsyncMenu(c *gin.Context) {
 	id, b := c.Params.Get("authorityId")
 	if !b {
@@ -48,10 +48,10 @@ func GetAsyncMenu(c *gin.Context) {
 		return
 	}
 }
-
+// 获取菜单
 func GetMenu(c *gin.Context) {
 	//utils.GetUserAuthorityId(c)
-	menus, err := menuService.GetMenuTree(1,c)
+	menus, err := menuService.GetMenuTree(1)
 	if err != nil {
 		fmt.Println("出错了")
 		sysRes.FailWithMessage("获取失败", c)
@@ -60,5 +60,5 @@ func GetMenu(c *gin.Context) {
 	if menus == nil {
 		menus = []system.MenuTree{}
 	}
-	sysRes.OkWithDetailed(sysRes.SysMenusResponse{Menus: menus}, "获取成功", c)
+	sysRes.OkWithDetailed(sysRes.SysMenusResponse{Menus: menus}, "获取菜单成功", c)
 }

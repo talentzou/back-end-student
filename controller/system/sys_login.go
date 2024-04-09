@@ -28,7 +28,11 @@ func (b *BaseApi) Login(c *gin.Context) {
 		return
 	}
 	var sysUser system.SysUser
-	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("SysAuthorityBtns").Where("user_name=?", user.Username).First(&sysUser).Error
+	error := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
+	if error != nil {
+		fmt.Println("关联失败,里11111")
+	}
+	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("user_name=?", user.Username).First(&sysUser).Error
 	if err2 != nil {
 		sysRes.FailWithMessage("该用户不存在", c)
 		return

@@ -1,0 +1,36 @@
+[
+    {
+        "sys_btn_id": 13,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 14,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 15,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 16,
+        "role_id": 3
+    },
+   
+    {
+        "sys_btn_id": 21,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 22,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 23,
+        "role_id": 3
+    },
+    {
+        "sys_btn_id": 24,
+        "role_id": 3
+    }
+   
+]
