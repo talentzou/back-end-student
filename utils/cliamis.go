@@ -29,21 +29,22 @@ func CreateClaims(BaseClaims request.BaseClaims) request.CustomClaims {
 func GetUserID(c *gin.Context) uint {
 	claims, exist := c.Get("claims")
 	if exist {
-		fmt.Println("找到claims")
 		user, _ := claims.(*request.CustomClaims)
+		fmt.Println("找到claims的用户id", user.Id)
 		return user.Id
 	} else {
 		cl, err := GetClaims(c)
-		fmt.Println("找到claims")
 		if err != nil {
-			return 4040
+			return 4040404040
 		} else {
+			fmt.Println("找到claims的用户id", cl.Id)
 			return cl.Id
 		}
 
 	}
 
 }
+
 // 获取角色AuthorityId
 func GetUserAuthorityId(c *gin.Context) uint {
 	if claims, exists := c.Get("claims"); !exists {
@@ -55,6 +56,20 @@ func GetUserAuthorityId(c *gin.Context) uint {
 	} else {
 		waitUse := claims.(*request.CustomClaims)
 		return waitUse.AuthorityId
+	}
+}
+
+// 获取角色Id
+func GetUserRoleId(c *gin.Context) uint {
+	if claims, exists := c.Get("claims"); !exists {
+		if cl, err := GetClaims(c); err != nil {
+			return 0
+		} else {
+			return cl.RoleId
+		}
+	} else {
+		waitUse := claims.(*request.CustomClaims)
+		return waitUse.RoleId
 	}
 }
 

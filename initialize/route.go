@@ -4,7 +4,7 @@ import (
 	"back-end/middleware"
 	"back-end/router"
 	"github.com/gin-gonic/gin"
-	"back-end/controller/system"
+	// "back-end/controller/system"
 )
 
 func InitializeRouter(s *gin.Engine) {
@@ -14,7 +14,8 @@ func InitializeRouter(s *gin.Engine) {
 	expandRouter := router.AppRoute.Expand
 
 	// 系统路由
-	{   root.GET("menu",system.GetMenu)
+	 {  
+		 //root.GET("menu",system.GetMenu)
 		sysBase := root.Group("base")
 		systemRouter.InitializeSys(sysBase)
 	}

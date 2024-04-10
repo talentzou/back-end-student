@@ -13,11 +13,13 @@ import (
 
 // 获取用户信息
 func GetUserInfo(c *gin.Context) {
-	fmt.Println("我是用户数据")
 	id := utils.GetUserID(c)
 	var ResUser system.SysUser
-	fmt.Println("uuid", id)
-	err := global.Global_Db.Model(&system.SysUser{}).Where("id=?", id).First(&ResUser).Error
+	error22 := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
+	if error22 != nil {
+		fmt.Println("关联失败,里11111")
+	}
+	err := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("id=?", id).First(&ResUser).Error
 	if err != nil {
 		fmt.Println("获取用户信息失败")
 		response.FailWithMessage("获取用户信息失败", c)
@@ -84,7 +86,7 @@ func DeleteUser(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    fmt.Println("我是删除99999",reqId.ID)
+	fmt.Println("我是删除99999", reqId.ID)
 	jwtId := utils.GetUserID(c)
 	if jwtId == uint(reqId.ID) {
 		response.FailWithMessage("删除失败, 自杀失败", c)
@@ -117,7 +119,7 @@ func Register(c *gin.Context) {
 }
 
 // 系统设置用户信息
-func  SetUserInfo(c *gin.Context) {
+func SetUserInfo(c *gin.Context) {
 	var user system.SysUser
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -125,13 +127,13 @@ func  SetUserInfo(c *gin.Context) {
 		response.FailWithMessage("合并参数错误", c)
 		return
 	}
-	fmt.Println("参数为99999",user)
+	fmt.Println("参数为99999", user)
 	err3 := global.Global_Db.Model(&system.SysUser{}).Where("id=?", user.ID).Updates(&system.SysUser{
 		Sex:       user.Sex,
 		Avatar:    user.Avatar,
 		Nickname:  user.Nickname,
 		Telephone: user.Telephone,
-		Remark: user.Remark,
+		Remark:    user.Remark,
 	}).Error
 	if err3 != nil {
 		response.FailWithMessage("用户信息更新失败", c)

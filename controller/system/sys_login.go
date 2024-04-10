@@ -22,17 +22,18 @@ type BaseApi struct{}
 func (b *BaseApi) Login(c *gin.Context) {
 	var user sysReq.Login
 	err := c.ShouldBindJSON(&user)
-	fmt.Println("用户密码", user)
+	// fmt.Println("用户密码", user)
 	if err != nil {
 		sysRes.FailWithMessage("参数合并错误", c)
 		return
 	}
 	var sysUser system.SysUser
-	error := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
-	if error != nil {
+	error1 := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
+	if error1 != nil {
 		fmt.Println("关联失败,里11111")
 	}
 	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("user_name=?", user.Username).First(&sysUser).Error
+
 	if err2 != nil {
 		sysRes.FailWithMessage("该用户不存在", c)
 		return
@@ -68,6 +69,7 @@ func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 		Username:    user.UserName,
 		NickName:    user.Nickname,
 		AuthorityId: user.Authority,
+		RoleId:      user.Role.ID,
 	})
 	// 创建token
 	token, err3 := utils.CreateToken(claims)

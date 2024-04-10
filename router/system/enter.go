@@ -10,6 +10,7 @@ type SystemRouteGroup struct {
 	SysMenu
 	SysUpload
 	SysUser
+	SysBtn 
 }
 
 func (S SystemRouteGroup) InitializeSys(R *gin.RouterGroup) {
@@ -20,6 +21,8 @@ func (S SystemRouteGroup) InitializeSys(R *gin.RouterGroup) {
 	
 	PrivateGroup := R.Group("sys_jwt")
 	PrivateGroup.Use(middleware.JwtAuth())
-	S.SysMenu.GetMenu(PrivateGroup)
 	S.SysUser.UserRouter(PrivateGroup)
+	S.SysMenu.MenuRoute(PrivateGroup)
+	S.SysBtn.BtnRoute(PrivateGroup)
+	
 }

@@ -6,11 +6,16 @@ import (
 	sysReq "back-end/model/common/request"
 	sysRes "back-end/model/common/response"
 	"back-end/model/system"
-	// "back-end/utils"
+	"back-end/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
+
+type menuApi struct{}
+
+var MenuApi menuApi
+
 // 根据路由配置文件获取菜单
 func GetAsyncMenu(c *gin.Context) {
 	id, b := c.Params.Get("authorityId")
@@ -48,13 +53,16 @@ func GetAsyncMenu(c *gin.Context) {
 		return
 	}
 }
+
+
+
 // 获取菜单
-func GetMenu(c *gin.Context) {
-	//utils.GetUserAuthorityId(c)
-	menus, err := menuService.GetMenuTree(1)
+func (m *menuApi) GetMenu(c *gin.Context) {
+	fmt.Println("菜单角色id为",utils.GetUserRoleId(c))
+	menus, err := menuService.GetMenuTree(int(utils.GetUserRoleId(c))) //1
 	if err != nil {
 		fmt.Println("出错了")
-		sysRes.FailWithMessage("获取失败", c)
+		sysRes.FailWithMessage("获取菜单失败", c)
 		return
 	}
 	if menus == nil {

@@ -2,7 +2,6 @@ package system
 
 import (
 	"back-end/global"
-	"fmt"
 	"back-end/model/system"
 	// "fmt"
 )
@@ -10,8 +9,8 @@ import (
 type MenuService struct{}
 
 // 获取动态菜单树
-func (userService *MenuService) GetMenuTree(authorityId uint) (menus []system.MenuTree, err error) {
-	menuTree, err := userService.getMenuTreeMap(authorityId)
+func (userService *MenuService) GetMenuTree(RoleId int) (menus []system.MenuTree, err error) {
+	menuTree, err := userService.getMenuTreeMap(RoleId)
 	menus = menuTree[0]
 	for i := 0; i < len(menus); i++ {
 		err = userService.getChildrenList(&menus[i], menuTree)
@@ -20,7 +19,7 @@ func (userService *MenuService) GetMenuTree(authorityId uint) (menus []system.Me
 }
 
 // 查找树
-func (userService *MenuService) getMenuTreeMap(roleId uint) (treeMap map[uint][]system.MenuTree, err error) {
+func (userService *MenuService) getMenuTreeMap(roleId int) (treeMap map[uint][]system.MenuTree, err error) {
 	// 查找角色菜单树
 	var baseMenu []system.MenuTree
 	treeMap = make(map[uint][]system.MenuTree)
@@ -50,7 +49,6 @@ func (userService *MenuService) getMenuTreeMap(roleId uint) (treeMap map[uint][]
 // 遍历
 func (userService *MenuService) getChildrenList(menu *system.MenuTree, treeMap map[uint][]system.MenuTree) (err error) {
 	menu.Children = treeMap[menu.Id]
-	fmt.Println("hahaha", len(menu.Children), menu.Children)
 	for i := 0; i < len(menu.Children); i++ {
 		err = userService.getChildrenList(&menu.Children[i], treeMap)
 	}

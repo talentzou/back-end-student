@@ -1,12 +1,16 @@
 package system
 
 type SysBtn struct {
-	Id     uint   `json:"-" gorm:"primarykey"`
-	BtnKey string `json:"btn_key"  gorm:"size:32;comment:按钮key"`
-	Title  string `json:"title" gorm:"size:255;comment:按钮名称"`
-	Roles  []Role `json:"roles" gorm:"many2many:role_btns"`
+	Id       uint       `json:"-" gorm:"primarykey"`
+	BtnKey   string     `json:"btn_key"  gorm:"size:32;comment:按钮key"`
+	Title    string     `json:"title" gorm:"size:255;comment:按钮名称"`
+	Children []MenuTree `json:"children" gorm:"-"`
+	Roles    []Role     `json:"roles" gorm:"many2many:role_btns"`
 }
-
+type RoleBtns struct {
+	SysBtnId int `gorm:"primarykey"` //按钮id
+	RoleId   int `gorm:"primarykey"` //角色id
+}
 
 // // 角色按钮信息表;joinForeignKey:BtnId;joinReferences:RoleId"
 // type RoleBtns struct {

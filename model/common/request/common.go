@@ -28,6 +28,7 @@ type BaseClaims struct {
 	Username    string
 	NickName    string
 	AuthorityId uint
+	RoleId      uint
 }
 
 // User login structure
