@@ -50,11 +50,11 @@ func RegisterTableTest() {
 	// if err != nil {
 	// 	fmt.Println("-----------------初始化菜单失败")
 	// }
-	User := mockUser()
-	err1 := db.Model(&system.SysUser{}).Create(&User).Error
-	if err1 != nil {
-		fmt.Println("-----------------添加用户失败")
-	}
+	// User := mockUser()
+	// err1 := db.Model(&system.SysUser{}).Create(&User).Error
+	// if err1 != nil {
+	// 	fmt.Println("-----------------添加用户失败")
+	// }
 }
 
 func InitData() []system.Role {

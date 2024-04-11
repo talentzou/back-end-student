@@ -7,6 +7,6 @@ import (
 
 var (
 	Global_Db             *gorm.DB
-	Global_Web_Route config.RouterConfig
+	// Global_Web_Route config.RouterConfig
 	Global_Config         config.Server
 )

@@ -10,6 +10,7 @@ type MenuTree struct {
 	Title    string     `json:"title" gorm:"size:256"`
 	Children []MenuTree `json:"children" gorm:"-"`
 	Roles    []Role     `json:"roles" gorm:"many2many:role_menus;joinForeignKey:MenuId;joinReferences:RoleId"`
+	SysBtns     []SysBtn   `json:"btns" gorm:"foreignKey:MenuId"`
 }
 
 //joinForeignKey:MenuId;joinReferences:RoleId

@@ -6,6 +6,7 @@ type SysBtn struct {
 	Title    string     `json:"title" gorm:"size:255;comment:按钮名称"`
 	Children []MenuTree `json:"children" gorm:"-"`
 	Roles    []Role     `json:"roles" gorm:"many2many:role_btns"`
+	MenuId   uint
 }
 type RoleBtns struct {
 	SysBtnId int `gorm:"primarykey"` //按钮id

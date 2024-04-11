@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	core.ViperRouter()//初始化读取路由配置文件
+	// core.ViperRouter()//初始化读取路由配置文件
 	core.ViperServer()//读取服务器配置文件
 	global.Global_Db = initialize.GormMysql() //初始化数据库
 	if global.Global_Db != nil {

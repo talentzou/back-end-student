@@ -7,12 +7,12 @@ import (
 
 type BtnService struct{}
 
-// 获取按钮
-func (s *BtnService) GetBtnTreeMap(RoleId uint) ( []system.SysBtn,error) {
+// 获取角色按钮
+func (b *BtnService) GetBtnTreeMap(RoleId uint) ([]system.SysBtn, error) {
 	var RoleBtns []system.RoleBtns
 	err := global.Global_Db.Model(&system.RoleBtns{}).Where("role_id=?", RoleId).Find(&RoleBtns).Error
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	var btns []int
 	for i := range RoleBtns {
@@ -23,5 +23,19 @@ func (s *BtnService) GetBtnTreeMap(RoleId uint) ( []system.SysBtn,error) {
 	if err != nil {
 		return nil, err
 	}
-	return allBtn,nil
+	return allBtn, nil
+}
+
+// 获取角色按钮id列表
+func (b *BtnService) GETBtnIdList(RoleId uint) ([]int, error) {
+	var btnIdList []int
+	var RoleBtns []system.RoleBtns
+	err := global.Global_Db.Model(&system.RoleBtns{}).Where("role_id", RoleId).Find(&RoleBtns).Error
+	if err != nil {
+		return nil, err
+	}
+	for i := range RoleBtns {
+		btnIdList = append(btnIdList, RoleBtns[i].SysBtnId)
+	}
+	return btnIdList, nil
 }

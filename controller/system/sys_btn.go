@@ -14,7 +14,7 @@ type btnApi struct{}
 
 var BtnApi btnApi
 
-// 获取菜单
+// 获取角色按钮
 func (b *btnApi) GetSelfBtns(c *gin.Context) {
 	fmt.Println("按钮角色id为",utils.GetUserRoleId(c))
 	btns, err := btnService.GetBtnTreeMap(utils.GetUserRoleId(c))

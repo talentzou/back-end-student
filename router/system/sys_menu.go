@@ -11,11 +11,12 @@ func (s *SysMenu) MenuRoute(router *gin.RouterGroup) {
 	menu := router.Group("menu")
 	{
 		//通过配置文件获取
-		router.GET("getMenu/:authorityId", system.GetAsyncMenu)
+		// router.GET("getMenu/:authorityId", system.GetAsyncMenu)
 
 	}
 	{
-		menu.GET("getSelfMenu", system.MenuApi.GetMenu) // 分页获取用户菜单
+		menu.GET("getAllMenu", system.MenuApi.GetAllMenu) //获取所有菜单
+		menu.GET("getSelfMenu", system.MenuApi.GetSelfMenu) // 获取用户个人菜单
 	}
 
 }
