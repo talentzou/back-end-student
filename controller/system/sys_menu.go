@@ -4,6 +4,7 @@ import (
 	// "back-end/config"
 	// "back-end/global"
 	// sysReq "back-end/model/common/request"
+	sysReq "back-end/model/common/request"
 	sysRes "back-end/model/common/response"
 	"back-end/model/system"
 	"back-end/utils"
@@ -81,4 +82,35 @@ func (m *menuApi) GetAllMenu(c *gin.Context) {
 		AllMenus = []system.MenuTree{}
 	}
 	sysRes.OkWithDetailed(sysRes.SysMenusResponse{Menus: AllMenus}, "获取菜单成功", c)
+}
+
+// 添加角色菜单关联
+func (m *menuApi) AddRelateRoleAndMenu(c *gin.Context) {
+	var role_menu sysReq.ReqRelateRoleAndMenu
+	err := c.ShouldBindJSON(&role_menu)
+	if err != nil {
+		sysRes.FailWithMessage("参数错误", c)
+		return
+	}
+	err =  menuService.AddRelateMenu(role_menu.RoleId, role_menu.RoleMenuIdList)
+	if err != nil {
+		sysRes.FailWithMessage("添加失败", c)
+	}
+	sysRes.OkWithMessage("添加角色菜单关联成功", c)
+
+}
+
+// 删除角色菜单关联
+func (m *menuApi) DeleteRelateRoleAndMenu(c *gin.Context) {
+	var role_menu sysReq.ReqRelateRoleAndMenu
+	err := c.ShouldBindJSON(&role_menu)
+	if err != nil {
+		sysRes.FailWithMessage("参数错误", c)
+		return
+	}
+	err = menuService.DeleteRelateMenu(role_menu.RoleId, role_menu.RoleMenuIdList)
+	if err != nil {
+		sysRes.FailWithMessage("删除失败", c)
+	}
+	sysRes.OkWithMessage("删除角色菜单关联成功", c)
 }

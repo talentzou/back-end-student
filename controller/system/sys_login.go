@@ -28,10 +28,10 @@ func (b *BaseApi) Login(c *gin.Context) {
 		return
 	}
 	var sysUser system.SysUser
-	error1 := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
-	if error1 != nil {
-		fmt.Println("关联失败,里11111")
-	}
+	// error1 := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
+	// if error1 != nil {
+	// 	fmt.Println("关联失败,里11111")
+	// }
 	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("user_name=?", user.Username).First(&sysUser).Error
 
 	if err2 != nil {
@@ -62,6 +62,7 @@ func (j *BaseApi) Logout(c *gin.Context) {
 	utils.ClearToken(c)
 	sysRes.OkWithMessage("jwt设置失效成功", c)
 }
+// 创建token
 func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 	// 初始jwt声明信息
 	claims := utils.CreateClaims(sysReq.BaseClaims{

@@ -10,14 +10,14 @@ type MenuTree struct {
 	Title    string     `json:"title" gorm:"size:256"`
 	Children []MenuTree `json:"children" gorm:"-"`
 	Roles    []Role     `json:"roles" gorm:"many2many:role_menus;joinForeignKey:MenuId;joinReferences:RoleId"`
-	SysBtns     []SysBtn   `json:"btns" gorm:"foreignKey:MenuId"`
+	SysBtns  []SysBtn   `json:"btns" gorm:"foreignKey:MenuId"`
 }
 
 //joinForeignKey:MenuId;joinReferences:RoleId
-// 角色菜单树信息表
+// 角色菜单关联信息表
 type RoleMenus struct {
-	MenuId    int   `gorm:"primarykey"` //菜单id
-	RoleId    int   `gorm:"primarykey"` //角色id
+	MenuId    int `gorm:"primarykey"` //菜单id
+	RoleId    int `gorm:"primarykey"` //角色id
 	CreatedAt time.Time
 }
 

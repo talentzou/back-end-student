@@ -3,6 +3,8 @@ package system
 import (
 	"back-end/global"
 	"back-end/model/system"
+	"fmt"
+	"time"
 	// "fmt"
 )
 
@@ -56,8 +58,7 @@ func (userService *MenuService) getChildrenList(menu *system.MenuTree, treeMap m
 	return err
 }
 
-
-// 获取所有菜单
+// 获取所有菜单树
 func (userService *MenuService) GetAllMenu() ([]system.MenuTree, error) {
 	var allMenu []system.MenuTree
 	treeMap := make(map[uint][]system.MenuTree)
@@ -75,18 +76,68 @@ func (userService *MenuService) GetAllMenu() ([]system.MenuTree, error) {
 	return menus, err
 }
 
+// 添加角色菜单关联
+func (userService *MenuService) AddRelateMenu(roleId int, MenuIdList []int) error {
+	fmt.Println("删除的角色为-----", roleId)
+	fmt.Println("添加的角色菜单的参数+++++", MenuIdList)
+	var role_menu []system.RoleMenus
+	err := global.Global_Db.Where("role_id=?", roleId).Find(&role_menu).Error
+	if err != nil {
+		return err
+	}
+	var menus []system.RoleMenus
+	for _, m := range MenuIdList {
+		isFound := false
+		for _, v := range role_menu {
+			if v.MenuId == m {
+				isFound = true
+				break
+			}
+		}
+		if !isFound {
+			menus = append(menus, system.RoleMenus{RoleId: roleId, MenuId: m, CreatedAt: time.Now()})
+		}
+	}
+	err = global.Global_Db.Create(&menus).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-// // 获取角色菜单id列表
-// func (userService *MenuService) GETMenuIdList(RoleId uint) ([]int, error) {
-// 	var menuIdList []int
-// 	var RoleMenus []system.RoleMenus
-// 	err := global.Global_Db.Model(&system.RoleMenus{}).Where("role_id", RoleId).Find(&RoleMenus).Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	for i := range RoleMenus {
-// 		menuIdList = append(menuIdList, RoleMenus[i].MenuId)
-// 	}
-// 	return menuIdList, nil
-// }
+// 删除角色菜单关联
+func (userService *MenuService) DeleteRelateMenu(roleId int, MenuIdList []int) error {
+	var role_menu []system.RoleMenus
+	var menusIdList []int
+	fmt.Println("删除的角色菜单为------", roleId)
+	fmt.Println("添加的角色菜单的参数+++++", MenuIdList, len(MenuIdList))
+	if len(MenuIdList) == 0 {
+		err := global.Global_Db.Where("role_id=?", roleId).Delete(&system.RoleMenus{}).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := global.Global_Db.Where("role_id=?", roleId).Find(&role_menu).Error
+	if err != nil {
+		return err
+	}
+	for _, r := range role_menu {
+		isFound := false
+		for _, v := range MenuIdList {
+			if r.MenuId == v {
+				isFound = true
+				break
+			}
+		}
+		if !isFound {
+			menusIdList = append(menusIdList, r.MenuId)
+		}
+	}
+	err = global.Global_Db.Where("menu_id IN ?", menusIdList).Delete(&system.RoleMenus{}).Error
 
+	if err != nil {
+		return err
+	}
+	return nil
+}

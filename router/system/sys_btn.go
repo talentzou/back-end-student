@@ -8,9 +8,12 @@ import (
 type SysBtn struct{}
 
 func (s *SysBtn) BtnRoute(router *gin.RouterGroup) {
-	menu := router.Group("btn")
+	btn := router.Group("btn")
 	{
-		menu.GET("getSelfBtn", system.BtnApi.GetSelfBtns) // 分页获取用户菜单
+		btn.GET("getBtnTree", system.BtnApi.GetBtnTree)                            //获取按钮树
+		btn.GET("getSelfBtn", system.BtnApi.GetSelfBtns)                           // 分页获取用户菜单
+		btn.POST("addRelateRoleAndBtn", system.BtnApi.RelateRoleAndBtn)            //添加角色按钮关联
+		btn.DELETE("deleteRelateRoleAndBtn", system.BtnApi.DeleteRelateRoleAndBtn) //删除角色按钮关联
 	}
 
 }

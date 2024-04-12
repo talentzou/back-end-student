@@ -15,8 +15,10 @@ func (s *SysMenu) MenuRoute(router *gin.RouterGroup) {
 
 	}
 	{
-		menu.GET("getAllMenu", system.MenuApi.GetAllMenu) //获取所有菜单
-		menu.GET("getSelfMenu", system.MenuApi.GetSelfMenu) // 获取用户个人菜单
+		menu.GET("getAllMenu", system.MenuApi.GetAllMenu)                              //获取所有菜单
+		menu.GET("getSelfMenu", system.MenuApi.GetSelfMenu)                            // 获取用户个人菜单
+		menu.POST("addRelateRoleAndMenu", system.MenuApi.AddRelateRoleAndMenu)         //添加角色菜单关联
+		menu.DELETE("deleteRelateRoleAndMenu", system.MenuApi.DeleteRelateRoleAndMenu) //删除角色菜单关联
 	}
 
 }
