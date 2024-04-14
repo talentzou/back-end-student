@@ -1,16 +1,19 @@
 package repair
 
-import "time"
+import (
+	"back-end/model/test/dorm"
+	"time"
+)
 
 type Repair struct {
 	Id           uint      `json:"id" gorm:"primarykey"`
-	FloorsName   string    `json:"floorsName" gorm:"size:256"`
-	DormNumber   string    `json:"dormNumber" gorm:"size:256"`
 	Problems     string    `json:"problems" gorm:"size:256"`
-	SubmitDate   time.Time `json:"submitDate"`
-	RepairStatus string    `json:"repairStatus" gorm:"size:256"`
+	RepairStatus string    `json:"repairStatus" gorm:"size:256;default:未完成"`
 	ReportMan    string    `json:"reportMan" gorm:"size:256"`
 	Phone        string    `json:"phone" gorm:"size:256"`
 	Repairer     string    `json:"repairer" gorm:"size:256"`
-	Remark       string    `json:"remark" gorm:"size:256"`
+	SubmitDate   time.Time `json:"submitDate"`
+	FinishDate   time.Time `json:"finishDate" gorm:"default:null"`
+	Dorm         dorm.Dorm `json:"dorm"`
+	DormId       uint      `json:"dormId"`
 }

@@ -16,7 +16,7 @@ import (
 type dorm_stay_api struct{}
 
 // 插入
-func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) CreateStayApi(c *gin.Context) {
 	var stayList []dorm.Stay
 	fmt.Println("我是留宿.......")
 	err := c.ShouldBindJSON(&stayList)
@@ -30,16 +30,16 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 	for _, v := range stayList {
 		// 查询宿舍存在数据
 		var tempDorm dorm.Dorm
-		queryDorm := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).First(&tempDorm)
-		if queryDorm.Error != nil {
-			response.FailWithMessage("该宿舍"+v.FloorsName+"-"+v.DormNumber+"不存在,无法添加", c)
+		err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
+		if err != nil {
+			
+			response.FailWithMessage("该宿舍不存在,无法添加", c)
 			return
 		}
 		var tempStay []dorm.Stay
-		query := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).Find(&tempStay)
-		if query.Error != nil {
-			response.FailWithMessage("该宿舍"+v.FloorsName+"-"+v.DormNumber+"不存在", c)
-			return
+		err = global.Global_Db.Where("dorm_id=? ", v.DormId).Find(&tempStay).Error
+		if err != nil {
+			continue
 		}
 		for _, t := range tempStay {
 			// 判断是宿舍与学生
@@ -65,7 +65,7 @@ func (d *dorm_stay_api) CreateFloorApi(c *gin.Context) {
 }
 
 // 删除
-func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) DeleteStayApi(c *gin.Context) {
 	var stayList []dorm.Stay
 	err := c.ShouldBindJSON(&stayList)
 	if err != nil {
@@ -76,7 +76,7 @@ func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
 	for _, value := range stayList {
 		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
-			response.FailWithMessage("删除为:"+value.DormNumber+",日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
+			response.FailWithMessage("删除日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
 			return
 		}
 	}
@@ -84,7 +84,7 @@ func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
 		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
 		if result.Error != nil {
 			// 处理错误
-			response.FailWithMessage("删除为:"+del.DormNumber+",日期为:"+del.StayTime.StartTime.Format("2006-01-02")+"至"+del.StayTime.EndTime.Format("2006-01-02")+"无法删除:", c)
+			response.FailWithMessage("删除日期为:"+del.StayTime.StartTime.Format("2006-01-02")+"至"+del.StayTime.EndTime.Format("2006-01-02")+"无法删除:", c)
 			return
 		}
 	}
@@ -92,25 +92,26 @@ func (d *dorm_stay_api) DeleteFloorApi(c *gin.Context) {
 }
 
 // 更新
-func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) UpdateStayApi(c *gin.Context) {
 	var stay dorm.Stay
 	err := c.ShouldBindJSON(&stay)
 	if err != nil {
-		response.FailWithMessage("系统合并错误", c)
+		fmt.Println("残心参数",err.Error())
+		response.FailWithMessage("参数错误", c)
 		return
 	}
 	// 查寻数据是否存在
 	var tempRate dorm.Stay
 	err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
 	if err2.Error != nil {
-		response.FailWithMessage(stay.DormNumber+":数据不存在:无法更新", c)
+		response.FailWithMessage(stay.StayCause+":数据不存在:无法更新", c)
 		return
 	}
 	// 查寻宿舍
 	var tempDorm dorm.Dorm
-	queryDorm := global.Global_Db.Where("dorm_number=? AND floors_name=?", stay.DormNumber, stay.FloorsName).First(&tempDorm)
+	queryDorm := global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm)
 	if queryDorm.Error != nil {
-		response.FailWithMessage("该宿舍"+stay.FloorsName+"-"+stay.DormNumber+"不存在,无法更新", c)
+		response.FailWithMessage("该宿舍不存在,无法更新", c)
 		return
 	}
 
@@ -126,18 +127,15 @@ func (d *dorm_stay_api) UpdateFloorApi(c *gin.Context) {
 
 // 查寻
 
-func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
+func (d *dorm_stay_api) QueryStayApi(c *gin.Context) {
 	var limit, offset int
-	var total int64
-	var stay dorm.Stay
-	var stayList []dorm.Stay
-
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)
 	Page, er2 := strconv.Atoi(P)
 	if er1 != nil && er2 != nil {
-		fmt.Println("分页数错误", er1.Error(), er2.Error())
+		response.FailWithMessage("分页参数错误", c)
+		return
 	}
 	// 获取query
 	rawUrl := c.Request.URL.String()
@@ -155,42 +153,17 @@ func (d *dorm_stay_api) QueryFloorApi(c *gin.Context) {
 		key := utils.ToCamelCase(index)
 		condition[key] = value
 	}
-	fmt.Println("condition", condition)
+	fmt.Println("condition9999999", condition)
 	// 分页数据
 	offset = PageSize * (Page - 1)
 	limit = PageSize
-	fmt.Println(offset, limit)
-	// 查寻数量
-	count := global.Global_Db.Model(&stay).Where(condition).Count(&total).Error
-	if count != nil {
-		fmt.Println("查询留宿申请数量错误")
-		response.FailWithMessage("系统查询错误", c)
+	// fmt.Println(offset, limit)
+    fmt.Println("ttttttttt+++++++ttttttttt,执行到这里")
+	stayList, total, err := stayService.QueryStay(limit, offset, condition)
+	if err != nil {
+		response.FailWithMessage("查询留宿申请信息失败", c)
 		return
 	}
-	// 查寻数据
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&stayList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("系统查寻数据失败", c)
-		return
-	}
-	// // 处理时间格式
-	// for i, v := range stayList {
-	// 	time1, err1 := time.Parse(time.RFC3339, v.StayTime.StartTime)
-	// 	if err1 != nil {
-	// 		response.FailWithMessage("系统解析时间错误错误", c)
-	// 		return
-	// 	}
-	// 	start := time1.Format("2006-01-02")
-	// 	stayList[i].StayTime.StartTime = start
-	// 	time2, err2 := time.Parse(time.RFC3339, v.StayTime.EndTime)
-	// 	if err2 != nil {
-	// 		response.FailWithMessage("系统解析时间错误错误", c)
-	// 		return
-	// 	}
-	// 	end := time2.Format("2006-01-02")
-	// 	stayList[i].StayTime.EndTime = end
-	// }
 	response.OkWithDetailed(request.PageInfo{
 		List:     stayList,
 		Total:    total,

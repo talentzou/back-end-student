@@ -5,9 +5,9 @@ import (
 	"back-end/model/common/request"
 	"back-end/model/common/response"
 	"back-end/model/test/dorm"
-	"back-end/utils"
+	// "back-end/utils"
 	"fmt"
-	"net/url"
+	// "net/url"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +16,8 @@ import (
 var pages request.PageInfo
 
 type dorm_floor_api struct{}
+
+var Floor_api = new(dorm_floor_api)
 
 // 插入
 func (d *dorm_floor_api) CreateFloorApi(c *gin.Context) {
@@ -125,53 +127,33 @@ func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 	response.OkWithMessage("更新成功", c)
 }
 
-// 查寻
+// 查寻带参数
 
 func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 	var limit, offset int
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
-	var total int64
-	var floor dorm.Floor
-	var floors []dorm.Floor
-	// 获取query
-	rawUrl := c.Request.URL.String()
-	u, er := url.Parse(rawUrl)
-	if er != nil {
-		fmt.Println("解析url错误")
-	}
-	queryParams := u.Query()
-	// fmt.Println("查寻字符串参数", queryParams)
-	// 获取请求体数据
-
-	condition := make(map[string]interface{})
-	for index, value := range queryParams {
-		key := utils.ToCamelCase(index)
-		condition[key] = value
-	}
-	// fmt.Println("condition", condition)
-
-	// 分页数据
 	PageSize, er1 := strconv.Atoi(Size)
 	Page, er2 := strconv.Atoi(P)
+
 	if er1 != nil && er2 != nil {
-		fmt.Println("分页数错误", er1.Error(), er2.Error())
+		response.FailWithMessage("分页参数错误", c)
+		return
 	}
 	offset = PageSize * (Page - 1)
 	limit = PageSize
-	// fmt.Println(offset, limit)
-	// 查寻数量
-	count := global.Global_Db.Model(&floor).Where(condition).Count(&total).Error
-	if count != nil {
-		fmt.Println("计算楼层数量错误")
-		response.FailWithMessage("系统查询错误", c)
+
+	var searchStr request.SearchParams
+	err := c.ShouldBindJSON(&searchStr)
+	if err != nil {
+		response.FailWithMessage("搜索参数错误", c)
 		return
 	}
-	// 查寻数据
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&floors)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("系统查寻失败", c)
+	fmt.Println("搜索参数为++++++", searchStr.QueryStr)
+
+	floors, total, err := floorService.QueryFloor(limit, offset, searchStr.QueryStr)
+	if err != nil {
+		response.FailWithMessage("搜索数据不存在", c)
 		return
 	}
 	response.OkWithDetailed(request.PageInfo{
@@ -183,4 +165,39 @@ func (d *dorm_floor_api) QueryFloorApi(c *gin.Context) {
 
 }
 
-var Floor_api = new(dorm_floor_api)
+// 不带参数查寻
+func (d *dorm_floor_api) GetFloor(c *gin.Context) {
+	var limit, offset int
+	P, _ := c.Params.Get("Page")
+	Size, _ := c.Params.Get("PageSize")
+	PageSize, er1 := strconv.Atoi(Size)
+	Page, er2 := strconv.Atoi(P)
+
+	if er1 != nil && er2 != nil {
+		response.FailWithMessage("分页参数错误", c)
+		return
+	}
+	floors, total, err := floorService.QueryFloor(limit, offset, nil)
+	if err != nil {
+		response.FailWithMessage("搜索数据不存在", c)
+		return
+	}
+	response.OkWithDetailed(request.PageInfo{
+		List:     floors,
+		Total:    total,
+		PageSize: PageSize,
+		Page:     Page,
+	}, "成功", c)
+}
+// 获取宿舍楼与宿舍
+func (d *dorm_floor_api) GetFloorWithDorm(c *gin.Context) {
+	list, err := floorService.GetFloorDorm()
+	if err != nil {
+		response.FailWithMessage("宿舍楼详细数据不存在", c)
+		return
+	}
+	response.OkWithDetailed(&response.FloorWithDormList{
+		List: list,
+	}, "获取宿舍楼详细信息成功", c)
+
+}

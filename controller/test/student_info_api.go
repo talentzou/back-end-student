@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
+	// "strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,14 +27,14 @@ func (d *student_info_api) CreateStudInfoApi(c *gin.Context) {
 
 	for _, v := range studInfoList {
 		// 查询宿舍存在
-		var Dorm dorm.Dorm
-		word := strings.Split(v.DormNumber, "-")
-		// fmt.Println("11", word[0], "22", word[1])
-		dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
-		if dormErr.Error != nil {
-			response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
-			return
-		}
+		// var Dorm dorm.Dorm
+		// word := strings.Split(v.DormNumber, "-")
+		// // fmt.Println("11", word[0], "22", word[1])
+		// dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
+		// if dormErr.Error != nil {
+		// 	response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
+		// 	return
+		// }
 
 		//查询存在数据
 		var tempArr dorm.StudInfo
@@ -101,22 +101,7 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 		response.FailWithMessage("更新的学生:"+stud.StudentName+"数据不存在", c)
 		return
 	}
-	// 判断宿舍是否存在
-	var Dorm dorm.Dorm
-	word := strings.Split(stud.DormNumber, "-")
-	// fmt.Println("11", word[0], "22", word[1])
-	dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
-	if dormErr.Error != nil {
-		response.FailWithMessage("该宿舍:"+stud.DormNumber+",不存在无法添加", c)
-		return
-	}
-	result := global.Global_Db.Model(&stud).Where("id= ?", stud.Id).Updates(stud)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("更新学生:"+stud.StudentName+"失败", c)
-		return
 
-	}
 	response.OkWithMessage("更新成功", c)
 }
 
@@ -124,21 +109,25 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 
 func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 	var limit, offset int
-	var total int64
-	var stud dorm.StudInfo
-	var studInfoList []dorm.StudInfo
+
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)
 	Page, er2 := strconv.Atoi(P)
 	if er1 != nil && er2 != nil {
-		fmt.Println("分页数错误", er1.Error(), er2.Error())
+		response.FailWithMessage("分页参数错误", c)
+		return
 	}
+	// 分页数据
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
 	if er != nil {
 		fmt.Println("解析url错误")
+		response.FailWithMessage("系统解析url错误", c)
+		return
 	}
 	queryParams := u.Query()
 	// fmt.Println("查寻字符串参数", queryParams)
@@ -150,24 +139,11 @@ func (d *student_info_api) QueryStudInfoApi(c *gin.Context) {
 	}
 	fmt.Println("condition", condition)
 
-	// 分页数据
-	offset = PageSize * (Page - 1)
-	limit = PageSize
-	fmt.Println(offset, limit)
-	// 查寻数量
-	count := global.Global_Db.Model(&stud).Where(condition).Count(&total).Error
-	if count != nil {
-		response.FailWithMessage("系统查寻数量错误", c)
+	studInfoList, total, err := studentService.QueryStudentInfoList(limit, offset, condition)
+	if err != nil {
+		response.FailWithMessage("查询学生信息失败", c)
 		return
 	}
-	// 查寻数据
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&studInfoList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("系统查寻数据失败", c)
-		return
-	}
-	// fmt.Println("total",total,"数量为",len(studInfoList),studInfoList)
 	response.OkWithDetailed(request.PageInfo{
 		List:     studInfoList,
 		Total:    total,

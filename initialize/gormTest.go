@@ -4,7 +4,6 @@ import (
 	"back-end/global"
 	"back-end/model/system"
 	"back-end/model/test/dorm"
-	"back-end/model/test/expense"
 	"back-end/model/test/notice"
 	"back-end/model/test/repair"
 	"back-end/model/test/student"
@@ -20,7 +19,7 @@ func RegisterTableTest() {
 	db := global.Global_Db
 	tables := []interface{}{
 		&dorm.Bed{},
-		&expense.Expense{},
+		&dorm.Expense{},
 		&dorm.Rate{},
 		&student.StudentViolate{},
 		&dorm.Stay{},
@@ -45,6 +44,7 @@ func RegisterTableTest() {
 
 		}
 	}
+
 	// role := InitData()
 	// err := db.Model(&system.Role{}).Create(&role).Error
 	// if err != nil {
@@ -54,6 +54,22 @@ func RegisterTableTest() {
 	// err1 := db.Model(&system.SysUser{}).Create(&User).Error
 	// if err1 != nil {
 	// 	fmt.Println("-----------------添加用户失败")
+	// }
+	// floor := dorm.Floor{
+	// 	Id:         1,
+	// 	DormAmount: 10,
+	// 	FloorsName: "A",
+	// 	FloorsType: "男生宿舍",
+	// }
+	// dorm1 := dorm.Dorm{
+	// 	DormNumber: "101",
+	// 	Img:        "http://localhost:8080/public/static/微信图片_20220304221251.jpg",
+	// 	Capacity:   6,
+	// 	Floor:      floor,
+	// }
+	// err1 := db.Model(&dorm.Dorm{}).Create(&dorm1).Error
+	// if err1 != nil {
+	// 	fmt.Println("-----------------添加楼宇失败")
 	// }
 }
 

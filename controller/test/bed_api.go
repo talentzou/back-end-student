@@ -51,7 +51,7 @@ func (d *dorm_bed_api) CreateBedApi(c *gin.Context) {
 		}
 
 		// 判断宿舍容量是否超出
-		if length >= Dorm.DormCapacity {
+		if length >= Dorm.Capacity {
 			response.FailWithMessage("超出"+bedList[i].DormNumber+"宿舍最大容量MAX", c)
 			return
 		}

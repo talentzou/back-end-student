@@ -17,7 +17,7 @@ func (d *Dorm) Api_Dorm(router *gin.RouterGroup) {
 		dorm.DELETE("deleteDorm_ById", dormRoute.DeleteDormApi)
 		dorm.POST("/createDorm", dormRoute.CreateDormApi)
 		dorm.PUT("/putDorm", dormRoute.UpdateDormApi)
+		dorm.GET("/getDormWithStudent", dormRoute.GetDormWithStudent)
 	}
-	
 
 }

@@ -5,11 +5,13 @@ import (
 	"back-end/model/system"
 	"back-end/utils"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
 
 type UserService struct{}
+
 // 获取用户列表
 func (userService *UserService) GetUserInfoList(offset int, limit int) (list interface{}, total int64, err error) {
 	db := global.Global_Db.Model(&system.SysUser{})
@@ -18,10 +20,15 @@ func (userService *UserService) GetUserInfoList(offset int, limit int) (list int
 	if err != nil {
 		return
 	}
+	err = db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
 	err = db.Limit(limit).Offset(offset).Find(&userList).Error
 	return userList, total, err
 }
-//删除用户
+
+// 删除用户
 func (userService *UserService) DeleteUser(id int) (err error) {
 	return global.Global_Db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("id = ?", id).Delete(&system.SysUser{}).Error; err != nil {
@@ -33,6 +40,7 @@ func (userService *UserService) DeleteUser(id int) (err error) {
 		return nil
 	})
 }
+
 // 注册用户
 func (userService *UserService) Register(u system.SysUser) (userInter system.SysUser, err error) {
 	var user system.SysUser
@@ -43,5 +51,19 @@ func (userService *UserService) Register(u system.SysUser) (userInter system.Sys
 	u.Password = utils.BcryptHash(u.Password)
 	err = global.Global_Db.Create(&u).Error
 	return u, err
+}
+
+// 搜索用户
+func (userService *UserService) QueryUser(offset int, limit int, userName string) (interface{}, int64, error) {
+	var userList []system.SysUser
+	fmt.Println("service:", userName)
+	var total int64
+	db := global.Global_Db.Limit(limit).Offset(offset).Order("id")
+	err := db.Where("user_name LIKE ?", "%"+userName+"%").Find(&userList).Count(&total).Error
+	if err != nil {
+		// 处理错误
+		return nil, 0, err
+	}
+	return userList, total, nil
 }
 

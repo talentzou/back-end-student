@@ -13,11 +13,14 @@ func (f *Floor) Api_Floor(router *gin.RouterGroup) {
 	// apiRouterApi := controller.Floor_api
 	apiRouterApi := test.Floor_api
 	{
-		Floor.GET("/getFloor/:Page/:PageSize", apiRouterApi.QueryFloorApi)
+		Floor.GET("/getFloor/:Page/:PageSize", apiRouterApi.GetFloor)
+		Floor.POST("/queryFloor/:Page/:PageSize", apiRouterApi.QueryFloorApi)
 		Floor.DELETE("/deleteFloorById", apiRouterApi.DeleteFloorApi)
 		Floor.POST("/createFloor", apiRouterApi.CreateFloorApi)
 		Floor.PUT("/putFloor", apiRouterApi.UpdateFloorApi)
+		Floor.POST("/getFloor/:Page/:PageSize", apiRouterApi.QueryFloorApi)
+		Floor.GET("/getFloorWithDormList", apiRouterApi.GetFloorWithDorm)
+
 	}
-	
 
 }

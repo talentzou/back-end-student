@@ -18,30 +18,26 @@ type dorm_rate_api struct{}
 // 插入
 func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 	var rateList []dorm.Rate
-	fmt.Println("我是评分.......")
-
 	err := c.ShouldBindJSON(&rateList)
 	if err != nil {
 		fmt.Println("结构体错误", err.Error())
-		response.FailWithMessage("系统合并错误", c)
+		response.FailWithMessage("参数错误", c)
 		return
 	}
-	fmt.Println("参数为999", rateList)
-	// 给数据添加id
+
 	for i, v := range rateList {
 		// //查寻存在数据
 		var tempArr []dorm.Rate
-		query := global.Global_Db.Where("dorm_number=? AND floors_name=?", v.DormNumber, v.FloorsName).Find(&tempArr)
-		if query.Error != nil {
+		err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
+		if err != nil {
 			response.FailWithMessage("系统查寻错误", c)
 			return
 		}
 
 		for t := range tempArr {
-			// dd :=  tempArr[t].RateDate.Format("2006-01-02")
 
-			if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormNumber == tempArr[t].DormNumber {
-				response.FailWithMessage(rateList[i].DormNumber+"宿舍的"+tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
+			if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormId == tempArr[t].DormId {
+				response.FailWithMessage(tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
 				return
 			}
 		}
@@ -69,7 +65,7 @@ func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
 	for _, value := range rateList {
 		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
-			response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+value.FloorsName+":"+value.DormNumber+"宿舍数据不存在", c)
+			response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+"宿舍数据不存在", c)
 			return
 		}
 	}
@@ -77,7 +73,7 @@ func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
 		result := global.Global_Db.Delete(&del)
 		if result.Error != nil {
 			// 处理错误
-			response.FailWithMessage("删除时间为:"+del.RateDate.Format("2006-01-02")+del.FloorsName+":"+del.DormNumber+"宿舍数据删除失败", c)
+			response.FailWithMessage("删除时间为:"+del.RateDate.Format("2006-01-02")+"宿舍数据删除失败", c)
 			return
 		}
 	}
@@ -96,7 +92,7 @@ func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
 	var tempRate dorm.Rate
 	err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
 	if err2.Error != nil {
-		response.FailWithMessage(rate.RateDate.Format("2006-01-02")+":"+rate.DormNumber+":数据不存在:无法更新", c)
+		response.FailWithMessage(rate.RateDate.Format("2006-01-02")+"数据不存在:无法更新", c)
 		return
 	}
 	result := global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate)
@@ -113,16 +109,16 @@ func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
 
 func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	var limit, offset int
-	var total int64
-	var rate dorm.Rate
-	var rateList []dorm.Rate
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)
 	Page, er2 := strconv.Atoi(P)
 	if er1 != nil && er2 != nil {
-		fmt.Println("分页数错误", er1.Error(), er2.Error())
+		response.FailWithMessage("分页参数错误", c)
+		return
 	}
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -139,39 +135,19 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	}
 	fmt.Println("condition", condition)
 	// 分页数据
-	offset = PageSize * (Page - 1)
-	limit = PageSize
-	fmt.Println(offset, limit)
-	// 查寻数量
-	count := global.Global_Db.Model(&rate).Where(condition).Count(&total).Error
-	if count != nil {
-		fmt.Println("系统查询数量错误")
-		response.FailWithMessage("系统查询错误", c)
+	
+	// fmt.Println(offset, limit)
+	rateList, total, err := rateService.QueryRate(limit, offset, condition)
+	if err != nil {
+		response.FailWithMessage("获取宿舍评分信息失败", c)
 		return
 	}
-	// 查寻数据
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&rateList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("系统查寻失败", c)
-		return
-	}
-	// for i, v := range rateList {
-	// 	time, err := time.Parse(time.RFC3339, v.RateDate)
-	// 	if err != nil {
-	// 		response.FailWithMessage("系统解析时间错误错误", c)
-	// 		return
-	// 	}
-	// 	tt := time.Format("2006-01-02")
-	// 	rateList[i].RateDate = tt
-	// }
 	response.OkWithDetailed(request.PageInfo{
 		List:     rateList,
 		Total:    total,
 		PageSize: pages.PageSize,
 		Page:     pages.Page,
 	}, "成功", c)
-
 }
 
 var Rate_api = new(dorm_rate_api)

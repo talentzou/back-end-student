@@ -5,7 +5,6 @@ import (
 	"back-end/model/common/request"
 	"back-end/model/common/response"
 	"back-end/model/test/dorm"
-	"back-end/model/test/expense"
 	"back-end/utils"
 	"fmt"
 	"net/url"
@@ -18,7 +17,7 @@ type expense_dorm_api struct{}
 
 // 插入
 func (d *expense_dorm_api) CreateExpenseApi(c *gin.Context) {
-	var expenseList []expense.Expense
+	var expenseList []dorm.Expense
 	err := c.ShouldBindJSON(&expenseList)
 	if err != nil {
 		fmt.Println("错误", err.Error())
@@ -28,9 +27,9 @@ func (d *expense_dorm_api) CreateExpenseApi(c *gin.Context) {
 	// 给数据添加id
 	for _, v := range expenseList {
 		var tempDorm dorm.Dorm
-		query := global.Global_Db.Where("floors_name=? AND dorm_number=? ", v.FloorsName, v.DormNumber).First(&tempDorm)
+		query := global.Global_Db.Where("id=? ", v.DormId).First(&tempDorm)
 		if query.Error != nil {
-			response.FailWithMessage("该宿舍："+v.FloorsName+"-"+v.DormNumber+"不存在，无法添加", c)
+			response.FailWithMessage("宿舍不存在,无法添加", c)
 			return
 		}
 	}
@@ -46,7 +45,7 @@ func (d *expense_dorm_api) CreateExpenseApi(c *gin.Context) {
 
 // 删除
 func (d *expense_dorm_api) DeleteExpenseApi(c *gin.Context) {
-	var expenseList []expense.Expense
+	var expenseList []dorm.Expense
 	err := c.ShouldBindJSON(&expenseList)
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
@@ -56,7 +55,7 @@ func (d *expense_dorm_api) DeleteExpenseApi(c *gin.Context) {
 	for _, value := range expenseList {
 		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
 		if err2.Error != nil {
-			response.FailWithMessage("宿舍:"+value.DormNumber+","+value.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
+			response.FailWithMessage(value.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
 			return
 		}
 	}
@@ -64,7 +63,7 @@ func (d *expense_dorm_api) DeleteExpenseApi(c *gin.Context) {
 		result := global.Global_Db.Delete(&del)
 		if result.Error != nil {
 			// 处理错误
-			response.FailWithMessage("宿舍:"+del.DormNumber+","+del.PaymentTime.Format("2006-01-02")+"费用数据删除失败", c)
+			response.FailWithMessage(del.PaymentTime.Format("2006-01-02")+"费用数据删除失败", c)
 			return
 		}
 	}
@@ -73,16 +72,16 @@ func (d *expense_dorm_api) DeleteExpenseApi(c *gin.Context) {
 
 // 更新
 func (d *expense_dorm_api) UpdateExpenseApi(c *gin.Context) {
-	var dormExpense expense.Expense
+	var dormExpense dorm.Expense
 	err := c.ShouldBindJSON(&dormExpense)
 	if err != nil {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	var temp expense.Expense
+	var temp dorm.Expense
 	err2 := global.Global_Db.Model(&temp).Where("id=?", dormExpense.Id).First(&temp)
 	if err2.Error != nil {
-		response.FailWithMessage("宿舍:"+dormExpense.DormNumber+","+dormExpense.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
+		response.FailWithMessage(dormExpense.PaymentTime.Format("2006-01-02")+"费用数据不存在", c)
 		return
 	}
 	result := global.Global_Db.Model(&dormExpense).Where("id = ?", dormExpense.Id).Updates(dormExpense)
@@ -99,16 +98,18 @@ func (d *expense_dorm_api) UpdateExpenseApi(c *gin.Context) {
 
 func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 	var limit, offset int
-	var total int64
-	var expenseList []expense.Expense
-	var expense expense.Expense
+	
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)
 	Page, er2 := strconv.Atoi(P)
 	if er1 != nil && er2 != nil {
-		fmt.Println("分页数错误", er1.Error(), er2.Error())
+		response.FailWithMessage("分页参数错误", c)
+		return
 	}
+	// 分页数据
+	offset = PageSize * (Page - 1)
+	limit = PageSize
 	// 获取query
 	rawUrl := c.Request.URL.String()
 	u, er := url.Parse(rawUrl)
@@ -123,25 +124,12 @@ func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
-	// 分页数据
-	offset = PageSize * (Page - 1)
-	limit = PageSize
-	fmt.Println(offset, limit)
-	// 查寻数量
-	count := global.Global_Db.Model(&expense).Where(condition).Count(&total).Error
-	if count != nil {
-		fmt.Println("计算楼层数量错误")
-		response.FailWithMessage("系统查询错误", c)
-		return
-	}
-	// 查寻数据
-	result := global.Global_Db.Where(condition).Limit(limit).Offset(offset).Find(&expenseList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("系统查寻失败", c)
-		return
-	}
 
+	expenseList,total,err:=expenseService.QueryExpense(limit,offset,condition)
+	if err != nil {
+		response.FailWithMessage("查询水电费信息失败", c)
+		return
+	}
 	response.OkWithDetailed(request.PageInfo{
 		List:     expenseList,
 		Total:    total,

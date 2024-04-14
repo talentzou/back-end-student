@@ -7,7 +7,7 @@ type SysUser struct {
 	UserName  string `json:"userName" gorm:"size:256;comment:用户登录名"`
 	Password  string `json:"-"  gorm:"size:256;default:123456;comment:用户登录密码"`
 	Sex       string `json:"sex"  gorm:"size:256;comment:性别"`
-	Nickname  string `json:"nickname" gorm:"size:256;comment:用户昵称"`
+	Nickname  string `json:"nickname" gorm:"default:无;size:256;comment:用户昵称"`
 	Telephone string `json:"telephone" gorm:"size:256;default:18100000000;comment:手机号码"`
 	Avatar    string `json:"avatar" gorm:"size:256;default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:头像"`
 	Authority uint   `json:"authorityId" gorm:"default:2;comment:用户角色ID"`

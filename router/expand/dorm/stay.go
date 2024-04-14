@@ -13,9 +13,9 @@ func (s *Stay) Api_Stay(router *gin.RouterGroup) {
 	// stayRouterApi := controller.Stay_api
 	stayRouterApi := test.Stay_api
 	{
-		Stay.GET("getStay/:Page/:PageSize", stayRouterApi.QueryFloorApi)
-		Stay.DELETE("deleteStayById", stayRouterApi.DeleteFloorApi)
-		Stay.POST("/createStay", stayRouterApi.CreateFloorApi)
-		Stay.PUT("/putStay", stayRouterApi.UpdateFloorApi)
+		Stay.GET("getStay/:Page/:PageSize", stayRouterApi.QueryStayApi)
+		Stay.DELETE("deleteStayById", stayRouterApi.DeleteStayApi)
+		Stay.POST("/createStay", stayRouterApi.CreateStayApi)
+		Stay.PUT("/putStay", stayRouterApi.UpdateStayApi)
 	}
 }

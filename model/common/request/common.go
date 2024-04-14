@@ -4,6 +4,7 @@ import (
 	"back-end/config"
 	"github.com/golang-jwt/jwt/v5"
 )
+
 type GetById struct {
 	ID int `json:"id" form:"id"` // 主键ID
 }
@@ -38,6 +39,18 @@ type Login struct {
 	Authority uint   `json:"authority"` //角色
 }
 type SysMenusResponse struct {
-	Authority int             `json:"authority"`
+	Authority int            `json:"authority"`
 	Menu      []config.Route `json:"menu"`
+}
+
+type SearchParams struct {
+	QueryStr string `json:"queryStr"`
+}
+
+type RatePageInfo struct {
+	List      interface{} `json:"list"`
+	Total     int64       `json:"total"`
+	Page      int         `json:"page" form:"page"`         // 页码
+	PageSize  int         `json:"pageSize" form:"pageSize"` // 每页大小
+	FloorList interface{} `json:"floorList"`
 }
