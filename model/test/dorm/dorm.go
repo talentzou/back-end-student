@@ -27,7 +27,9 @@ type Dorm struct {
 	FloorId    uint       `json:"floorId" ` //宿舍楼主键
 	Floor      Floor      `json:"-"`
 	FloorsName string     `json:"floorsName" gorm:"->"`
+	Count      int64      `json:"count" gorm:"->"`
 	StudInfos  []StudInfo `json:"studInfoList"`
+	Rates      []Rate     `json:"rateList"`
 }
 
 // 床位

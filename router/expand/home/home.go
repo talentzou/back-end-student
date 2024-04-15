@@ -11,6 +11,6 @@ type Home struct{}
 func (e *Home) UseHome(router *gin.RouterGroup) {
 	Repair := router.Group("/Home")
 	{
-		Repair.GET("getRepair/:Page/:PageSize",test.GetHomeMessage)
+		Repair.GET("getHomeMessage",test.GetHomeMessage)
 	}
 }

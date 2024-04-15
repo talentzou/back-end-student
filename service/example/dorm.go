@@ -5,7 +5,6 @@ import (
 	"back-end/model/test/dorm"
 	"errors"
 	"fmt"
-
 	// "gorm.io/gorm"
 	// "fmt"
 )
@@ -27,14 +26,19 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 		return dormList, total, nil
 	}
 
-	fmt.Println("我来查询了")
+	fmt.Println("我来查询了",condition)
 	global.Global_Db.Limit(limit).Offset(offset)
-	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").
+	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").Where(condition).
 		Find(&dormList).Count(&total).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err
 	}
+	for i := range dormList {
+		count := global.Global_Db.Model(&dorm.Dorm{Id: dormList[i].Id}).Association("StudInfos").Count()
+		dormList[i].Count = count
+	}
+
 	return dormList, total, nil
 }
 
@@ -81,6 +85,13 @@ func (D *DormService) CreateDorm(dormList []dorm.Dorm) error {
 		if err != nil {
 			return errors.New("该宿舍楼" + v.FloorsName + "不存在,无法添加")
 		}
+
+		count := global.Global_Db.Model(&dorm.Floor{Id: v.FloorId}).Association("Dorms").Count()
+		fmt.Println("宿舍数量+++++", count)
+		fmt.Println("宿舍楼容量", int64(tempFloor.DormAmount))
+		if count >= int64(tempFloor.DormAmount) {
+			return fmt.Errorf("超出宿舍楼容量")
+		}
 		// 查询宿舍存在数据
 		var tempArr dorm.Dorm
 		err = global.Global_Db.Where("dorm_number=? AND floor_id=?", v.DormNumber, v.FloorId).First(&tempArr).Error
@@ -89,6 +100,7 @@ func (D *DormService) CreateDorm(dormList []dorm.Dorm) error {
 		} else {
 			return errors.New("该宿舍:" + v.DormNumber + "已存在")
 		}
+
 	}
 	// 添加数据
 	err := global.Global_Db.Model(&dorm.Dorm{}).Create(&dormList).Error

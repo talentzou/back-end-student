@@ -15,11 +15,33 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 	var stayList []dorm.Expense
 	var total int64
 	fmt.Println("我是水电+++++++++++++", condition)
-	if condition == nil {
-		db := global.Global_Db.Model(&dorm.Expense{}).Limit(limit).Offset(offset)
-		err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+	if condition != nil {
+		// db := global.Global_Db.Model(&dorm.Expense{}).Limit(limit).Offset(offset)
+		// err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+		// 	return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		// }).Find(&stayList).Error
+		// if err != nil {
+		// 	return nil, 0, err
+		// }
+		condition := condition.([]string)
+		fmt.Println("进来参数ggg",condition)
+		var floor dorm.Floor
+		err := global.Global_Db.Model(&dorm.Floor{}).Where("floors_name=?", condition[0]).First(&floor).Error
+		if err != nil {
+			return nil, 0, err
+		}
+		var Dorm dorm.Dorm
+		err = global.Global_Db.Model(&dorm.Dorm{}).Where("floor_id=? AND dorm_number=?", floor.Id, condition[1]).First(&Dorm).Error
+		if err != nil {
+			return nil, 0, err
+		}
+
+		db := global.Global_Db.Model(&dorm.Expense{}).Where("dorm_id=?", Dorm.Id).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Find(&stayList).Error
+		}).Limit(limit).Offset(offset)
+
+		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		err = db.Find(&stayList).Error
 		if err != nil {
 			return nil, 0, err
 		}

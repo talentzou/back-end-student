@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -135,7 +136,27 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 	}
 	fmt.Println("condition", condition)
 
-	repairList, total, err := repairService.QueryRepair(limit, offset, condition)
+	arrSlice :=make([]string,3)
+	mapLength := len(condition)
+	fmt.Println("condition9999", mapLength,condition)
+	if mapLength == 0 {
+		fmt.Println("进来为空yyy")
+		arrSlice = nil
+	} else {
+		fmt.Println("进来不为空+++yyy+++++++")
+		if floorDorm, ok := condition["floor_dorm"].([]string); ok {
+			words := strings.Split(floorDorm[0], "-")
+			arrSlice[0]=words[0]
+			arrSlice[1]=words[1]
+		}
+		if studentName,ok:= condition["repair_status"].([]string);ok{
+			arrSlice[2]=studentName[0]
+		}
+		fmt.Println("kk",arrSlice[0],"1",arrSlice[1],"2",arrSlice[2])
+		
+	}
+
+	repairList, total, err := repairService.QueryRepair(limit, offset, arrSlice)
 	if err != nil {
 		response.FailWithMessage("查询维修信息失败", c)
 		return

@@ -26,11 +26,12 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}) (i
 		fmt.Println("获取评分不带参数")
 		return stayList, total, nil
 	}
-	fmt.Println("我是留宿申请---99---")
+	
 	// 查寻数据
-	err := global.Global_Db.Model(&dorm.Stay{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+	err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Limit(limit).Offset(offset).Find(&stayList).Count(&total).Error
+	}).Limit(limit).Offset(offset).Find(&stayList).Count(&total).Error
+	fmt.Println("我是留宿申请---99---",err)
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

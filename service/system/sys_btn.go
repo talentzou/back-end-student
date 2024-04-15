@@ -20,6 +20,7 @@ func (b *BtnService) GetBtnRoleTree(RoleId uint) ([]system.SysBtn, error) {
 	for i := range RoleBtns {
 		btns = append(btns, RoleBtns[i].SysBtnId)
 	}
+	fmt.Println("按钮列表数据",btns)
 	var allBtn []system.SysBtn
 	err = global.Global_Db.Model(&system.SysBtn{}).Where("id IN ? ", btns).Find(&allBtn).Error
 	if err != nil {

@@ -26,15 +26,18 @@ func (d *student_info_api) CreateStudInfoApi(c *gin.Context) {
 	}
 
 	for _, v := range studInfoList {
-		// 查询宿舍存在
-		// var Dorm dorm.Dorm
-		// word := strings.Split(v.DormNumber, "-")
-		// // fmt.Println("11", word[0], "22", word[1])
-		// dormErr := global.Global_Db.Where("floors_name=? AND dorm_number=? ", word[0], word[1]).First(&Dorm)
-		// if dormErr.Error != nil {
-		// 	response.FailWithMessage("该宿舍:"+v.DormNumber+"不存在无法添加", c)
-		// 	return
-		// }
+		var dorm_message dorm.Dorm
+		var total int64
+		err := global.Global_Db.Model(&dorm.Dorm{}).Preload("StudInfos").Where("id=?", v.DormId).First(&dorm_message).Count(&total).Error
+		if err != nil {
+			continue
+		}
+		fmt.Println("宿舍容量", dorm_message.Capacity)
+		fmt.Println("宿舍容量目前为止", len(dorm_message.StudInfos))
+		if len(dorm_message.StudInfos) >= dorm_message.Capacity {
+			response.FailWithMessage("该宿舍:"+dorm_message.DormNumber+"容量已达到最大值", c)
+			return
+		}
 
 		//查询存在数据
 		var tempArr dorm.StudInfo

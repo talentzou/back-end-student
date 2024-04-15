@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -124,8 +125,23 @@ func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 		condition[key] = value
 	}
 	fmt.Println("condition", condition)
+	var arrSlice interface{}
 
-	expenseList,total,err:=expenseService.QueryExpense(limit,offset,condition)
+	mapLength := len(condition)
+	// fmt.Println("condition9999", mapLength,condition)
+	if mapLength == 0 {
+		arrSlice = nil
+	} else {
+		floor_dorm := condition["floor_dorm"].([]string)
+		// fmt.Println("进来后++++",floor_dorm)
+		words := strings.Split(floor_dorm[0], "-")
+		arrSlice = words
+	}
+
+
+
+
+	expenseList,total,err:=expenseService.QueryExpense(limit,offset,arrSlice)
 	if err != nil {
 		response.FailWithMessage("查询水电费信息失败", c)
 		return

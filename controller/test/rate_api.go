@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -133,13 +134,25 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 		key := utils.ToCamelCase(index)
 		condition[key] = value
 	}
-	fmt.Println("condition", condition)
+	// 变量
+	var arrSlice interface{}
+
+	mapLength := len(condition)
+	fmt.Println("condition9999", mapLength,condition)
+	if mapLength == 0 {
+		arrSlice = nil
+	} else {
+		floor_dorm := condition["floor_dorm"].([]string)
+		// fmt.Println("进来后++++",floor_dorm)
+		words := strings.Split(floor_dorm[0], "-")
+		arrSlice = words
+	}
 	// 分页数据
-	
+
 	// fmt.Println(offset, limit)
-	rateList, total, err := rateService.QueryRate(limit, offset, condition)
+	rateList, total, err := rateService.QueryRate(limit, offset, arrSlice)
 	if err != nil {
-		response.FailWithMessage("获取宿舍评分信息失败", c)
+		response.FailWithMessage("查寻宿舍评分信息失败", c)
 		return
 	}
 	response.OkWithDetailed(request.PageInfo{

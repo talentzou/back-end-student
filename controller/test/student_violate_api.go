@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
+
 	// "strings"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +24,7 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 	var violateList []student.StudentViolate
 	err := c.ShouldBindJSON(&violateList)
 	if err != nil {
+		fmt.Println("添加参数错误",err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
@@ -47,8 +50,10 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 // 删除
 func (d *violate_info_api) DeleteVioApi(c *gin.Context) {
 	var violateList []student.StudentViolate
+	
 	err := c.ShouldBindJSON(&violateList)
 	if err != nil {
+		
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
@@ -77,9 +82,11 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 	var vio student.StudentViolate
 	err := c.ShouldBindJSON(&vio)
 	if err != nil {
+		fmt.Println("参数错误",err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
+	fmt.Println("更新参数为",vio.DormId)
 	// 判断数据是否存在
 	var tempStudent student.StudentViolate
 	err2 := global.Global_Db.Where("id=? ", vio.Id).First(&tempStudent)
@@ -87,6 +94,7 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 		response.FailWithMessage("更新的学号为:"+vio. Violate+"数据不存在", c)
 		return
 	}
+	fmt.Println("宿舍id参数为",vio.DormId)
 	var Dorm dorm.Dorm
 	dormErr := global.Global_Db.Where("id=? ", vio.DormId).First(&Dorm)
 	if dormErr.Error != nil {
@@ -134,7 +142,29 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 	// 分页数据
 	offset = PageSize * (Page - 1)
 	limit = PageSize
-	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,condition)
+
+	arrSlice :=make([]string,3)
+	mapLength := len(condition)
+	fmt.Println("condition9999", mapLength,condition)
+	if mapLength == 0 {
+		fmt.Println("进来为空pppp")
+		arrSlice = nil
+	} else {
+		fmt.Println("进来不为空++++++++++")
+		if floorDorm, ok := condition["floor_dorm"].([]string); ok {
+			words := strings.Split(floorDorm[0], "-")
+			arrSlice[0]=words[0]
+			arrSlice[1]=words[1]
+		}
+		if studentName,ok:= condition["student_name"].([]string);ok{
+			arrSlice[2]=studentName[0]
+		}
+		
+	}
+
+
+
+	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,arrSlice)
 	if err != nil {
 		response.FailWithMessage("查询学生违纪信息失败", c)
 		return
