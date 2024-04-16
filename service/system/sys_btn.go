@@ -20,7 +20,7 @@ func (b *BtnService) GetBtnRoleTree(RoleId uint) ([]system.SysBtn, error) {
 	for i := range RoleBtns {
 		btns = append(btns, RoleBtns[i].SysBtnId)
 	}
-	fmt.Println("按钮列表数据",btns)
+	fmt.Println("按钮列表数据", btns)
 	var allBtn []system.SysBtn
 	err = global.Global_Db.Model(&system.SysBtn{}).Where("id IN ? ", btns).Find(&allBtn).Error
 	if err != nil {
@@ -48,9 +48,10 @@ func (b *BtnService) DeleteRelateBtn(roleId int, SysBtnIdList []int) error {
 	var role_btn []system.RoleBtns
 	var btnIdList []int
 	fmt.Println("删除的角色为+++++", roleId)
-	fmt.Println("添加的角色按钮的参数+++++", SysBtnIdList)
+	fmt.Println("删除的角色按钮的参数+++++", SysBtnIdList)
 	// err := global.Global_Db.Where("role_id=?", roleId).Delete(&system.RoleBtns{}).Error
 	if len(SysBtnIdList) == 0 {
+		fmt.Println("按钮数据长度为0")
 		err := global.Global_Db.Where("role_id=?", roleId).Delete(&system.RoleBtns{}).Error
 		if err != nil {
 			return err
@@ -61,19 +62,25 @@ func (b *BtnService) DeleteRelateBtn(roleId int, SysBtnIdList []int) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("删除的角色按钮的参数+++++", SysBtnIdList)
+
 	for _, r := range role_btn {
 		isFound := false
-		for _, v := range btnIdList {
-			if r.SysBtnId == v {
+		fmt.Println("开始数字", r)
+		for i := range SysBtnIdList {
+			if r.SysBtnId == SysBtnIdList[i] {
+				fmt.Println("相等", SysBtnIdList[i])
 				isFound = true
 				break
 			}
 		}
+
 		if !isFound {
 			btnIdList = append(btnIdList, r.SysBtnId)
 		}
 	}
-	err = global.Global_Db.Where("sys_btn_id IN ?", btnIdList).Delete(&system.RoleBtns{}).Error
+	fmt.Println("删除的数据为", btnIdList)
+	err = global.Global_Db.Where("sys_btn_id IN?AND role_id=?", btnIdList, roleId).Delete(&system.RoleBtns{}).Error
 
 	if err != nil {
 		return err

@@ -32,12 +32,13 @@ func (userService *MenuService) getMenuTreeMap(roleId int) (treeMap map[uint][]s
 	if err != nil {
 		return
 	}
+	
 	// 拿出角色信息菜单id
 	var MenuIds []int
 	for i := range SysRoleMenus {
 		MenuIds = append(MenuIds, SysRoleMenus[i].MenuId)
 	}
-
+	fmt.Println("+++++++++角色菜单树------------",MenuIds)
 	err = global.Global_Db.Where("id in (?)", MenuIds).Order("id").Find(&baseMenu).Error
 	if err != nil {
 		return
@@ -45,6 +46,7 @@ func (userService *MenuService) getMenuTreeMap(roleId int) (treeMap map[uint][]s
 	for _, v := range baseMenu {
 		treeMap[v.ParentId] = append(treeMap[v.ParentId], v)
 	}
+	fmt.Println("菜单树映射+++++++++++",treeMap)
 	return treeMap, err
 }
 
@@ -134,7 +136,7 @@ func (userService *MenuService) DeleteRelateMenu(roleId int, MenuIdList []int) e
 			menusIdList = append(menusIdList, r.MenuId)
 		}
 	}
-	err = global.Global_Db.Where("menu_id IN ?", menusIdList).Delete(&system.RoleMenus{}).Error
+	err = global.Global_Db.Where("menu_id IN ? AND role_id=?", menusIdList,roleId).Delete(&system.RoleMenus{}).Error
 
 	if err != nil {
 		return err

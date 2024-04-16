@@ -20,7 +20,7 @@ func (f *FloorService) QueryFloor(limit int, offset int, params interface{}) (in
 		if err != nil {
 			return nil, 0, err
 		}
-		fmt.Println("获取楼层不带参数", floorList)
+		// fmt.Println("获取楼层不带参数", floorList)
 		return floorList, total, nil
 	}
 	fmt.Println("后面++++++++++")
