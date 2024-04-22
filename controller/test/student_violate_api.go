@@ -86,7 +86,8 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	fmt.Println("更新参数为",vio.DormId)
+	fmt.Println("参数为",vio)
+	// fmt.Println("更新参数为",vio.DormId)
 	// 判断数据是否存在
 	var tempStudent student.StudentViolate
 	err2 := global.Global_Db.Where("id=? ", vio.Id).First(&tempStudent)
@@ -161,8 +162,6 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		}
 		
 	}
-
-
 
 	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,arrSlice)
 	if err != nil {

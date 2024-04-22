@@ -22,12 +22,13 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 		if err != nil {
 			return nil, 0, err
 		}
+		// fmt.Println("宿舍楼为+++++++++",floor)
 		var Dorm dorm.Dorm
 		err = global.Global_Db.Model(&dorm.Dorm{}).Where("floor_id=? AND dorm_number=?", floor.Id, condition[1]).First(&Dorm).Error
 		if err != nil {
 			return nil, 0, err
 		}
-
+        // fmt.Println("宿舍为+++++++++",Dorm)
 		db := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Limit(limit).Offset(offset)
@@ -41,11 +42,14 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 			return repairList, total, nil
 		}
 
-		err = db.Where("dorm_id=?", Dorm.Id).Find(&repairList).Error
+		err = db.Where("dorm_id=?", Dorm.Id).Find(&repairList).Count(&total).Error
+		fmt.Println("找不到数据",err)
 		if err != nil {
+			fmt.Println("找不到数据",err)
 			return nil, 0, err
 		}
-		fmt.Println("获取维修不带状态")
+
+		// fmt.Println("获取维修不带状态")
 		return repairList, total, nil
 	}
 	// ///////////////////////////////////////////////////////////////
@@ -53,7 +57,7 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 	// 查寻数据
 	err := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Limit(limit).Offset(offset).Find(&repairList).Count(&total).Error
+	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&repairList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

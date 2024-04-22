@@ -16,7 +16,7 @@ func (f *StudentService) QueryStudentInfoList(limit int, offset int, condition i
 	var total int64
 	fmt.Println("我是学生信息+++++++++++++", condition)
 	if condition == nil {
-		db := global.Global_Db.Model(&dorm.StudInfo{}).Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&dorm.StudInfo{}).Count(&total).Limit(limit).Offset(offset)
 		err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Find(&studentList).Error
@@ -30,7 +30,7 @@ func (f *StudentService) QueryStudentInfoList(limit int, offset int, condition i
 	// 查寻数据
 	err := global.Global_Db.Model(&dorm.StudInfo{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Limit(limit).Offset(offset).Find(&studentList).Count(&total).Error
+	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&studentList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err
@@ -63,29 +63,29 @@ func (f *StudentService) QueryStudentViolateList(limit int, offset int, conditio
 		if err != nil {
 			return nil, 0, err
 		}
-		var Student dorm.StudInfo
-		err = global.Global_Db.Model(&dorm.StudInfo{}).Where("student_name =?", condition[2]).First(&Student).Error
-		if err != nil {
-			return nil, 0, err
-		}
-		/*
-			, func(db *gorm.DB) *gorm.DB {
-				// if condition[2] != "" {
-				// 	fmt.Println("学生有参数88777")
-				// 	return db.Debug().Where("student_name =?", condition[2])
-				// }
-				// return db
+
+		var Student []dorm.StudInfo
+		var studentIdList []uint
+		if condition[2] != "" {
+			err = global.Global_Db.Model(&dorm.StudInfo{}).Where("student_name =?", condition[2]).Find(&Student).Error
+			if err != nil {
+				return nil, 0, err
 			}
-		*/
-		// .Or("student_name = ?", condition[1])
+			for _, v := range Student {
+				studentIdList=append(studentIdList, v.Id)
+			}
+			// fmt.Println("查寻违纪宿舍带人名", Student.StudentName, "学生id", Student.Id, "宿舍id", Dorm.Id)
+		}
+
 		db := global.Global_Db.Model(&student.StudentViolate{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Preload("StudInfo").Limit(limit).Offset(offset)
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		if condition[2] != "" {
-			fmt.Println("查寻违纪宿舍带人名")
-			err = db.Where("dorm_id=? AND stud_info_id=?", Dorm.Id, Student.Id).Find(&studentList).Error
+			err = db.Model(&student.StudentViolate{}).Where("dorm_id=? AND stud_info_id IN ?", Dorm.Id,studentIdList).Find(&studentList).Error
+			fmt.Println("是否找到学生数据", err)
+			fmt.Println("学生数据为", studentList)
 			if err != nil {
 				return nil, 0, err
 			}

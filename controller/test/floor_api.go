@@ -103,21 +103,7 @@ func (d *dorm_floor_api) UpdateFloorApi(c *gin.Context) {
 			return
 		}
 	}
-	// // 追加关联数据
-	// var dormList []dorm.Dorm
-	// re2 := global.Global_Db.Where("floors_name = ?", floor.FloorsName).Find(&dormList).Error
-	// if re2 != nil {
-	// 	// response.FailWithMessage("找不到对应宿舍存在", c)
-	// 	// return
-	// 	fmt.Println("出错了,没有数据")
-	// }
-
-	// fmt.Println("宿舍数据为", dormList)
-	// // 建立关联
-	// for _, v := range dormList {
-	// 	fmt.Println(v)
-	// 	global.Global_Db.Model(&floor).Association("Dorms").Clear()
-	// }
+	
 	result := global.Global_Db.Model(&dorm.Floor{}).Where("id= ?", floor.Id).Updates(floor)
 	if result.Error != nil {
 		// 处理错误

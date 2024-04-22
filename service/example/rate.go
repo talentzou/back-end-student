@@ -31,7 +31,7 @@ func (f *RateService) QueryRate(limit int, offset int, condition interface{}) (i
 
 		db := global.Global_Db.Model(&dorm.Rate{}).Where("dorm_id=?", Dorm.Id).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Limit(limit).Offset(offset)
+		}).Count(&total).Limit(limit).Offset(offset)
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		err = db.Find(&rateList).Error
@@ -45,7 +45,7 @@ func (f *RateService) QueryRate(limit int, offset int, condition interface{}) (i
 	// 查寻数据
 	err := global.Global_Db.Model(&dorm.Rate{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Limit(limit).Offset(offset).Find(&rateList).Count(&total).Error
+	}).Count(&total).Limit(limit).Offset(offset).Find(&rateList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

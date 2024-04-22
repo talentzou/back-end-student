@@ -46,7 +46,7 @@ func (userService *MenuService) getMenuTreeMap(roleId int) (treeMap map[uint][]s
 	for _, v := range baseMenu {
 		treeMap[v.ParentId] = append(treeMap[v.ParentId], v)
 	}
-	fmt.Println("菜单树映射+++++++++++",treeMap)
+	// fmt.Println("菜单树映射+++++++++++",treeMap)
 	return treeMap, err
 }
 

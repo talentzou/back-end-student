@@ -17,23 +17,24 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 	var dormList []dorm.Dorm
 	var total int64
 	if condition == nil {
+		global.Global_Db.Limit(limit).Offset(offset)
 		err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").
 			Preload("StudInfos").Find(&dormList).Error
 		if err != nil {
 			return nil, 0, err
 		}
-		fmt.Println("获取宿舍带学生参数")
+		fmt.Println("获取宿舍不带参数++++++")
 		return dormList, total, nil
 	}
-
+	fmt.Println("获取宿舍带参数------")
 	fmt.Println("我来查询了",condition)
-	global.Global_Db.Limit(limit).Offset(offset)
-	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").Where(condition).
-		Find(&dormList).Count(&total).Error
+	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").Where(condition).Count(&total).
+	Limit(limit).Offset(offset).Find(&dormList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err
 	}
+	fmt.Println(limit,offset,"数量为+++++++++++++++++++++++",total)
 	for i := range dormList {
 		count := global.Global_Db.Model(&dorm.Dorm{Id: dormList[i].Id}).Association("StudInfos").Count()
 		dormList[i].Count = count
@@ -46,12 +47,12 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 func (D *DormService) UpdateDorm(Dorm dorm.Dorm) error {
 	var exist_dorm dorm.Dorm
 	db := global.Global_Db.Model(&dorm.Dorm{})
-	err := db.Where("floors_id=? AND dorm_number=?", Dorm.FloorId, Dorm.DormNumber).First(&exist_dorm)
+	err := db.Where("floor_id=? AND dorm_number=?", Dorm.FloorId, Dorm.DormNumber).First(&exist_dorm).Error
 	if err == nil {
 		return errors.New("记录已存在")
 	}
-	err = global.Global_Db.Model(&dorm.Dorm{}).Where("id = ?", Dorm.Id).Updates(Dorm)
-	if err.Error != nil {
+	err = global.Global_Db.Model(&dorm.Dorm{}).Where("id = ?", Dorm.Id).Updates(Dorm).Error
+	if err != nil {
 		// 处理错误
 		return errors.New("更新失败")
 	}

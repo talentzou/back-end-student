@@ -16,13 +16,6 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 	var total int64
 	fmt.Println("我是水电+++++++++++++", condition)
 	if condition != nil {
-		// db := global.Global_Db.Model(&dorm.Expense{}).Limit(limit).Offset(offset)
-		// err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		// 	return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		// }).Find(&stayList).Error
-		// if err != nil {
-		// 	return nil, 0, err
-		// }
 		condition := condition.([]string)
 		fmt.Println("进来参数ggg",condition)
 		var floor dorm.Floor
@@ -38,7 +31,7 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 
 		db := global.Global_Db.Model(&dorm.Expense{}).Where("dorm_id=?", Dorm.Id).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Limit(limit).Offset(offset)
+		}).Count(&total).Limit(limit).Offset(offset)
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		err = db.Find(&stayList).Error
@@ -52,7 +45,7 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 	// 查寻数据
 	err := global.Global_Db.Model(&dorm.Expense{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Limit(limit).Offset(offset).Find(&stayList).Count(&total).Error
+	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

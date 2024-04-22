@@ -99,9 +99,15 @@ func (d *student_info_api) UpdateStudInfoApi(c *gin.Context) {
 		return
 	}
 	var tempStudent dorm.StudInfo
-	err2 := global.Global_Db.Where("id=?", stud.Id).First(&tempStudent)
-	if err2.Error != nil {
+	err = global.Global_Db.Where("id=?", stud.Id).First(&tempStudent).Error
+	if err != nil {
 		response.FailWithMessage("更新的学生:"+stud.StudentName+"数据不存在", c)
+		return
+	}
+	err2 := global.Global_Db.Model(&dorm.StudInfo{}).Where("id= ?", stud.Id).Updates(stud)
+	if err2.Error != nil {
+		// 处理错误
+		response.FailWithMessage("更新失败", c)
 		return
 	}
 

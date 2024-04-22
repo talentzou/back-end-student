@@ -16,7 +16,7 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}) (i
 	var total int64
 	fmt.Println("我是留宿申请+++++++++++++", condition)
 	if condition == nil {
-		db := global.Global_Db.Model(&dorm.Stay{}).Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&dorm.Stay{}).Count(&total).Limit(limit).Offset(offset)
 		err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Find(&stayList).Error
@@ -30,7 +30,7 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}) (i
 	// 查寻数据
 	err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Limit(limit).Offset(offset).Find(&stayList).Count(&total).Error
+	}).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
 	fmt.Println("我是留宿申请---99---",err)
 	if err != nil {
 		// 处理错误
