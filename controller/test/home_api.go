@@ -5,7 +5,7 @@ import (
 	"back-end/model/common/response"
 	"back-end/model/system"
 	"back-end/model/test/dorm"
-	"fmt"
+	// "fmt"
 
 	"back-end/model/test/repair"
 
@@ -52,7 +52,7 @@ func GetHomeMessage(c *gin.Context) {
 	// 	Repair:  total.Repair,
 	// 	Dorm:    total.Dorm,
 	// }
-	fmt.Println("哈哈哈", total)
+	// fmt.Println("哈哈哈", total)
 	response.Ok("查寻成功", map[int]interface{}{
 		0: total.User,
 		1: total.Dorm,

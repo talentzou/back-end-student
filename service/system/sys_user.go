@@ -56,9 +56,18 @@ func (userService *UserService) Register(u system.SysUser) (userInter system.Sys
 // 搜索用户
 func (userService *UserService) QueryUser(offset int, limit int, userName string) (interface{}, int64, error) {
 	var userList []system.SysUser
-	fmt.Println("service:", userName)
 	var total int64
 	db := global.Global_Db.Limit(limit).Offset(offset).Order("id")
+	if userName == "" {
+		fmt.Println("搜索参数为空+++++++++++")
+		err := db.Find(&userList).Count(&total).Error
+		if err != nil {
+			// 处理错误
+			return nil, 0, err
+		}
+		return userList, total, nil
+	}
+	fmt.Println("搜索参数不为空-------------",userName)
 	err := db.Where("user_name LIKE ?", "%"+userName+"%").Find(&userList).Count(&total).Error
 	if err != nil {
 		// 处理错误
@@ -66,4 +75,3 @@ func (userService *UserService) QueryUser(offset int, limit int, userName string
 	}
 	return userList, total, nil
 }
-

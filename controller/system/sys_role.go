@@ -57,6 +57,15 @@ func (r *roleApi) CreateRoles(c *gin.Context) {
 	}
 	sysRes.OkWithMessage("添加角色成功", c)
 }
+// 获取角色信息
+func (r *roleApi) GetRoleMessage(c *gin.Context) {
+	roleList, err := roleService.GetRolesMsg()
+	if err != nil {
+		sysRes.FailWithMessage("查找角色列表失败", c)
+	}
+	sysRes.Ok("获取角色列表成功", roleList, c)
+}
+
 
 
 

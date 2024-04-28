@@ -5,21 +5,22 @@ import (
 	"back-end/model/common/request"
 	"back-end/model/common/response"
 	"back-end/model/system"
+	"back-end/model/test/dorm"
 	"back-end/utils"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // 获取用户信息
 func GetUserInfo(c *gin.Context) {
 	id := utils.GetUserID(c)
 	var ResUser system.SysUser
-	error22 := global.Global_Db.Model(&system.SysUser{}).Association("Role").Error
-	if error22 != nil {
-		fmt.Println("关联失败,里11111")
-	}
-	err := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("id=?", id).First(&ResUser).Error
+	err := global.Global_Db.Model(&system.SysUser{}).Where("id=?", id).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+	}).First(&ResUser).Error
 	if err != nil {
 		fmt.Println("获取用户信息失败")
 		response.FailWithMessage("获取用户信息失败", c)
@@ -35,6 +36,7 @@ func SetSelfInfo(c *gin.Context) {
 	err := c.ShouldBindJSON(&userInfo)
 	fmt.Println("参数为", userInfo)
 	if err != nil {
+		fmt.Println("错误为++",err)
 		response.FailWithMessage("参数错误", c)
 		return
 	}
@@ -43,7 +45,7 @@ func SetSelfInfo(c *gin.Context) {
 		Avatar:    userInfo.Avatar,
 		Nickname:  userInfo.NickName,
 		Telephone: userInfo.Telephone,
-		Dorm:      userInfo.Dorm,
+		// Dorm:      userInfo.Dorm,
 	}).Error
 	if err3 != nil {
 		response.FailWithMessage("用户信息更新失败", c)
@@ -109,7 +111,8 @@ func Register(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	user := &system.SysUser{UserName: r.UserName, Nickname: r.Nickname, Password: r.Password, Avatar: r.Avatar, Authority: r.Authority, Telephone: r.Telephone}
+	user := &system.SysUser{UserName: r.UserName, Password: "123456", RoleId: r.RoleId, Sex: r.Sex, DormId: r.DormId}
+	fmt.Println("user密码++++", user.Password)
 	userReturn, err := userService.Register(*user)
 	if err != nil {
 		response.FailWithDetailed(gin.H{"user": userReturn}, "注册失败", c)
@@ -129,11 +132,9 @@ func SetUserInfo(c *gin.Context) {
 	}
 	fmt.Println("参数为99999", user)
 	err3 := global.Global_Db.Model(&system.SysUser{}).Where("id=?", user.ID).Updates(&system.SysUser{
-		Sex:       user.Sex,
-		Avatar:    user.Avatar,
-		Nickname:  user.Nickname,
-		Telephone: user.Telephone,
-		Remark:    user.Remark,
+		Sex:    user.Sex,
+		RoleId: user.RoleId,
+		Remark: user.Remark,
 	}).Error
 	if err3 != nil {
 		response.FailWithMessage("用户信息更新失败", c)
@@ -156,35 +157,7 @@ func QueryUserInfo(c *gin.Context) {
 	// 分页
 	offset := PageSize * (Page - 1)
 	limit := PageSize
-	// 分页数据
-	list, total, err := userService.QueryUser(offset, limit,"")
-	if err != nil {
-		response.FailWithMessage("搜索的用户不存在", c)
-		return
-	}
-	response.OkWithDetailed(request.PageInfo{
-		List:     list,
-		Total:    total,
-		PageSize: PageSize,
-		Page:     Page,
-	}, "成功", c)
-
-}
-// 查寻
-func SearchFloor(c *gin.Context) {
-	fmt.Println("查询用户")
-	// 获取请求体数据
-	P, _ := c.Params.Get("Page")
-	Size, _ := c.Params.Get("PageSize")
-	PageSize, er1 := strconv.Atoi(Size)
-	Page, er2 := strconv.Atoi(P)
-	if er1 != nil && er2 != nil {
-		response.FailWithMessage("分页参数错误", c)
-		return
-	}
-	// 分页
-	offset := PageSize * (Page - 1)
-	limit := PageSize
+	// 搜索参数
 	var username request.ReqUser
 	err := c.ShouldBindJSON(&username)
 	if err != nil {
@@ -192,7 +165,6 @@ func SearchFloor(c *gin.Context) {
 		return
 	}
 	fmt.Println("搜索参数为", username.UserName)
-	// 分页数据
 	list, total, err := userService.QueryUser(offset, limit, username.UserName)
 	if err != nil {
 		response.FailWithMessage("搜索的用户不存在", c)
@@ -206,3 +178,40 @@ func SearchFloor(c *gin.Context) {
 	}, "成功", c)
 
 }
+
+// // 查寻
+// func SearchFloor(c *gin.Context) {
+// 	fmt.Println("查询用户")
+// 	// 获取请求体数据
+// 	P, _ := c.Params.Get("Page")
+// 	Size, _ := c.Params.Get("PageSize")
+// 	PageSize, er1 := strconv.Atoi(Size)
+// 	Page, er2 := strconv.Atoi(P)
+// 	if er1 != nil && er2 != nil {
+// 		response.FailWithMessage("分页参数错误", c)
+// 		return
+// 	}
+// 	// 分页
+// 	offset := PageSize * (Page - 1)
+// 	limit := PageSize
+// 	var username request.ReqUser
+// 	err := c.ShouldBindJSON(&username)
+// 	if err != nil {
+// 		response.FailWithMessage("搜索参数错误", c)
+// 		return
+// 	}
+// 	fmt.Println("搜索参数为", username.UserName)
+// 	// 分页数据
+// 	list, total, err := userService.QueryUser(offset, limit, username.UserName)
+// 	if err != nil {
+// 		response.FailWithMessage("搜索的用户不存在", c)
+// 		return
+// 	}
+// 	response.OkWithDetailed(request.PageInfo{
+// 		List:     list,
+// 		Total:    total,
+// 		PageSize: PageSize,
+// 		Page:     Page,
+// 	}, "成功", c)
+
+// }

@@ -57,7 +57,7 @@ var MenuApi menuApi
 
 // 获取角色菜单
 func (m *menuApi) GetSelfMenu(c *gin.Context) {
-	fmt.Println("菜单角色id为", utils.GetUserRoleId(c))
+	// fmt.Println("菜单角色id为", utils.GetUserRoleId(c))
 	menus, err := menuService.GetMenuTree(int(utils.GetUserRoleId(c))) //1
 	if err != nil {
 		fmt.Println("出错了")

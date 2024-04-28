@@ -150,7 +150,15 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	// 分页数据
 
 	// fmt.Println(offset, limit)
-	rateList, total, err := rateService.QueryRate(limit, offset, arrSlice)
+
+	// 获取学生用户所属宿舍
+	var dormId uint
+	if utils.GetUserRoleId(c) == 3 {
+		dormId = utils.GetUserDormId(c)
+	}
+
+
+	rateList, total, err := rateService.QueryRate(limit, offset, arrSlice,dormId)
 	if err != nil {
 		response.FailWithMessage("查寻宿舍评分信息失败", c)
 		return

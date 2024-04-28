@@ -69,3 +69,14 @@ func (r *RoleService) DeleteRolesList(role system.Role) error {
 	}
 	return nil
 }
+
+// 获取角色信息列表
+func (r *RoleService) GetRolesMsg() ([]system.Role, error) {
+	var allRole []system.Role
+	db := global.Global_Db.Model(&system.Role{}).Limit(10).Order("id")
+	err := db.Find(&allRole).Error
+	if err != nil {
+		return nil, err
+	}
+	return allRole, nil
+}

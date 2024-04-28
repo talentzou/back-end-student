@@ -64,6 +64,12 @@ func (d *repair_api_) DeleteRepairApi(c *gin.Context) {
 			response.FailWithMessage("数据不存在:"+v.SubmitDate.Format("2006-01-02")+"至"+v.FinishDate.Format("2006-01-02"), c)
 			return
 		}
+		if v.RepairStatus == "已完成" {
+			if utils.GetUserRoleId(c) > 2 {
+				response.FailWithMessage("状态已完成，权限不足，无法删除"+v.SubmitDate.Format("2006-01-02"), c)
+				return
+			}
+		}
 	}
 	for _, del := range repairList {
 		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
@@ -72,6 +78,7 @@ func (d *repair_api_) DeleteRepairApi(c *gin.Context) {
 			response.FailWithMessage("数据删除"+del.SubmitDate.Format("2006-01-02")+"至"+del.FinishDate.Format("2006-01-02")+"失败", c)
 			return
 		}
+		
 	}
 	response.OkWithMessage("删除成功", c)
 }
@@ -91,9 +98,13 @@ func (d *repair_api_) UpdateRepairApi(c *gin.Context) {
 		return
 	}
 	if Repair.RepairStatus == "已完成" {
+		if utils.GetUserRoleId(c) > 2 {
+			response.FailWithMessage("状态已完成，权限不足，无法更新"+Repair.SubmitDate.Format("2006-01-02"), c)
+			return
+		}
 		Repair.FinishDate = time.Now()
 	}
-	fmt.Println("完成修改时间", Repair.RepairStatus)
+	// fmt.Println("完成修改时间", Repair.RepairStatus)
 	result := global.Global_Db.Model(&Repair).Where("id = ?", Repair.Id).Updates(Repair)
 	if result.Error != nil {
 		// 处理错误
@@ -136,9 +147,9 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 	}
 	fmt.Println("condition", condition)
 
-	arrSlice :=make([]string,3)
+	arrSlice := make([]string, 3)
 	mapLength := len(condition)
-	fmt.Println("condition9999", mapLength,condition)
+	fmt.Println("condition9999", mapLength, condition)
 	if mapLength == 0 {
 		fmt.Println("进来为空yyy")
 		arrSlice = nil
@@ -146,17 +157,21 @@ func (d *repair_api_) QueryRepairApi(c *gin.Context) {
 		fmt.Println("进来不为空+++yyy+++++++")
 		if floorDorm, ok := condition["floor_dorm"].([]string); ok {
 			words := strings.Split(floorDorm[0], "-")
-			arrSlice[0]=words[0]
-			arrSlice[1]=words[1]
+			arrSlice[0] = words[0]
+			arrSlice[1] = words[1]
 		}
-		if studentName,ok:= condition["repair_status"].([]string);ok{
-			arrSlice[2]=studentName[0]
+		if studentName, ok := condition["repair_status"].([]string); ok {
+			arrSlice[2] = studentName[0]
 		}
-		fmt.Println("kk",arrSlice[0],"1",arrSlice[1],"2",arrSlice[2])
-		
-	}
+		fmt.Println("kk", arrSlice[0], "1", arrSlice[1], "2", arrSlice[2])
 
-	repairList, total, err := repairService.QueryRepair(limit, offset, arrSlice)
+	}
+	// 获取学生用户所属宿舍
+	var dormId uint
+	if utils.GetUserRoleId(c) == 3 {
+		dormId = utils.GetUserDormId(c)
+	}
+	repairList, total, err := repairService.QueryRepair(limit, offset, arrSlice, dormId)
 	if err != nil {
 		response.FailWithMessage("查询维修信息失败", c)
 		return

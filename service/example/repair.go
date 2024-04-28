@@ -12,7 +12,7 @@ import (
 type RepairService struct{}
 
 // 查寻
-func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (interface{}, int64, error) {
+func (f *RepairService) QueryRepair(limit int, offset int, condition []string,dormId uint) (interface{}, int64, error) {
 	var repairList []repair.Repair
 	var total int64
 	fmt.Println("我是维修+++++++++++++", condition)
@@ -28,7 +28,7 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 		if err != nil {
 			return nil, 0, err
 		}
-        // fmt.Println("宿舍为+++++++++",Dorm)
+		// fmt.Println("宿舍为+++++++++",Dorm)
 		db := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Limit(limit).Offset(offset)
@@ -43,9 +43,9 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 		}
 
 		err = db.Where("dorm_id=?", Dorm.Id).Find(&repairList).Count(&total).Error
-		fmt.Println("找不到数据",err)
+		fmt.Println("找不到数据", err)
 		if err != nil {
-			fmt.Println("找不到数据",err)
+			fmt.Println("找不到数据", err)
 			return nil, 0, err
 		}
 
@@ -55,6 +55,17 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string) (
 	// ///////////////////////////////////////////////////////////////
 	fmt.Println("我是维修---99---")
 	// 查寻数据
+	fmt.Println("维修dormId++++++",dormId)
+	if dormId != 0 {
+	err := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+	}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&repairList).Error
+	if err != nil {
+		// 处理错误
+		return nil, 0, err
+	}
+	return repairList, total, nil
+	}
 	err := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&repairList).Error

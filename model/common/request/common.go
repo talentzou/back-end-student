@@ -24,12 +24,13 @@ type CustomClaims struct {
 
 // 基本声明信息
 type BaseClaims struct {
-	Id          uint
-	UUId        string
-	Username    string
-	NickName    string
-	AuthorityId uint
-	RoleId      uint
+	Id       uint
+	UUId     string
+	Username string
+	NickName string
+	// AuthorityId uint
+	RoleId uint
+	DormId   uint
 }
 
 // User login structure

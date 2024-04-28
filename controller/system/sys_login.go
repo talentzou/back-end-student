@@ -32,17 +32,23 @@ func (b *BaseApi) Login(c *gin.Context) {
 	// if error1 != nil {
 	// 	fmt.Println("关联失败,里11111")
 	// }
-	err2 := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("user_name=?", user.Username).First(&sysUser).Error
+
+	// err2 := global.Global_Db.Model(&system.SysUser{}).Preload("Role").Where("user_name=?", user.Username).First(&sysUser).Error
+	err2 := global.Global_Db.Model(&system.SysUser{}).Where("user_name=?", user.Username).First(&sysUser).Error
 
 	if err2 != nil {
 		sysRes.FailWithMessage("该用户不存在", c)
 		return
 	} else {
-		fmt.Println("err2", sysUser.Authority == user.Authority)
-		if sysUser.Authority != user.Authority {
+		// fmt.Println("err2", sysUser.Authority == user.Authority)
+		if sysUser.RoleId != user.Authority {
 			sysRes.FailWithMessage("该用户不存在", c)
 			return
 		}
+		// if sysUser.Authority != user.Authority {
+		// 	sysRes.FailWithMessage("该用户不存在", c)
+		// 	return
+		// }
 		ok := utils.BcryptCheck(user.Password, sysUser.Password)
 		fmt.Println("密码比对情况", ok)
 		if !ok {
@@ -62,15 +68,18 @@ func (j *BaseApi) Logout(c *gin.Context) {
 	utils.ClearToken(c)
 	sysRes.OkWithMessage("jwt设置失效成功", c)
 }
+
 // 创建token
 func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 	// 初始jwt声明信息
 	claims := utils.CreateClaims(sysReq.BaseClaims{
-		Id:          user.ID,
-		Username:    user.UserName,
-		NickName:    user.Nickname,
-		AuthorityId: user.Authority,
-		RoleId:      user.Role.ID,
+		Id:       user.ID,
+		Username: user.UserName,
+		NickName: user.Nickname,
+		// AuthorityId: user.Authority,
+		// RoleId:      user.Role.ID,
+		RoleId: user.RoleId,
+		DormId:   user.DormId,
 	})
 	// 创建token
 	token, err3 := utils.CreateToken(claims)

@@ -38,7 +38,7 @@ func (userService *MenuService) getMenuTreeMap(roleId int) (treeMap map[uint][]s
 	for i := range SysRoleMenus {
 		MenuIds = append(MenuIds, SysRoleMenus[i].MenuId)
 	}
-	fmt.Println("+++++++++角色菜单树------------",MenuIds)
+	// fmt.Println("+++++++++角色菜单树------------",MenuIds)
 	err = global.Global_Db.Where("id in (?)", MenuIds).Order("id").Find(&baseMenu).Error
 	if err != nil {
 		return

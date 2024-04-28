@@ -32,7 +32,7 @@ func (d *dorm_stay_api) CreateStayApi(c *gin.Context) {
 		var tempDorm dorm.Dorm
 		err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
 		if err != nil {
-			
+
 			response.FailWithMessage("该宿舍不存在,无法添加", c)
 			return
 		}
@@ -79,6 +79,12 @@ func (d *dorm_stay_api) DeleteStayApi(c *gin.Context) {
 			response.FailWithMessage("删除日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
 			return
 		}
+		if value.Opinions == "不同意" || value.Opinions == "同意" {
+			if utils.GetUserRoleId(c) > 2 {
+				response.FailWithMessage("状态发生改变，权限不足，无法删除", c)
+				return
+			}
+		}
 	}
 	for _, del := range stayList {
 		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
@@ -96,7 +102,7 @@ func (d *dorm_stay_api) UpdateStayApi(c *gin.Context) {
 	var stay dorm.Stay
 	err := c.ShouldBindJSON(&stay)
 	if err != nil {
-		fmt.Println("残心参数",err.Error())
+		fmt.Println("残心参数", err.Error())
 		response.FailWithMessage("参数错误", c)
 		return
 	}
@@ -113,6 +119,13 @@ func (d *dorm_stay_api) UpdateStayApi(c *gin.Context) {
 	if queryDorm.Error != nil {
 		response.FailWithMessage("该宿舍不存在,无法更新", c)
 		return
+	}
+
+	if stay.Opinions == "不同意" || stay.Opinions == "同意" {
+		if utils.GetUserRoleId(c) > 2 {
+			response.FailWithMessage("状态发生改变，权限不足，无法更新", c)
+			return
+		}
 	}
 
 	result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
@@ -158,8 +171,15 @@ func (d *dorm_stay_api) QueryStayApi(c *gin.Context) {
 	offset = PageSize * (Page - 1)
 	limit = PageSize
 	// fmt.Println(offset, limit)
-    fmt.Println("ttttttttt+++++++ttttttttt,执行到这里")
-	stayList, total, err := stayService.QueryStay(limit, offset, condition)
+	fmt.Println("ttttttttt+++++++ttttttttt,执行到这里")
+
+	// 获取学生用户所属宿舍
+	var dormId uint
+	if utils.GetUserRoleId(c) == 3 {
+		dormId = utils.GetUserDormId(c)
+	}
+
+	stayList, total, err := stayService.QueryStay(limit, offset, condition, dormId)
 	if err != nil {
 		response.FailWithMessage("查询留宿申请信息失败", c)
 		return

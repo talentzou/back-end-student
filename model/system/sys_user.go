@@ -1,6 +1,9 @@
 package system
 
-import "gorm.io/gorm"
+import (
+	"back-end/model/test/dorm"
+	"gorm.io/gorm"
+)
 
 type SysUser struct {
 	gorm.Model
@@ -10,10 +13,16 @@ type SysUser struct {
 	Nickname  string `json:"nickname" gorm:"default:无;size:256;comment:用户昵称"`
 	Telephone string `json:"telephone" gorm:"size:256;default:18100000000;comment:手机号码"`
 	Avatar    string `json:"avatar" gorm:"size:256;default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:头像"`
-	Authority uint   `json:"authorityId" gorm:"default:2;comment:用户角色ID"`
-	Remark    string `json:"remark" gorm:"size:256;comment:备注"`
-	Dorm      string `json:"dorm" gorm:"size:256;comment:宿舍"`
-	Role      Role   `json:"role"`
+
+	Remark string    `json:"remark" gorm:"size:256;comment:备注"`
+	RoleId uint      `json:"roleId" gorm:"default:2;comment:用户角色ID"`
+	DormId uint      `json:"dormId" gorm:"size:256;comment:宿舍id"`
+	Dorm   dorm.Dorm `json:"dorm"`
+
+	// Dorm   string `json:"dorm" gorm:"size:256;comment:宿舍"`
+	// Authority uint   `json:"authorityId" gorm:"default:2;comment:用户角色ID"`
+	// Role      Role   `json:"role"`
+
 }
 
 // SysAuthorityBtns []SysAuthorityBtn `json:"sysAuthorityBtns" gorm:"foreignKey:Authority;references:Authority"` //用户菜单按钮表
@@ -28,5 +37,5 @@ type ChangeUserInfo struct {
 	NickName  string `json:"nickName" gorm:"default:系统用户;comment:用户昵称"` // 用户昵称
 	Telephone string `json:"telephone"  gorm:"comment:用户手机号"`           // 用户手机号
 	Avatar    string `json:"avatar" gorm:"size:256;default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:头像"`
-	Dorm      string `json:"dorm" gorm:"size:256;comment:宿舍"`
+	// Dorm      string `json:"dorm" gorm:"size:256;comment:宿舍"`
 }

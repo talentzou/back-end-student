@@ -97,7 +97,7 @@ func (d *notice_api) QueryNoticeApi(c *gin.Context) {
 		fmt.Println("解析url错误")
 	}
 	queryParams := u.Query()
-	fmt.Println("查寻字符串参数", queryParams)
+	// fmt.Println("查寻字符串参数", queryParams)
 	// 获取请求体数据
 
 	condition := make(map[string]interface{})
@@ -105,7 +105,7 @@ func (d *notice_api) QueryNoticeApi(c *gin.Context) {
 		key := utils.ToCamelCase(index)
 		condition[key] = value
 	}
-	fmt.Println("condition", condition)
+	// fmt.Println("condition", condition)
 
 	// 分页数据
 	PageSize, er1 := strconv.Atoi(Size)
@@ -115,10 +115,10 @@ func (d *notice_api) QueryNoticeApi(c *gin.Context) {
 	}
 	offset = PageSize * (Page - 1)
 	limit = PageSize
-	fmt.Println(offset, limit)
+	// fmt.Println(offset, limit)
 	title := fmt.Sprintf("%v", condition["title"])
 	title = strings.Trim(title, "[]")
-	fmt.Println("titles5555数据", title)
+	// fmt.Println("titles5555数据", title)
 	// 查寻数量
 
 	count := global.Global_Db.Model(&Notice).Where("title LIKE ?", "%"+title+"%").Count(&total).Error

@@ -11,13 +11,13 @@ import (
 type RateService struct{}
 
 // 查寻
-func (f *RateService) QueryRate(limit int, offset int, condition interface{}) (interface{}, int64, error) {
+func (f *RateService) QueryRate(limit int, offset int, condition interface{},dormId uint) (interface{}, int64, error) {
 	var rateList []dorm.Rate
 	var total int64
 
 	if condition != nil {
 		condition := condition.([]string)
-		fmt.Println("进来参数ggg",condition)
+		fmt.Println("进来参数ggg", condition)
 		var floor dorm.Floor
 		err := global.Global_Db.Model(&dorm.Floor{}).Where("floors_name=?", condition[0]).First(&floor).Error
 		if err != nil {
@@ -41,7 +41,18 @@ func (f *RateService) QueryRate(limit int, offset int, condition interface{}) (i
 		fmt.Println("获取评分带参数++++++++++++")
 		return rateList, total, nil
 	}
-
+	// 查寻数据
+	fmt.Println("评分dormId++++++",dormId)
+	if dormId != 0 {
+	err := global.Global_Db.Model(&dorm.Rate{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+	}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&rateList).Error
+	if err != nil {
+		// 处理错误
+		return nil, 0, err
+	}
+	return rateList, total, nil
+	}
 	// 查寻数据
 	err := global.Global_Db.Model(&dorm.Rate{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
 		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")

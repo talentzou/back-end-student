@@ -99,7 +99,7 @@ func (d *expense_dorm_api) UpdateExpenseApi(c *gin.Context) {
 
 func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 	var limit, offset int
-	
+
 	P, _ := c.Params.Get("Page")
 	Size, _ := c.Params.Get("PageSize")
 	PageSize, er1 := strconv.Atoi(Size)
@@ -138,10 +138,13 @@ func (d *expense_dorm_api) QueryExpenseApi(c *gin.Context) {
 		arrSlice = words
 	}
 
+	// 获取学生用户所属宿舍
+	var dormId uint
+	if utils.GetUserRoleId(c) == 3 {
+		dormId = utils.GetUserDormId(c)
+	}
 
-
-
-	expenseList,total,err:=expenseService.QueryExpense(limit,offset,arrSlice)
+	expenseList, total, err := expenseService.QueryExpense(limit, offset, arrSlice, dormId)
 	if err != nil {
 		response.FailWithMessage("查询水电费信息失败", c)
 		return

@@ -21,6 +21,6 @@ func (u *SysUser) UserRouter(r *gin.RouterGroup) {
 	}
 	{	user.POST("setSelfInfo", system.SetSelfInfo) //用户设置个人信息
 		user.GET("getUserInfo", system.GetUserInfo)  //获取用户个人信息
-		user.GET("getSelfBtn", system.BtnApi.GetSelfBtns) //获取用户自身按钮
+		// user.GET("getSelfBtn", system.BtnApi.GetSelfBtns) //获取用户自身按钮
 	}
 }

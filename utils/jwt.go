@@ -3,9 +3,9 @@ package utils
 import (
 	"back-end/model/common/request"
 	"errors"
-	"fmt"
+	// "fmt"
 	"net"
-
+	"back-end/global"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -14,14 +14,14 @@ var (
 	ErrTokenExpired     = errors.New("token is expired")
 	ErrTokenNotValidYet = errors.New("token not active yet")
 	ErrTokenMalformed   = errors.New("that's not even a token")
-	ErrTokenInvalid     = errors.New("couldn't handle this token:")
+	ErrTokenInvalid     = errors.New("couldn't handle this token")
 )
 
 // error strings should not be capitalized (ST1005)
 var (
-	SigningKey = []byte("hellozhj")
+	// SigningKey = []byte("hellozhj")
+	SigningKey = []byte(global.Global_Config.JWT.SigningKey)
 	token      *jwt.Token
-	// s          string
 )
 
 // 获取token
@@ -31,12 +31,11 @@ func GetToken(c *gin.Context) string {
 		token = c.Request.Header.Get("x-token")
 	}
 	return token
-	// Authorization
 }
 
 // 设置响应头cookie
 func SetToken(c *gin.Context, token string, maxAge int) {
-	fmt.Println("maxAge", maxAge)
+	// fmt.Println("maxAge", maxAge)
 	// 增加cookie x-token 向来源的web添加
 	host, _, err := net.SplitHostPort(c.Request.Host)
 	if err != nil {

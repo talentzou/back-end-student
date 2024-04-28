@@ -103,6 +103,7 @@ func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
 		return
 	}
 	//
+
 	result := global.Global_Db.Model(&vio).Where("id = ?", vio.Id).Updates(vio)
 	if result.Error != nil {
 		// 处理错误
@@ -162,8 +163,13 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		}
 		
 	}
+	// 获取学生用户所属宿舍
+	var dormId uint
+	if utils.GetUserRoleId(c) == 3 {
+		dormId = utils.GetUserDormId(c)
+	}
 
-	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,arrSlice)
+	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,arrSlice,dormId)
 	if err != nil {
 		response.FailWithMessage("查询学生违纪信息失败", c)
 		return

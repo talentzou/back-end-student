@@ -163,11 +163,12 @@ func mockUser() system.SysUser {
 		Nickname:  "test1",
 		Telephone: "18100000000",
 		Avatar:    "https://qmplusimg.henrongyi.top/gva_header.jpg",
-		Authority: 1,
+		// Authority: 1,
+		RoleId: 1,
 		Sex:       "男",
-		Role: system.Role{
-			RoleName: "测试",
-		},
+		// Role: system.Role{
+		// 	RoleName: "测试",
+		// },
 	}
 	return user
 }

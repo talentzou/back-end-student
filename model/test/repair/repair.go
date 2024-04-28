@@ -11,7 +11,7 @@ type Repair struct {
 	RepairStatus string    `json:"repairStatus" gorm:"size:256;default:未完成"`
 	ReportMan    string    `json:"reportMan" gorm:"size:256"`
 	Phone        string    `json:"phone" gorm:"size:256"`
-	Repairer     string    `json:"repairer" gorm:"size:256"`
+	Repairer     string    `json:"repairer" gorm:"size:256;default:无"`
 	SubmitDate   time.Time `json:"submitDate"`
 	FinishDate   time.Time `json:"finishDate" gorm:"default:null"`
 	Dorm         dorm.Dorm `json:"dorm"`
