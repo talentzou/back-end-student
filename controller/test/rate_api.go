@@ -1,7 +1,7 @@
 package test
 
 import (
-	"back-end/global"
+	// "back-end/global"
 	"back-end/model/common/request"
 	"back-end/model/common/response"
 	"back-end/model/test/dorm"
@@ -26,30 +26,37 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 		return
 	}
 
-	for i, v := range rateList {
-		// //查寻存在数据
-		var tempArr []dorm.Rate
-		err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
-		if err != nil {
-			response.FailWithMessage("系统查寻错误", c)
-			return
-		}
+	// for i, v := range rateList {
+	// 	// //查寻存在数据
+	// 	var tempArr []dorm.Rate
+	// 	err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
+	// 	if err != nil {
+	// 		response.FailWithMessage("系统查寻错误", c)
+	// 		return
+	// 	}
 
-		for t := range tempArr {
+	// 	for t := range tempArr {
 
-			if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormId == tempArr[t].DormId {
-				response.FailWithMessage(tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
-				return
-			}
-		}
+	// 		if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormId == tempArr[t].DormId {
+	// 			response.FailWithMessage(tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
+	// 			return
+	// 		}
+	// 	}
 
-	}
+	// }
 	// 添加数据
-	result := global.Global_Db.Create(&rateList)
-	if result.Error != nil {
+	// result := global.Global_Db.Create(&rateList)
+	// if result.Error != nil {
+	// 	// 处理错误
+	// 	response.FailWithMessage("添加评分失败", c)
+	// 	return
+	// }
+	err = rateService.CreateRate(&rateList)
+	if err != nil {
 		// 处理错误
-		response.FailWithMessage("添加评分失败", c)
+		response.FailWithMessage(err.Error(), c)
 		return
+
 	}
 	response.OkWithMessage("添加评分成功", c)
 }
@@ -63,47 +70,54 @@ func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
 		return
 	}
 	// 遍历查寻数据是否存在
-	for _, value := range rateList {
-		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
-		if err2.Error != nil {
-			response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+"宿舍数据不存在", c)
-			return
-		}
-	}
-	for _, del := range rateList {
-		result := global.Global_Db.Delete(&del)
-		if result.Error != nil {
-			// 处理错误
-			response.FailWithMessage("删除时间为:"+del.RateDate.Format("2006-01-02")+"宿舍数据删除失败", c)
-			return
-		}
+	// for _, value := range rateList {
+	// 	err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
+	// 	if err2.Error != nil {
+	// 		response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+"宿舍数据不存在", c)
+	// 		return
+	// 	}
+	// }
+	// for _, del := range rateList {
+	// 	result := global.Global_Db.Delete(&del)
+	// 	if result.Error != nil {
+	// 		// 处理错误
+	// 		response.FailWithMessage("删除时间为:"+del.RateDate.Format("2006-01-02")+"宿舍数据删除失败", c)
+	// 		return
+	// 	}
+	// }
+	err = rateService.DeleteRate(&rateList)
+	if err != nil {
+		// 处理错误
+		response.FailWithMessage(err.Error(), c)
+		return
+
 	}
 	response.OkWithMessage("删除成功", c)
 }
 
 // 更新
 func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
-
 	var rate dorm.Rate
 	err := c.ShouldBindJSON(&rate)
 	if err != nil {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	var tempRate dorm.Rate
-	err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
-	if err2.Error != nil {
-		response.FailWithMessage(rate.RateDate.Format("2006-01-02")+"数据不存在:无法更新", c)
-		return
-	}
-	result := global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate)
-	if result.Error != nil {
+	// var tempRate dorm.Rate
+	// err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
+	// if err2.Error != nil {
+	// 	response.FailWithMessage(rate.RateDate.Format("2006-01-02")+"数据不存在:无法更新", c)
+	// 	return
+	// }
+	// result := global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate)
+	err = rateService.UpdateRate(rate)
+	if err != nil {
 		// 处理错误
-		response.FailWithMessage("更新rate失败", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 
 	}
-	response.OkWithMessage("更新rate成功", c)
+	response.OkWithMessage("更新成功", c)
 }
 
 // 查寻
@@ -138,7 +152,7 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 	var arrSlice interface{}
 
 	mapLength := len(condition)
-	fmt.Println("condition9999", mapLength,condition)
+	fmt.Println("condition9999", mapLength, condition)
 	if mapLength == 0 {
 		arrSlice = nil
 	} else {
@@ -157,8 +171,7 @@ func (d *dorm_rate_api) QueryRateApi(c *gin.Context) {
 		dormId = utils.GetUserDormId(c)
 	}
 
-
-	rateList, total, err := rateService.QueryRate(limit, offset, arrSlice,dormId)
+	rateList, total, err := rateService.QueryRate(limit, offset, arrSlice, dormId)
 	if err != nil {
 		response.FailWithMessage("查寻宿舍评分信息失败", c)
 		return

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"back-end/global"
+	// "back-end/global"
 	"back-end/model/common/request"
 	"back-end/model/common/response"
 	"back-end/model/test/dorm"
@@ -25,40 +25,45 @@ func (d *dorm_stay_api) CreateStayApi(c *gin.Context) {
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	fmt.Println("插入的数据", stayList)
+	// fmt.Println("插入的数据", stayList)
 	//查寻数据存在
-	for _, v := range stayList {
-		// 查询宿舍存在数据
-		var tempDorm dorm.Dorm
-		err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
-		if err != nil {
+	// for _, v := range stayList {
+	// 	// 查询宿舍存在数据
+	// 	var tempDorm dorm.Dorm
+	// 	err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
+	// 	if err != nil {
 
-			response.FailWithMessage("该宿舍不存在,无法添加", c)
-			return
-		}
-		var tempStay []dorm.Stay
-		err = global.Global_Db.Where("dorm_id=? ", v.DormId).Find(&tempStay).Error
-		if err != nil {
-			continue
-		}
-		for _, t := range tempStay {
-			// 判断是宿舍与学生
-			if v.StudentName == t.StudentName {
-				//   判断日期
-				if t.StayTime.StartTime == v.StayTime.StartTime && t.StayTime.EndTime == v.StayTime.EndTime {
-					response.FailWithMessage("学生:"+v.StudentName+"留宿申请已存在", c)
-					return
-				}
-			}
+	// 		response.FailWithMessage("该宿舍不存在,无法添加", c)
+	// 		return
+	// 	}
+	// 	var tempStay []dorm.Stay
+	// 	err = global.Global_Db.Where("dorm_id=? ", v.DormId).Find(&tempStay).Error
+	// 	if err != nil {
+	// 		continue
+	// 	}
+	// 	for _, t := range tempStay {
+	// 		// 判断是宿舍与学生
+	// 		if v.StudentName == t.StudentName {
+	// 			//   判断日期
+	// 			if t.StayTime.StartTime == v.StayTime.StartTime && t.StayTime.EndTime == v.StayTime.EndTime {
+	// 				response.FailWithMessage("学生:"+v.StudentName+"留宿申请已存在", c)
+	// 				return
+	// 			}
+	// 		}
 
-		}
-	}
+	// 	}
+	// }
 
-	// 添加数据
-	result := global.Global_Db.Create(&stayList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("添加失败", c)
+	// // 添加数据
+	// result := global.Global_Db.Create(&stayList)
+	// if result.Error != nil {
+	// 	// 处理错误
+	// 	response.FailWithMessage("添加失败", c)
+	// 	return
+	// }
+	err=stayService.CreateStay(&stayList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	response.OkWithMessage("添加成功", c)
@@ -73,26 +78,32 @@ func (d *dorm_stay_api) DeleteStayApi(c *gin.Context) {
 		return
 	}
 	// 遍历查寻数据是否存在
-	for _, value := range stayList {
-		err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
-		if err2.Error != nil {
-			response.FailWithMessage("删除日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
-			return
-		}
-		if value.Opinions == "不同意" || value.Opinions == "同意" {
-			if utils.GetUserRoleId(c) > 2 {
-				response.FailWithMessage("状态发生改变，权限不足，无法删除", c)
-				return
-			}
-		}
-	}
-	for _, del := range stayList {
-		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
-		if result.Error != nil {
-			// 处理错误
-			response.FailWithMessage("删除日期为:"+del.StayTime.StartTime.Format("2006-01-02")+"至"+del.StayTime.EndTime.Format("2006-01-02")+"无法删除:", c)
-			return
-		}
+	// for _, value := range stayList {
+	// 	err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
+	// 	if err2.Error != nil {
+	// 		response.FailWithMessage("删除日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
+	// 		return
+	// 	}
+	// 	if value.Opinions == "不同意" || value.Opinions == "同意" {
+	// 		if utils.GetUserRoleId(c) > 2 {
+	// 			response.FailWithMessage("状态发生改变，权限不足，无法删除", c)
+	// 			return
+	// 		}
+	// 	}
+	// }
+	// for _, del := range stayList {
+	// 	result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
+	// 	if result.Error != nil {
+	// 		// 处理错误
+	// 		response.FailWithMessage("删除日期为:"+del.StayTime.StartTime.Format("2006-01-02")+"至"+del.StayTime.EndTime.Format("2006-01-02")+"无法删除:", c)
+	// 		return
+	// 	}
+	// }
+	roleId:=utils.GetUserRoleId(c)
+	err=stayService.DeleteStay(&stayList,roleId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
 	}
 	response.OkWithMessage("删除成功", c)
 }
@@ -106,34 +117,40 @@ func (d *dorm_stay_api) UpdateStayApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	// 查寻数据是否存在
-	var tempRate dorm.Stay
-	err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
-	if err2.Error != nil {
-		response.FailWithMessage(stay.StayCause+":数据不存在:无法更新", c)
-		return
-	}
-	// 查寻宿舍
-	var tempDorm dorm.Dorm
-	queryDorm := global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm)
-	if queryDorm.Error != nil {
-		response.FailWithMessage("该宿舍不存在,无法更新", c)
-		return
-	}
+	// // 查寻数据是否存在
+	// var tempRate dorm.Stay
+	// err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
+	// if err2.Error != nil {
+	// 	response.FailWithMessage(stay.StayCause+":数据不存在:无法更新", c)
+	// 	return
+	// }
+	// // 查寻宿舍
+	// var tempDorm dorm.Dorm
+	// queryDorm := global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm)
+	// if queryDorm.Error != nil {
+	// 	response.FailWithMessage("该宿舍不存在,无法更新", c)
+	// 	return
+	// }
 
-	if stay.Opinions == "不同意" || stay.Opinions == "同意" {
-		if utils.GetUserRoleId(c) > 2 {
-			response.FailWithMessage("状态发生改变，权限不足，无法更新", c)
-			return
-		}
-	}
+	// if stay.Opinions == "不同意" || stay.Opinions == "同意" {
+	// 	if utils.GetUserRoleId(c) > 2 {
+	// 		response.FailWithMessage("状态发生改变，权限不足，无法更新", c)
+	// 		return
+	// 	}
+	// }
 
-	result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("更新失败", c)
+	// result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
+	// if result.Error != nil {
+	// 	// 处理错误
+	// 	response.FailWithMessage("更新失败", c)
+	// 	return
+
+	// }
+	roleId:=utils.GetUserRoleId(c)
+	err=stayService.UpdateStay(stay,roleId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
-
 	}
 	response.OkWithMessage("更新成功", c)
 }

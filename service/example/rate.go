@@ -3,6 +3,7 @@ package example
 import (
 	"back-end/global"
 	"back-end/model/test/dorm"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -62,4 +63,61 @@ func (f *RateService) QueryRate(limit int, offset int, condition interface{},dor
 		return nil, 0, err
 	}
 	return rateList, total, nil
+}
+// 更新
+func (f *RateService) UpdateRate(rate dorm.Rate) error {
+	var tempRate dorm.Rate
+	err := global.Global_Db.Where("id=?", rate.Id).First(&tempRate).Error
+	if err != nil {
+		return errors.New(rate.RateDate.Format("2006-01-02") + "数据不存在:无法更新")
+	}
+	err = global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("更新rate失败")
+
+	}
+	return nil
+}
+
+// 添加
+func (f *RateService) CreateRate(_rates *[]dorm.Rate) error {
+	for _, v := range *_rates {
+		// //查寻存在数据
+		var tempArr []dorm.Rate
+		err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
+		if err != nil {
+			return errors.New("查寻错误")
+		}
+
+		for t := range tempArr {
+			if v.RateDate == tempArr[t].RateDate && v.DormId == tempArr[t].DormId {
+				return errors.New(tempArr[t].RateDate.Format("2006-01-02") + "的日期评分已存在")
+			}
+		}
+
+	}
+	// 添加数据
+	err := global.Global_Db.Create(_rates).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("添加评分失败")
+	}
+	return nil
+}
+
+// 删除
+func (f *RateService) DeleteRate(_rates *[]dorm.Rate) error {
+	for _, value := range *_rates {
+		err := global.Global_Db.Where("id=?", value.Id).First(&value).Error
+		if err != nil {
+			return errors.New("删除时间为:" + value.RateDate.Format("2006-01-02") + "宿舍数据不存在")
+		}
+	}
+	err := global.Global_Db.Delete(_rates).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("宿舍数据删除失败")
+	}
+	return nil
 }

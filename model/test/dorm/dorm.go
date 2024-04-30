@@ -15,7 +15,7 @@ type Floor struct {
 	FloorsName string `json:"floorsName" gorm:"size:256"`
 	FloorsType string `json:"floorsType" gorm:"size:256"`
 	DormAmount uint   `json:"dormAmount" gorm:"size:256"`
-	Dorms      []Dorm `json:"dormList"`
+	Dorms      []Dorm `json:"dormList,omitempty"`
 }
 
 // 宿舍

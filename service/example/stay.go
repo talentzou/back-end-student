@@ -3,6 +3,7 @@ package example
 import (
 	"back-end/global"
 	"back-end/model/test/dorm"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ import (
 type StayService struct{}
 
 // 查寻
-func (f *StayService) QueryStay(limit int, offset int, condition interface{},dormId uint) (interface{}, int64, error) {
+func (f *StayService) QueryStay(limit int, offset int, condition interface{}, dormId uint) (interface{}, int64, error) {
 	var stayList []dorm.Stay
 	var total int64
 	fmt.Println("我是留宿申请+++++++++++++", condition)
@@ -27,18 +28,18 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{},dor
 		return stayList, total, nil
 	}
 	//查寻数据
-	fmt.Println("留宿dormId++++++",dormId)
-	
+	fmt.Println("留宿dormId++++++", dormId)
+
 	if dormId != 0 {
-	err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
-	fmt.Println("我是留宿申请---99---",err)
-	if err != nil {
-		// 处理错误
-		return nil, 0, err
-	}
-	return stayList, total, nil
+		err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
+		fmt.Println("我是留宿申请---99---", err)
+		if err != nil {
+			// 处理错误
+			return nil, 0, err
+		}
+		return stayList, total, nil
 	}
 
 	// 查寻数据
@@ -51,4 +52,92 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{},dor
 		return nil, 0, err
 	}
 	return stayList, total, nil
+}
+
+// 添加
+func (f *StayService) CreateStay(_stays *[]dorm.Stay) error {
+	for _, v := range *_stays {
+		// 查询宿舍存在数据
+		var tempDorm dorm.Dorm
+		err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
+		if err != nil {
+			return errors.New("该宿舍不存在,无法添加")
+		}
+		var tempStay []dorm.Stay
+		err = global.Global_Db.Where("dorm_id=? ", v.DormId).Find(&tempStay).Error
+		if err != nil {
+			continue
+		}
+		for _, t := range tempStay {
+			// 判断是宿舍与学生
+			if v.StudentName == t.StudentName {
+				//   判断日期
+				if t.StayTime.StartTime == v.StayTime.StartTime && t.StayTime.EndTime == v.StayTime.EndTime {
+					return errors.New("学生:" + v.StudentName + "留宿申请已存在")
+				}
+			}
+
+		}
+	}
+	err := global.Global_Db.Create(&_stays).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("添加失败")
+	}
+
+	return nil
+}
+
+// 删除
+func (f *StayService) DeleteStay(_stays *[]dorm.Stay, roleId uint) error {
+	// 遍历查寻数据是否存在
+	for _, value := range *_stays {
+		var tempStay dorm.Stay
+		err := global.Global_Db.Where("id=?", value.Id).First(&tempStay).Error
+		if err != nil {
+			return errors.New("删除日期为:" + value.StayTime.StartTime.Format("2006-01-02") + "至" + value.StayTime.EndTime.Format("2006-01-02") + "的数据不存在:")
+		}
+		if value.Opinions == "不同意" || value.Opinions == "同意" {
+			if roleId > 2 {
+				return errors.New("状态发生改变，权限不足，无法删除")
+			}
+		}
+	}
+
+	err := global.Global_Db.Delete(_stays).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("删除失败")
+	}
+	return nil
+}
+
+// 更新
+func (f *StayService) UpdateStay(stay dorm.Stay, roleId uint) error {
+	// 查寻数据是否存在
+	var tempRate dorm.Stay
+	err := global.Global_Db.Where("id=?", stay.Id).First(&tempRate).Error
+	if err != nil {
+		return errors.New(stay.StayCause + ":数据不存在:无法更新")
+	}
+	// 查寻宿舍
+	var tempDorm dorm.Dorm
+	err = global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm).Error
+	if err != nil {
+		return errors.New("该宿舍不存在,无法更新")
+	}
+
+	if stay.Opinions == "不同意" || stay.Opinions == "同意" {
+		if roleId > 2 {
+			return errors.New("状态发生改变，权限不足，无法更新")
+		}
+	}
+
+	err = global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("更新失败")
+
+	}
+	return nil
 }

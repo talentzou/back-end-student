@@ -6,7 +6,7 @@ import (
 
 type DormGroup struct {
 	Dorm
-	Bed
+	// Bed
 	Floor
 	Rate
 	Stay
@@ -15,7 +15,7 @@ type DormGroup struct {
 func (i *DormGroup) UseDormRouter(d *gin.RouterGroup) {
 	dorm := d.Group("/Dormitory")
 	{
-		i.Api_Bed(dorm)
+		// i.Api_Bed(dorm)
 		i.Api_Dorm(dorm)
 		i.Api_Stay(dorm)
 		i.Api_Rate(dorm)

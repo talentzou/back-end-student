@@ -83,7 +83,7 @@ func (f *StudentService) QueryStudentViolateList(limit int, offset int, conditio
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		if condition[2] != "" {
-			err = db.Model(&student.StudentViolate{}).Where("dorm_id=? AND stud_info_id IN ?", Dorm.Id, studentIdList).Find(&studentList).Error
+			err = db.Model(&student.StudentViolate{}).Where("dorm_id=? AND stud_info_id IN ?", Dorm.Id, studentIdList).Find(&studentList).Count(&total).Error
 			fmt.Println("是否找到学生数据", err)
 			fmt.Println("学生数据为", studentList)
 			if err != nil {
@@ -92,7 +92,7 @@ func (f *StudentService) QueryStudentViolateList(limit int, offset int, conditio
 			return studentList, total, nil
 		}
 
-		err = db.Where("dorm_id=?", Dorm.Id).Find(&studentList).Error
+		err = db.Where("dorm_id=?", Dorm.Id).Find(&studentList).Count(&total).Error
 		if err != nil {
 			return nil, 0, err
 		}

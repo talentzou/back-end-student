@@ -24,7 +24,7 @@ func (d *dorm_api) CreateDormApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	err = dormService.CreateDorm(dormList)
+	err = dormService.CreateDorm(&dormList)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
@@ -40,7 +40,7 @@ func (d *dorm_api) DeleteDormApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	err = dormService.DeleteDorm(dormList)
+	err = dormService.DeleteDorm(&dormList)
 	if err != nil {
 		response.FailWithMessage("删除失败", c)
 		return

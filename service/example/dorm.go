@@ -60,9 +60,9 @@ func (D *DormService) UpdateDorm(Dorm dorm.Dorm) error {
 }
 
 // 删除
-func (D *DormService) DeleteDorm(dormList []dorm.Dorm) error {
+func (D *DormService) DeleteDorm(dormList *[]dorm.Dorm) error {
 	// 遍历查寻数据是否存在
-	for _, value := range dormList {
+	for _, value := range *dormList {
 		err := global.Global_Db.Where("id=?", value.Id).First(&value).Error
 		if err != nil {
 			return err
@@ -77,9 +77,9 @@ func (D *DormService) DeleteDorm(dormList []dorm.Dorm) error {
 }
 
 // 创建
-func (D *DormService) CreateDorm(dormList []dorm.Dorm) error {
+func (D *DormService) CreateDorm(dormList *[]dorm.Dorm) error {
 	// 遍历查寻数据是否存在
-	for _, v := range dormList {
+	for _, v := range *dormList {
 		// 查询宿舍楼存在数据
 		var tempFloor dorm.Floor
 		err := global.Global_Db.Where("id=?", v.FloorId).First(&tempFloor).Error

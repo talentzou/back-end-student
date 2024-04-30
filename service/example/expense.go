@@ -3,6 +3,7 @@ package example
 import (
 	"back-end/global"
 	"back-end/model/test/dorm"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -42,7 +43,7 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 		return stayList, total, nil
 	}
 
-	fmt.Println("水电费dormId++++++",dormId)
+	fmt.Println("水电费dormId++++++", dormId)
 	if dormId != 0 {
 		// 查寻数据
 		err := global.Global_Db.Model(&dorm.Expense{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
@@ -63,4 +64,54 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 		return nil, 0, err
 	}
 	return stayList, total, nil
+}
+
+// 创建
+func (f *ExpenseService) CreateExpense(expenseList *[]dorm.Expense) error {
+
+	for _, v := range *expenseList {
+		var tempDorm dorm.Dorm
+		err := global.Global_Db.Where("id=? ", v.DormId).First(&tempDorm).Error
+		if err != nil {
+
+			return errors.New("宿舍不存在,无法添加")
+		}
+	}
+	// 添加数据
+	err := global.Global_Db.Create(&expenseList).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("添加失败")
+	}
+	return nil
+}
+
+// 删除
+func (f *ExpenseService) DeleteExpense(expenseList *[]dorm.Expense) error {
+	for _, value := range *expenseList {
+		err := global.Global_Db.Where("id=?", value.Id).First(&value).Error
+		if err != nil {
+			return errors.New(value.PaymentTime.Format("2006-01-02") + "费用数据不存在")
+		}
+	}
+	err := global.Global_Db.Delete(expenseList).Error
+	if err != nil {
+		return errors.New("删除数据失败")
+	}
+	return nil
+}
+// 更新
+func (f *ExpenseService) UpdateFloor(expense dorm.Expense) error {
+	var temp dorm.Expense
+	err := global.Global_Db.Model(&temp).Where("id=?", expense.Id).First(&temp).Error
+	if err != nil {
+		return errors.New(expense.PaymentTime.Format("2006-01-02")+"费用数据不存在")
+	}
+	err= global.Global_Db.Model(&expense).Where("id = ?", expense.Id).Updates(expense).Error
+	if err != nil {
+		// 处理错误
+		return errors.New("更新失败")
+
+	}
+	return nil
 }
