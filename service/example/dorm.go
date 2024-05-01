@@ -34,7 +34,7 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 		// 处理错误
 		return nil, 0, err
 	}
-	fmt.Println(limit,offset,"数量为+++++++++++++++++++++++",total)
+	// fmt.Println(limit,offset,"数量为+++++++++++++++++++++++",total)
 	for i := range dormList {
 		count := global.Global_Db.Model(&dorm.Dorm{Id: dormList[i].Id}).Association("StudInfos").Count()
 		dormList[i].Count = count
@@ -88,8 +88,8 @@ func (D *DormService) CreateDorm(dormList *[]dorm.Dorm) error {
 		}
 
 		count := global.Global_Db.Model(&dorm.Floor{Id: v.FloorId}).Association("Dorms").Count()
-		fmt.Println("宿舍数量+++++", count)
-		fmt.Println("宿舍楼容量", int64(tempFloor.DormAmount))
+		// fmt.Println("宿舍数量+++++", count)
+		// fmt.Println("宿舍楼容量", int64(tempFloor.DormAmount))
 		if count >= int64(tempFloor.DormAmount) {
 			return fmt.Errorf("超出宿舍楼容量")
 		}

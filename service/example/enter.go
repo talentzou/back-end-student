@@ -8,6 +8,7 @@ type ExampleGroup struct {
 	ExpenseService
 	RepairService
 	StudentService
+	ViolateService
 }
 
 var Example = new(ExampleGroup)

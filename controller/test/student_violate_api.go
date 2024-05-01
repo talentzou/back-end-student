@@ -1,10 +1,10 @@
 package test
 
 import (
-	"back-end/global"
 	"back-end/model/common/request"
 	"back-end/model/common/response"
-	"back-end/model/test/dorm"
+
+	// "back-end/model/test/dorm"
 	"back-end/model/test/student"
 	"back-end/utils"
 	"fmt"
@@ -24,24 +24,14 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 	var violateList []student.StudentViolate
 	err := c.ShouldBindJSON(&violateList)
 	if err != nil {
-		fmt.Println("添加参数错误",err.Error())
+		fmt.Println("添加参数错误", err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	for _, v := range violateList {
-		var Dorm dorm.Dorm
-		dormErr := global.Global_Db.Where("id=? ", v.DormId).First(&Dorm)
-		if dormErr.Error != nil {
-			response.FailWithMessage("该宿舍不存在无法添加", c)
-			return
-		}
-	}
 
-	// 添加数据
-	result := global.Global_Db.Create(&violateList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("添加学生违纪信息失败", c)
+	err = violateService.CreateViolate(&violateList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	response.OkWithMessage("添加成功", c)
@@ -50,72 +40,40 @@ func (d *violate_info_api) CreateVioApi(c *gin.Context) {
 // 删除
 func (d *violate_info_api) DeleteVioApi(c *gin.Context) {
 	var violateList []student.StudentViolate
-	
+
 	err := c.ShouldBindJSON(&violateList)
 	if err != nil {
-		
+		fmt.Println("参数错误为", err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	// 遍历查寻数据是否存在
-	for _, value := range violateList {
-		var student student.StudentViolate
-		err2 := global.Global_Db.Model(&student).Where("id=?", value.Id).First(&student)
-		if err2.Error != nil {
-			response.FailWithMessage("删除违纪为:"+value.Violate+",违纪数据不存在", c)
-			return
-		}
-	}
-	for _, del := range violateList {
-		result := global.Global_Db.Delete(&del)
-		if result.Error != nil {
-			// 处理错误
-			response.FailWithMessage("删除违纪为:"+del.Violate+"失败:", c)
-			return
-		}
+
+	err = violateService.DeleteViolate(&violateList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
 	}
 	response.OkWithMessage("删除成功", c)
 }
 
 // 更新
 func (d *violate_info_api) UpdateVioApi(c *gin.Context) {
-	var vio student.StudentViolate
-	err := c.ShouldBindJSON(&vio)
+	var violate student.StudentViolate
+	err := c.ShouldBindJSON(&violate)
 	if err != nil {
-		fmt.Println("参数错误",err.Error())
+		fmt.Println("参数错误", err.Error())
 		response.FailWithMessage("系统合并参数错误", c)
 		return
 	}
-	fmt.Println("参数为",vio)
-	// fmt.Println("更新参数为",vio.DormId)
-	// 判断数据是否存在
-	var tempStudent student.StudentViolate
-	err2 := global.Global_Db.Where("id=? ", vio.Id).First(&tempStudent)
-	if err2.Error != nil {
-		response.FailWithMessage("更新的学号为:"+vio. Violate+"数据不存在", c)
+	err = violateService.UpdateViolate(violate)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
-	}
-	fmt.Println("宿舍id参数为",vio.DormId)
-	var Dorm dorm.Dorm
-	dormErr := global.Global_Db.Where("id=? ", vio.DormId).First(&Dorm)
-	if dormErr.Error != nil {
-		response.FailWithMessage("该宿舍不存在无法更新", c)
-		return
-	}
-	//
-
-	result := global.Global_Db.Model(&vio).Where("id = ?", vio.Id).Updates(vio)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("更新学生:"+vio.Violate+"失败", c)
-		return
-
 	}
 	response.OkWithMessage("更新成功", c)
 }
 
 // 查寻
-
 func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 	var limit, offset int
 	P, _ := c.Params.Get("Page")
@@ -145,9 +103,9 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 	offset = PageSize * (Page - 1)
 	limit = PageSize
 
-	arrSlice :=make([]string,3)
+	arrSlice := make([]string, 3)
 	mapLength := len(condition)
-	fmt.Println("condition9999", mapLength,condition)
+	fmt.Println("condition9999", mapLength, condition)
 	if mapLength == 0 {
 		fmt.Println("进来为空pppp")
 		arrSlice = nil
@@ -155,13 +113,13 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		fmt.Println("进来不为空++++++++++")
 		if floorDorm, ok := condition["floor_dorm"].([]string); ok {
 			words := strings.Split(floorDorm[0], "-")
-			arrSlice[0]=words[0]
-			arrSlice[1]=words[1]
+			arrSlice[0] = words[0]
+			arrSlice[1] = words[1]
 		}
-		if studentName,ok:= condition["student_name"].([]string);ok{
-			arrSlice[2]=studentName[0]
+		if studentName, ok := condition["student_name"].([]string); ok {
+			arrSlice[2] = studentName[0]
 		}
-		
+
 	}
 	// 获取学生用户所属宿舍
 	var dormId uint
@@ -169,16 +127,19 @@ func (d *violate_info_api) QueryVioApi(c *gin.Context) {
 		dormId = utils.GetUserDormId(c)
 	}
 
-	violateList,total,err:=studentService.QueryStudentViolateList(limit,offset,arrSlice,dormId)
+	violateList, total, err := violateService.QueryStudentViolateList(limit, offset, arrSlice, dormId)
 	if err != nil {
 		response.FailWithMessage("查询学生违纪信息失败", c)
 		return
 	}
+	// fmt.Println("+++++++发送数量为", total)
+	// tt := total
+	// fmt.Println("-----发送数量为", tt)
 	response.OkWithDetailed(request.PageInfo{
 		List:     violateList,
-		Total:    total,
 		PageSize: PageSize,
 		Page:     Page,
+		Total:    total,
 	}, "成功", c)
 
 }

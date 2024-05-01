@@ -77,28 +77,7 @@ func (d *dorm_stay_api) DeleteStayApi(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	// 遍历查寻数据是否存在
-	// for _, value := range stayList {
-	// 	err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
-	// 	if err2.Error != nil {
-	// 		response.FailWithMessage("删除日期为:"+value.StayTime.StartTime.Format("2006-01-02")+"至"+value.StayTime.EndTime.Format("2006-01-02")+"的数据不存在:", c)
-	// 		return
-	// 	}
-	// 	if value.Opinions == "不同意" || value.Opinions == "同意" {
-	// 		if utils.GetUserRoleId(c) > 2 {
-	// 			response.FailWithMessage("状态发生改变，权限不足，无法删除", c)
-	// 			return
-	// 		}
-	// 	}
-	// }
-	// for _, del := range stayList {
-	// 	result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
-	// 	if result.Error != nil {
-	// 		// 处理错误
-	// 		response.FailWithMessage("删除日期为:"+del.StayTime.StartTime.Format("2006-01-02")+"至"+del.StayTime.EndTime.Format("2006-01-02")+"无法删除:", c)
-	// 		return
-	// 	}
-	// }
+
 	roleId:=utils.GetUserRoleId(c)
 	err=stayService.DeleteStay(&stayList,roleId)
 	if err != nil {
@@ -117,35 +96,7 @@ func (d *dorm_stay_api) UpdateStayApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	// // 查寻数据是否存在
-	// var tempRate dorm.Stay
-	// err2 := global.Global_Db.Where("id=?", stay.Id).First(&tempRate)
-	// if err2.Error != nil {
-	// 	response.FailWithMessage(stay.StayCause+":数据不存在:无法更新", c)
-	// 	return
-	// }
-	// // 查寻宿舍
-	// var tempDorm dorm.Dorm
-	// queryDorm := global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm)
-	// if queryDorm.Error != nil {
-	// 	response.FailWithMessage("该宿舍不存在,无法更新", c)
-	// 	return
-	// }
 
-	// if stay.Opinions == "不同意" || stay.Opinions == "同意" {
-	// 	if utils.GetUserRoleId(c) > 2 {
-	// 		response.FailWithMessage("状态发生改变，权限不足，无法更新", c)
-	// 		return
-	// 	}
-	// }
-
-	// result := global.Global_Db.Model(&stay).Where("id = ?", stay.Id).Updates(stay)
-	// if result.Error != nil {
-	// 	// 处理错误
-	// 	response.FailWithMessage("更新失败", c)
-	// 	return
-
-	// }
 	roleId:=utils.GetUserRoleId(c)
 	err=stayService.UpdateStay(stay,roleId)
 	if err != nil {

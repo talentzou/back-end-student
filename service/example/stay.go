@@ -57,27 +57,23 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}, do
 // 添加
 func (f *StayService) CreateStay(_stays *[]dorm.Stay) error {
 	for _, v := range *_stays {
-		// 查询宿舍存在数据
-		var tempDorm dorm.Dorm
-		err := global.Global_Db.Where("id=?", v.DormId).First(&tempDorm).Error
-		if err != nil {
-			return errors.New("该宿舍不存在,无法添加")
+		var tempStay dorm.Stay
+		err := global.Global_Db.Debug().
+			// Where("dorm_id=? AND start_time=? AND end_time=? ", v.DormId, v.StayTime.StartTime.Local(), v.StayTime.EndTime.Local()).
+			Where(&dorm.Stay{
+				DormId: v.DormId,
+				StayTime: dorm.StayTime{
+					StartTime: v.StayTime.StartTime.Local(),
+					EndTime:   v.StayTime.EndTime.Local(),
+				},
+				StudentName: v.StudentName,
+			}).
+			First(&tempStay).Error
+		// fmt.Println("找不到", err, tempStay)
+		if err == nil {
+			return errors.New("学生:" + v.StudentName + "留宿申请已存在")
 		}
-		var tempStay []dorm.Stay
-		err = global.Global_Db.Where("dorm_id=? ", v.DormId).Find(&tempStay).Error
-		if err != nil {
-			continue
-		}
-		for _, t := range tempStay {
-			// 判断是宿舍与学生
-			if v.StudentName == t.StudentName {
-				//   判断日期
-				if t.StayTime.StartTime == v.StayTime.StartTime && t.StayTime.EndTime == v.StayTime.EndTime {
-					return errors.New("学生:" + v.StudentName + "留宿申请已存在")
-				}
-			}
 
-		}
 	}
 	err := global.Global_Db.Create(&_stays).Error
 	if err != nil {
@@ -120,12 +116,22 @@ func (f *StayService) UpdateStay(stay dorm.Stay, roleId uint) error {
 	if err != nil {
 		return errors.New(stay.StayCause + ":数据不存在:无法更新")
 	}
-	// 查寻宿舍
-	var tempDorm dorm.Dorm
-	err = global.Global_Db.Where("id=?", stay.DormId).First(&tempDorm).Error
-	if err != nil {
-		return errors.New("该宿舍不存在,无法更新")
-	}
+	var tempStay dorm.Stay
+		err = global.Global_Db.Debug().
+			Where(&dorm.Stay{
+				DormId: stay.DormId,
+				StayTime: dorm.StayTime{
+					StartTime: stay.StayTime.StartTime.Local(),
+					EndTime:   stay.StayTime.EndTime.Local(),
+				},
+				StudentName: stay.StudentName,
+			}).
+			First(&tempStay).Error
+
+		// fmt.Println("找不到", err, tempStay)
+		if err == nil {
+			return errors.New("学生:" + stay.StudentName + "留宿申请已存在,无法更新")
+		}
 
 	if stay.Opinions == "不同意" || stay.Opinions == "同意" {
 		if roleId > 2 {

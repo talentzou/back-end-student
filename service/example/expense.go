@@ -73,8 +73,15 @@ func (f *ExpenseService) CreateExpense(expenseList *[]dorm.Expense) error {
 		var tempDorm dorm.Dorm
 		err := global.Global_Db.Where("id=? ", v.DormId).First(&tempDorm).Error
 		if err != nil {
-
 			return errors.New("宿舍不存在,无法添加")
+		}
+		var tempRate dorm.Expense
+		err = global.Global_Db.Debug().
+			Where("dorm_id=? AND payment_time=? ", v.DormId, v.PaymentTime.Local()).
+			First(&tempRate).Error
+		fmt.Println("找不到", err, tempRate)
+		if err == nil {
+			return errors.New(tempRate.PaymentTime.Format("2006-01-02") + "数据已存在:无法更新")
 		}
 	}
 	// 添加数据
@@ -100,14 +107,25 @@ func (f *ExpenseService) DeleteExpense(expenseList *[]dorm.Expense) error {
 	}
 	return nil
 }
+
 // 更新
 func (f *ExpenseService) UpdateFloor(expense dorm.Expense) error {
 	var temp dorm.Expense
 	err := global.Global_Db.Model(&temp).Where("id=?", expense.Id).First(&temp).Error
 	if err != nil {
-		return errors.New(expense.PaymentTime.Format("2006-01-02")+"费用数据不存在")
+		return errors.New(expense.PaymentTime.Format("2006-01-02") + "费用数据不存在")
 	}
-	err= global.Global_Db.Model(&expense).Where("id = ?", expense.Id).Updates(expense).Error
+	var tempRate dorm.Expense
+	err = global.Global_Db.Debug().
+		Not("id = ?", expense.Id).
+		Where("dorm_id=? AND payment_time=? ", expense.DormId, expense.PaymentTime.Local()).
+		First(&tempRate).Error
+	fmt.Println("找不到", err, tempRate)
+	if err == nil {
+		return errors.New(temp.PaymentTime.Format("2006-01-02") + "数据已存在:无法更新")
+	}
+
+	err = global.Global_Db.Model(&expense).Where("id = ?", expense.Id).Updates(expense).Error
 	if err != nil {
 		// 处理错误
 		return errors.New("更新失败")

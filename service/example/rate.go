@@ -67,10 +67,15 @@ func (f *RateService) QueryRate(limit int, offset int, condition interface{},dor
 // 更新
 func (f *RateService) UpdateRate(rate dorm.Rate) error {
 	var tempRate dorm.Rate
-	err := global.Global_Db.Where("id=?", rate.Id).First(&tempRate).Error
-	if err != nil {
-		return errors.New(rate.RateDate.Format("2006-01-02") + "数据不存在:无法更新")
+	err := global.Global_Db.Debug().
+	Not("id = ?", rate.Id).
+	Where("dorm_id=? AND rate_date=? ", rate.DormId,rate.RateDate.Local()).
+	First(&tempRate).Error
+	// fmt.Println("找不到",err,tempRate)
+	if err == nil {
+		return errors.New(rate.RateDate.Local().Format("2006-01-02") + "数据已存在:无法更新")
 	}
+
 	err = global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate).Error
 	if err != nil {
 		// 处理错误
@@ -84,17 +89,23 @@ func (f *RateService) UpdateRate(rate dorm.Rate) error {
 func (f *RateService) CreateRate(_rates *[]dorm.Rate) error {
 	for _, v := range *_rates {
 		// //查寻存在数据
-		var tempArr []dorm.Rate
-		err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
-		if err != nil {
-			return errors.New("查寻错误")
+		var tempArr dorm.Rate
+		fmt.Println("添加的参数为",v)
+		err := global.Global_Db.Where("dorm_id=? AND rate_date=? ", v.DormId,v.RateDate.Local()).
+		First(&tempArr).Error
+		if err == nil {
+			return errors.New("数据"+tempArr.RateDate.Format("2006-01-02")+"已存在")
 		}
 
-		for t := range tempArr {
-			if v.RateDate == tempArr[t].RateDate && v.DormId == tempArr[t].DormId {
-				return errors.New(tempArr[t].RateDate.Format("2006-01-02") + "的日期评分已存在")
-			}
-		}
+		// for t := range tempArr {
+		// 	// fmt.Println("添加",v.RateDate.Local() )
+		// 	// fmt.Println("存在",tempArr[t].RateDate )
+		// 	// fmt.Println("是否相等",v.RateDate.Local() == tempArr[t].RateDate)
+
+		// 	if v.RateDate.Local() == tempArr[t].RateDate && v.DormId == tempArr[t].DormId {
+		// 		return errors.New(tempArr[t].RateDate.Format("2006-01-02") + "的日期评分已存在")
+		// 	}
+		// }
 
 	}
 	// 添加数据

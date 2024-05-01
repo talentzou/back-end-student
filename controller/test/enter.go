@@ -12,4 +12,5 @@ var (
 	expenseService = example.Example.ExpenseService
 	repairService  = example.Example.RepairService
 	studentService = example.Example.StudentService
+	violateService = example.Example.ViolateService
 )

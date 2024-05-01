@@ -26,31 +26,7 @@ func (d *dorm_rate_api) CreateRateApi(c *gin.Context) {
 		return
 	}
 
-	// for i, v := range rateList {
-	// 	// //查寻存在数据
-	// 	var tempArr []dorm.Rate
-	// 	err := global.Global_Db.Where("dorm_id=?", v.DormId).Find(&tempArr).Error
-	// 	if err != nil {
-	// 		response.FailWithMessage("系统查寻错误", c)
-	// 		return
-	// 	}
-
-	// 	for t := range tempArr {
-
-	// 		if rateList[i].RateDate == tempArr[t].RateDate && rateList[i].DormId == tempArr[t].DormId {
-	// 			response.FailWithMessage(tempArr[t].RateDate.Format("2006-01-02")+"的日期评分已存在", c)
-	// 			return
-	// 		}
-	// 	}
-
-	// }
-	// 添加数据
-	// result := global.Global_Db.Create(&rateList)
-	// if result.Error != nil {
-	// 	// 处理错误
-	// 	response.FailWithMessage("添加评分失败", c)
-	// 	return
-	// }
+	
 	err = rateService.CreateRate(&rateList)
 	if err != nil {
 		// 处理错误
@@ -69,22 +45,7 @@ func (d *dorm_rate_api) DeleteRateApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	// 遍历查寻数据是否存在
-	// for _, value := range rateList {
-	// 	err2 := global.Global_Db.Where("id=?", value.Id).First(&value)
-	// 	if err2.Error != nil {
-	// 		response.FailWithMessage("删除时间为:"+value.RateDate.Format("2006-01-02")+"宿舍数据不存在", c)
-	// 		return
-	// 	}
-	// }
-	// for _, del := range rateList {
-	// 	result := global.Global_Db.Delete(&del)
-	// 	if result.Error != nil {
-	// 		// 处理错误
-	// 		response.FailWithMessage("删除时间为:"+del.RateDate.Format("2006-01-02")+"宿舍数据删除失败", c)
-	// 		return
-	// 	}
-	// }
+
 	err = rateService.DeleteRate(&rateList)
 	if err != nil {
 		// 处理错误
@@ -103,13 +64,7 @@ func (d *dorm_rate_api) UpdateRateApi(c *gin.Context) {
 		response.FailWithMessage("系统合并错误", c)
 		return
 	}
-	// var tempRate dorm.Rate
-	// err2 := global.Global_Db.Where("id=?", rate.Id).First(&tempRate)
-	// if err2.Error != nil {
-	// 	response.FailWithMessage(rate.RateDate.Format("2006-01-02")+"数据不存在:无法更新", c)
-	// 	return
-	// }
-	// result := global.Global_Db.Model(&rate).Where("id = ?", rate.Id).Updates(rate)
+	
 	err = rateService.UpdateRate(rate)
 	if err != nil {
 		// 处理错误

@@ -1,17 +1,16 @@
 package test
 
 import (
-	"back-end/global"
+	// "back-end/global"
 	"back-end/model/common/request"
 	"back-end/model/common/response"
-	"back-end/model/test/dorm"
+	// "back-end/model/test/dorm"
 	"back-end/model/test/repair"
 	"back-end/utils"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,21 +27,10 @@ func (d *repair_api_) CreateRepairApi(c *gin.Context) {
 		response.FailWithMessage("添加参数错误", c)
 		return
 	}
-	// 给数据添加id
-	for _, v := range repairList {
-		var tempDorm dorm.Dorm
-		query := global.Global_Db.Where("id=? ", v.DormId).First(&tempDorm)
-		if query.Error != nil {
-			response.FailWithMessage("该宿舍不存在，无法添加", c)
-			return
-		}
-	}
 
-	// 添加数据
-	result := global.Global_Db.Create(&repairList)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("添加维修失败", c)
+	err = repairService.CreateRepair(&repairList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	response.OkWithMessage("添加维修成功", c)
@@ -57,28 +45,12 @@ func (d *repair_api_) DeleteRepairApi(c *gin.Context) {
 		response.FailWithMessage("参数错误", c)
 		return
 	}
-	// 遍历查寻数据是否存在
-	for _, v := range repairList {
-		err2 := global.Global_Db.Where("id=?", v.Id).First(&v)
-		if err2.Error != nil {
-			response.FailWithMessage("数据不存在:"+v.SubmitDate.Format("2006-01-02")+"至"+v.FinishDate.Format("2006-01-02"), c)
-			return
-		}
-		if v.RepairStatus == "已完成" {
-			if utils.GetUserRoleId(c) > 2 {
-				response.FailWithMessage("状态已完成，权限不足，无法删除"+v.SubmitDate.Format("2006-01-02"), c)
-				return
-			}
-		}
-	}
-	for _, del := range repairList {
-		result := global.Global_Db.Where("id=?", del.Id).Delete(&del)
-		if result.Error != nil {
-			// 处理错误
-			response.FailWithMessage("数据删除"+del.SubmitDate.Format("2006-01-02")+"至"+del.FinishDate.Format("2006-01-02")+"失败", c)
-			return
-		}
-		
+
+	roleId := utils.GetUserRoleId(c)
+	err = repairService.DeleteRepair(&repairList, roleId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
 	}
 	response.OkWithMessage("删除成功", c)
 }
@@ -91,24 +63,11 @@ func (d *repair_api_) UpdateRepairApi(c *gin.Context) {
 		response.FailWithMessage("更新参数错误", c)
 		return
 	}
-	var tempRepair repair.Repair
-	err2 := global.Global_Db.Where("id=?", Repair.Id).First(&tempRepair)
-	if err2.Error != nil {
-		response.FailWithMessage("数据不存在:无法更新", c)
-		return
-	}
-	if Repair.RepairStatus == "已完成" {
-		if utils.GetUserRoleId(c) > 2 {
-			response.FailWithMessage("状态已完成，权限不足，无法更新"+Repair.SubmitDate.Format("2006-01-02"), c)
-			return
-		}
-		Repair.FinishDate = time.Now()
-	}
-	// fmt.Println("完成修改时间", Repair.RepairStatus)
-	result := global.Global_Db.Model(&Repair).Where("id = ?", Repair.Id).Updates(Repair)
-	if result.Error != nil {
-		// 处理错误
-		response.FailWithMessage("更新"+Repair.SubmitDate.Format("2006-01-02")+"失败", c)
+
+	roleId := utils.GetUserRoleId(c)
+	err = repairService.UpdateRepair(Repair, roleId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
