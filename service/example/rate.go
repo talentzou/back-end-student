@@ -97,15 +97,6 @@ func (f *RateService) CreateRate(_rates *[]dorm.Rate) error {
 			return errors.New("数据"+tempArr.RateDate.Format("2006-01-02")+"已存在")
 		}
 
-		// for t := range tempArr {
-		// 	// fmt.Println("添加",v.RateDate.Local() )
-		// 	// fmt.Println("存在",tempArr[t].RateDate )
-		// 	// fmt.Println("是否相等",v.RateDate.Local() == tempArr[t].RateDate)
-
-		// 	if v.RateDate.Local() == tempArr[t].RateDate && v.DormId == tempArr[t].DormId {
-		// 		return errors.New(tempArr[t].RateDate.Format("2006-01-02") + "的日期评分已存在")
-		// 	}
-		// }
 
 	}
 	// 添加数据

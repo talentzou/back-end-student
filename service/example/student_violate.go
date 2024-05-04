@@ -101,14 +101,8 @@ func (f *ViolateService) QueryStudentViolateList(limit int, offset int, conditio
 	mapLength := len(condition)
 	fmt.Println("我是学生违纪+++++++++++++", condition, mapLength)
 	if mapLength != 0 {
-		// db := global.Global_Db.Model(&dorm.StudInfo{}).Limit(limit).Offset(offset)
-		// err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		// 	return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		// }).Preload("StudentInfo").Find(&studentList).Error
-		// if err != nil {
-		// 	return nil, 0, err
-		// }
-		fmt.Println("进来参数ggg99999", condition[0], condition[1], condition[2])
+
+		// fmt.Println("进来参数ggg99999", condition[0], condition[1], condition[2])
 		var floor dorm.Floor
 		err := global.Global_Db.Model(&dorm.Floor{}).Where("floors_name=?", condition[0]).First(&floor).Error
 		if err != nil {
@@ -133,9 +127,14 @@ func (f *ViolateService) QueryStudentViolateList(limit int, offset int, conditio
 			// fmt.Println("查寻违纪宿舍带人名", Student.StudentName, "学生id", Student.Id, "宿舍id", Dorm.Id)
 		}
 
-		db := global.Global_Db.Model(&student.StudentViolate{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Preload("StudInfo").Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&student.StudentViolate{}).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).
+			Preload("StudInfo").
+			Limit(limit).Offset(offset)
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		if condition[2] != "" {
@@ -159,9 +158,13 @@ func (f *ViolateService) QueryStudentViolateList(limit int, offset int, conditio
 	fmt.Println("我是学生违纪---99---", dormId)
 	// 查寻数据
 	if dormId != 0 {
-		db := global.Global_Db.Model(&student.StudentViolate{}).Preload("StudInfo").Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		})
+		db := global.Global_Db.Model(&student.StudentViolate{}).
+			Preload("StudInfo").
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			})
 		err := db.Where("dorm_id=?", dormId).Limit(limit).Offset(offset).Find(&studentList).Count(&total).Error
 		if err != nil {
 			// 处理错误
@@ -170,9 +173,13 @@ func (f *ViolateService) QueryStudentViolateList(limit int, offset int, conditio
 		return studentList, total, nil
 	}
 
-	db := global.Global_Db.Model(&student.StudentViolate{}).Preload("StudInfo").Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	})
+	db := global.Global_Db.Model(&student.StudentViolate{}).
+		Preload("StudInfo").
+		Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		})
 	err := db.Count(&total).Limit(limit).Offset(offset).Find(&studentList).Error
 	if err != nil {
 		// 处理错误

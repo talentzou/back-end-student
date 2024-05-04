@@ -18,7 +18,6 @@ import (
 func RegisterTableTest() {
 	db := global.Global_Db
 	tables := []interface{}{
-		&dorm.Bed{},
 		&dorm.Expense{},
 		&dorm.Rate{},
 		&student.StudentViolate{},
@@ -72,7 +71,7 @@ func RegisterTableTest() {
 	// 	fmt.Println("-----------------添加楼宇失败")
 	// }
 }
-
+// 模拟数据
 func InitData() []system.Role {
 
 	menu := []system.MenuTree{
@@ -152,8 +151,8 @@ func InitData() []system.Role {
 		}}
 	return role
 }
-
-func mockUser() system.SysUser {
+// 模拟用户数据
+func MockUser() system.SysUser {
 	user := system.SysUser{
 		Model: gorm.Model{
 			ID: 4444,

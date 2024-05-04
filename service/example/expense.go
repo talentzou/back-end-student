@@ -30,9 +30,14 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 			return nil, 0, err
 		}
 
-		db := global.Global_Db.Model(&dorm.Expense{}).Where("dorm_id=?", Dorm.Id).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Count(&total).Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&dorm.Expense{}).
+			Where("dorm_id=?", Dorm.Id).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).
+			Count(&total).Limit(limit).Offset(offset)
 
 		//.Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		err = db.Find(&stayList).Error
@@ -46,9 +51,12 @@ func (f *ExpenseService) QueryExpense(limit int, offset int, condition interface
 	fmt.Println("水电费dormId++++++", dormId)
 	if dormId != 0 {
 		// 查寻数据
-		err := global.Global_Db.Model(&dorm.Expense{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
+		err := global.Global_Db.Model(&dorm.Expense{}).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
 		if err != nil {
 			// 处理错误
 			return nil, 0, err

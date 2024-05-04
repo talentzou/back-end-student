@@ -31,9 +31,13 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string, d
 			return nil, 0, err
 		}
 		// fmt.Println("宿舍为+++++++++",Dorm)
-		db := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&repair.Repair{}).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).
+			Limit(limit).Offset(offset)
 
 		if condition[2] != "" {
 			fmt.Println("查寻维修带状态参数")
@@ -55,22 +59,35 @@ func (f *RepairService) QueryRepair(limit int, offset int, condition []string, d
 		return repairList, total, nil
 	}
 	// ///////////////////////////////////////////////////////////////
-	fmt.Println("我是维修---99---")
+	// fmt.Println("我是维修---99---")
 	// 查寻数据
 	fmt.Println("维修dormId++++++", dormId)
 	if dormId != 0 {
-		err := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&repairList).Error
+		err := global.Global_Db.Model(&repair.Repair{}).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).
+			Where("dorm_id=?", dormId).
+			Count(&total).
+			Limit(limit).Offset(offset).Find(&repairList).Error
 		if err != nil {
 			// 处理错误
 			return nil, 0, err
 		}
 		return repairList, total, nil
 	}
-	err := global.Global_Db.Model(&repair.Repair{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&repairList).Error
+	err := global.Global_Db.Model(&repair.Repair{}).
+		Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		}).
+		Where(condition).
+		Count(&total).
+		Limit(limit).Offset(offset).
+		Find(&repairList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

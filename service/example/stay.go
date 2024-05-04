@@ -19,7 +19,9 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}, do
 	if condition == nil {
 		db := global.Global_Db.Model(&dorm.Stay{}).Count(&total).Limit(limit).Offset(offset)
 		err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
 		}).Find(&stayList).Error
 		if err != nil {
 			return nil, 0, err
@@ -31,9 +33,16 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}, do
 	fmt.Println("留宿dormId++++++", dormId)
 
 	if dormId != 0 {
-		err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Where("dorm_id=?", dormId).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
+		err := global.Global_Db.Model(&dorm.Stay{}).
+			Where(condition).
+			Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+				return db.Model(&dorm.Dorm{}).Debug().
+					Select("dorm.*,floor.floors_name AS floors_name").
+					Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+			}).
+			Where("dorm_id=?", dormId).
+			Count(&total).
+			Limit(limit).Offset(offset).Find(&stayList).Error
 		fmt.Println("我是留宿申请---99---", err)
 		if err != nil {
 			// 处理错误
@@ -43,9 +52,16 @@ func (f *StayService) QueryStay(limit int, offset int, condition interface{}, do
 	}
 
 	// 查寻数据
-	err := global.Global_Db.Model(&dorm.Stay{}).Where(condition).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Count(&total).Limit(limit).Offset(offset).Find(&stayList).Error
+	err := global.Global_Db.Model(&dorm.Stay{}).
+		Where(condition).
+		Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		}).
+		Count(&total).
+		Limit(limit).Offset(offset).
+		Find(&stayList).Error
 	fmt.Println("我是留宿申请---99---", err)
 	if err != nil {
 		// 处理错误
@@ -117,21 +133,21 @@ func (f *StayService) UpdateStay(stay dorm.Stay, roleId uint) error {
 		return errors.New(stay.StayCause + ":数据不存在:无法更新")
 	}
 	var tempStay dorm.Stay
-		err = global.Global_Db.Debug().
-			Where(&dorm.Stay{
-				DormId: stay.DormId,
-				StayTime: dorm.StayTime{
-					StartTime: stay.StayTime.StartTime.Local(),
-					EndTime:   stay.StayTime.EndTime.Local(),
-				},
-				StudentName: stay.StudentName,
-			}).
-			First(&tempStay).Error
+	err = global.Global_Db.Debug().
+		Where(&dorm.Stay{
+			DormId: stay.DormId,
+			StayTime: dorm.StayTime{
+				StartTime: stay.StayTime.StartTime.Local(),
+				EndTime:   stay.StayTime.EndTime.Local(),
+			},
+			StudentName: stay.StudentName,
+		}).
+		First(&tempStay).Error
 
-		// fmt.Println("找不到", err, tempStay)
-		if err == nil {
-			return errors.New("学生:" + stay.StudentName + "留宿申请已存在,无法更新")
-		}
+	// fmt.Println("找不到", err, tempStay)
+	if err == nil {
+		return errors.New("学生:" + stay.StudentName + "留宿申请已存在,无法更新")
+	}
 
 	if stay.Opinions == "不同意" || stay.Opinions == "同意" {
 		if roleId > 2 {

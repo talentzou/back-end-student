@@ -20,10 +20,14 @@ func (f *StudentService) QueryStudentInfoList(limit int, offset int, condition i
 	var total int64
 	fmt.Println("我是学生信息+++++++++++++", condition)
 	if condition == nil {
-		db := global.Global_Db.Model(&dorm.StudInfo{}).Count(&total).Limit(limit).Offset(offset)
+		db := global.Global_Db.Model(&dorm.StudInfo{}).
+			Count(&total).Limit(limit).Offset(offset)
 		err := db.Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-		}).Find(&studentList).Error
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		}).
+			Find(&studentList).Error
 		if err != nil {
 			return nil, 0, err
 		}
@@ -32,9 +36,15 @@ func (f *StudentService) QueryStudentInfoList(limit int, offset int, condition i
 	}
 	fmt.Println("我是学生信息---99---")
 	// 查寻数据
-	err := global.Global_Db.Model(&dorm.StudInfo{}).Preload("Dorm", func(db *gorm.DB) *gorm.DB {
-		return db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
-	}).Where(condition).Count(&total).Limit(limit).Offset(offset).Find(&studentList).Error
+	err := global.Global_Db.Model(&dorm.StudInfo{}).
+		Preload("Dorm", func(db *gorm.DB) *gorm.DB {
+			return db.Model(&dorm.Dorm{}).Debug().
+				Select("dorm.*,floor.floors_name AS floors_name").
+				Joins("LEFT JOIN floor ON dorm.floor_id = floor.id")
+		}).
+		Where(condition).
+		Count(&total).Limit(limit).Offset(offset).
+		Find(&studentList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err

@@ -1,15 +1,9 @@
 package dorm
 
 import (
-	// "back-end/model/test/expense"
-	// "back-end/model/test/repair"
-	// "back-end/model/test/student"
-	// "fmt"
 	"time"
-	// "gorm.io/gorm"
 )
 
-// 宿舍楼	Dorms      []Dorm `json:"dorms"`
 type Floor struct {
 	Id         uint   `json:"id" gorm:"primarykey"`
 	FloorsName string `json:"floorsName" gorm:"size:256"`
@@ -30,17 +24,6 @@ type Dorm struct {
 	Count      int64      `json:"count" gorm:"->"`
 	StudInfos  []StudInfo `json:"studInfoList"`
 	Rates      []Rate     `json:"rateList"`
-}
-
-// 床位
-type Bed struct {
-	Id          uint     `json:"id" gorm:"primarykey"`
-	BedStatus   string   `json:"bedStatus" gorm:"size:256"`
-	DormNumber  string   `json:"dormNumber"`
-	BedNumber   int      `json:"bedNumber" gorm:"size:256"`
-	Remark      string   `json:"remark" gorm:"size:256"`
-	StudentName string   `json:"studentName" gorm:"size:256"`
-	StudInfo    StudInfo `json:"studInfo" gorm:"foreignKey:StudentName;references:StudentName"` //属于某个学生
 }
 
 // 留宿
@@ -96,5 +79,16 @@ type Expense struct {
 	DormId            uint      `json:"dormId"`
 }
 
+
+// 床位
+// type Bed struct {
+// 	Id          uint     `json:"id" gorm:"primarykey"`
+// 	BedStatus   string   `json:"bedStatus" gorm:"size:256"`
+// 	DormNumber  string   `json:"dormNumber"`
+// 	BedNumber   int      `json:"bedNumber" gorm:"size:256"`
+// 	Remark      string   `json:"remark" gorm:"size:256"`
+// 	StudentName string   `json:"studentName" gorm:"size:256"`
+// 	StudInfo    StudInfo `json:"studInfo" gorm:"foreignKey:StudentName;references:StudentName"` //属于某个学生
+// }
 // FloorsName string `json:"floorsName" gorm:"->"`
 // DormNumber string `json:"dormNumber" gorm:"->"`

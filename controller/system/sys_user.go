@@ -179,39 +179,3 @@ func QueryUserInfo(c *gin.Context) {
 
 }
 
-// // 查寻
-// func SearchFloor(c *gin.Context) {
-// 	fmt.Println("查询用户")
-// 	// 获取请求体数据
-// 	P, _ := c.Params.Get("Page")
-// 	Size, _ := c.Params.Get("PageSize")
-// 	PageSize, er1 := strconv.Atoi(Size)
-// 	Page, er2 := strconv.Atoi(P)
-// 	if er1 != nil && er2 != nil {
-// 		response.FailWithMessage("分页参数错误", c)
-// 		return
-// 	}
-// 	// 分页
-// 	offset := PageSize * (Page - 1)
-// 	limit := PageSize
-// 	var username request.ReqUser
-// 	err := c.ShouldBindJSON(&username)
-// 	if err != nil {
-// 		response.FailWithMessage("搜索参数错误", c)
-// 		return
-// 	}
-// 	fmt.Println("搜索参数为", username.UserName)
-// 	// 分页数据
-// 	list, total, err := userService.QueryUser(offset, limit, username.UserName)
-// 	if err != nil {
-// 		response.FailWithMessage("搜索的用户不存在", c)
-// 		return
-// 	}
-// 	response.OkWithDetailed(request.PageInfo{
-// 		List:     list,
-// 		Total:    total,
-// 		PageSize: PageSize,
-// 		Page:     Page,
-// 	}, "成功", c)
-
-// }

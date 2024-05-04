@@ -13,6 +13,8 @@ func main() {
 	if global.Global_Db != nil {
 		// initialize.RegisterTable() // 初始化表
 		initialize.RegisterTableTest()
+		db, _ := global.Global_Db.DB()
+		defer db.Close()
 	}
 	r := core.RunWindowServer()//创建应用实例
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

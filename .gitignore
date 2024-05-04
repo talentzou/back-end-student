@@ -1,4 +1,4 @@
-gorm.go
 *.log
 public/static
 config.yaml
+gorm_init.go

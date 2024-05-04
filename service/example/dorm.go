@@ -18,7 +18,9 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 	var total int64
 	if condition == nil {
 		global.Global_Db.Limit(limit).Offset(offset)
-		err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").
+		err := global.Global_Db.Model(&dorm.Dorm{}).Debug().
+			Select("dorm.*,floor.floors_name AS floors_name").
+			Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").
 			Preload("StudInfos").Find(&dormList).Error
 		if err != nil {
 			return nil, 0, err
@@ -27,9 +29,14 @@ func (D *DormService) QueryDorm(limit int, offset int, condition map[string]inte
 		return dormList, total, nil
 	}
 	fmt.Println("获取宿舍带参数------")
-	fmt.Println("我来查询了",condition)
-	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().Select("dorm.*,floor.floors_name AS floors_name").Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").Where(condition).Count(&total).
-	Limit(limit).Offset(offset).Find(&dormList).Error
+	// fmt.Println("我来查询了",condition)
+	err := global.Global_Db.Model(&dorm.Dorm{}).Debug().
+		Select("dorm.*,floor.floors_name AS floors_name").
+		Joins("LEFT JOIN floor ON dorm.floor_id = floor.id").
+		Where(condition).
+		Count(&total).
+		Limit(limit).Offset(offset).
+		Find(&dormList).Error
 	if err != nil {
 		// 处理错误
 		return nil, 0, err
