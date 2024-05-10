@@ -36,7 +36,7 @@ func SetSelfInfo(c *gin.Context) {
 	err := c.ShouldBindJSON(&userInfo)
 	fmt.Println("参数为", userInfo)
 	if err != nil {
-		fmt.Println("错误为++",err)
+		fmt.Println("错误为++", err)
 		response.FailWithMessage("参数错误", c)
 		return
 	}
@@ -111,11 +111,11 @@ func Register(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	user := &system.SysUser{UserName: r.UserName, Password: "123456", RoleId: r.RoleId, Sex: r.Sex, DormId: r.DormId}
+	user := &system.SysUser{UserName: r.UserName, Password: "123456", RoleId: r.RoleId, Sex: r.Sex, DormId: r.DormId, Remark: r.Remark}
 	fmt.Println("user密码++++", user.Password)
 	userReturn, err := userService.Register(*user)
 	if err != nil {
-		response.FailWithDetailed(gin.H{"user": userReturn}, "注册失败", c)
+		response.FailWithDetailed(gin.H{"user": userReturn}, err.Error(), c)
 		return
 	}
 	response.OkWithDetailed(gin.H{"user": userReturn}, "注册成功", c)
@@ -130,11 +130,16 @@ func SetUserInfo(c *gin.Context) {
 		response.FailWithMessage("合并参数错误", c)
 		return
 	}
-	fmt.Println("参数为99999", user)
+	fmt.Printf("参数为99999:%+v\n",user)
+	if user.RoleId != 3 {
+		user.DormId = 001
+	}
+	fmt.Printf("参数改后:%+v\n",user.DormId)
 	err3 := global.Global_Db.Model(&system.SysUser{}).Where("id=?", user.ID).Updates(&system.SysUser{
 		Sex:    user.Sex,
 		RoleId: user.RoleId,
 		Remark: user.Remark,
+		DormId: user.DormId,
 	}).Error
 	if err3 != nil {
 		response.FailWithMessage("用户信息更新失败", c)
@@ -178,4 +183,3 @@ func QueryUserInfo(c *gin.Context) {
 	}, "成功", c)
 
 }
-

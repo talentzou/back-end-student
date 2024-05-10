@@ -103,19 +103,22 @@ func (f *StayService) CreateStay(_stays *[]dorm.Stay) error {
 // 删除
 func (f *StayService) DeleteStay(_stays *[]dorm.Stay, roleId uint) error {
 	// 遍历查寻数据是否存在
+	fmt.Println("执行删除前")
 	for _, value := range *_stays {
+		fmt.Println("执行删除++++++")
 		var tempStay dorm.Stay
 		err := global.Global_Db.Where("id=?", value.Id).First(&tempStay).Error
 		if err != nil {
 			return errors.New("删除日期为:" + value.StayTime.StartTime.Format("2006-01-02") + "至" + value.StayTime.EndTime.Format("2006-01-02") + "的数据不存在:")
 		}
-		if value.Opinions == "不同意" || value.Opinions == "同意" {
+		fmt.Println("状态意见",value.Opinions)
+		if tempStay.Opinions == "不同意" || tempStay.Opinions == "同意" {
 			if roleId > 2 {
 				return errors.New("状态发生改变，权限不足，无法删除")
 			}
 		}
 	}
-
+	fmt.Println("执行删除-----")
 	err := global.Global_Db.Delete(_stays).Error
 	if err != nil {
 		// 处理错误
@@ -133,7 +136,7 @@ func (f *StayService) UpdateStay(stay dorm.Stay, roleId uint) error {
 		return errors.New(stay.StayCause + ":数据不存在:无法更新")
 	}
 	var tempStay dorm.Stay
-	err = global.Global_Db.Debug().
+	err = global.Global_Db.Debug().Not("id=?", stay.Id).
 		Where(&dorm.Stay{
 			DormId: stay.DormId,
 			StayTime: dorm.StayTime{

@@ -125,7 +125,7 @@ func (f *RepairService) DeleteRepair(_repairs *[]repair.Repair, roleId uint) err
 		if err != nil {
 			return errors.New(v.SubmitDate.Format("2006-01-02") + "至" + tempRepair.FinishDate.Format("2006-01-02"))
 		}
-		if v.RepairStatus == "已完成" {
+		if tempRepair.RepairStatus == "已完成" {
 			if roleId > 2 {
 				return errors.New("状态已完成，权限不足，无法删除" + tempRepair.SubmitDate.Format("2006-01-02"))
 			}

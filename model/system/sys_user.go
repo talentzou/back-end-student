@@ -14,10 +14,11 @@ type SysUser struct {
 	Telephone string `json:"telephone" gorm:"size:256;default:18100000000;comment:手机号码"`
 	Avatar    string `json:"avatar" gorm:"size:256;default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:头像"`
 
-	Remark string    `json:"remark" gorm:"size:256;comment:备注"`
 	RoleId uint      `json:"roleId" gorm:"default:2;comment:用户角色ID"`
 	DormId uint      `json:"dormId" gorm:"size:256;comment:宿舍id"`
+	Remark string    `json:"remark" gorm:"size:256;comment:备注"`
 	Dorm   dorm.Dorm `json:"dorm"`
+
 
 	// Dorm   string `json:"dorm" gorm:"size:256;comment:宿舍"`
 	// Authority uint   `json:"authorityId" gorm:"default:2;comment:用户角色ID"`
